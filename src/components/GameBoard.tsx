@@ -1,13 +1,9 @@
 import React from "react";
-import { AnimatePresence } from "framer-motion"; // AnimatePresence をインポート
+import { AnimatePresence, motion } from "framer-motion"; // motion をインポート
 import Cell from "./Cell";
 import GameOverModal from "./GameOverModal";
 import useGameBoard from "../hooks/useGameBoard";
-import {
-  BOARD_SIZE,
-  findMatches,
-  increaseBlockTypes,
-} from "../utils/gameLogic";
+import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTypes を削除
 
 const GameBoard: React.FC = () => {
   const {
@@ -20,11 +16,17 @@ const GameBoard: React.FC = () => {
     isProcessing,
     isGameOver,
     score,
-    highScore,
-    scoreMultiplier, // 追加
+    // highScore, // highestStageCleared に変更
+    highestStageCleared, // 追加
+    scoreMultiplier,
     resetBoard,
     processMatchesAndGravity,
-    floatingScores, // 追加
+    floatingScores,
+    // checkGameStatus, // 内部ロジックになったので削除
+    stage,
+    currentMaxMoves,
+    currentTargetScore,
+    isStageClear,
   } = useGameBoard();
 
   // セルクリック時のハンドラ
@@ -46,39 +48,26 @@ const GameBoard: React.FC = () => {
         // 入れ替え直後の盤面を表示
         setBoard(newBoard);
         setSelectedCell(null); // 選択解除
-        setMoves((prevMoves) => prevMoves + 1); // 手数を増やす
+
+        // 手数を増やし、ゲームステータスチェックは processMatchesAndGravity 内で行われる
+        const nextMoves = moves + 1;
+        setMoves(nextMoves);
+        // checkGameStatus(nextMoves, score); // 削除
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
         const initialMatches = findMatches(newBoard);
         if (initialMatches.length > 0) {
-          increaseBlockTypes(moves + 1);
-          processMatchesAndGravity(newBoard);
+          // ★ processMatchesAndGravity に nextMoves を渡す
+          processMatchesAndGravity(newBoard, nextMoves);
         } else {
-          // マッチしなかった場合は、入れ替えを元に戻すか、そのままにするか
-          // 今回はそのままにする（無効な移動も許容する）
-          // もし無効な移動を元に戻したい場合は、ここで newBoard を元の board に戻す
+          // マッチしなかった場合は、入れ替えを元に戻す
+          // 手数も元に戻す必要がある
+          setMoves(moves); // 手数を元に戻す
+          // 盤面状態をスワップ前の状態に戻す
           setTimeout(() => {
-            // 元に戻す前に現在の盤面が変更されていないか確認
-            // (非同期処理中にユーザーがさらに操作する可能性を考慮)
-            // 簡単な実装として、ここでは無条件に戻す
-            setBoard((prevBoard) => {
-              // selectedCellがnullでないと仮定して元に戻すのは危険かもしれない
-              // より堅牢にするには、入れ替え前の状態を保存しておく必要がある
-              // ここでは簡略化のため、現在のboard state (入れ替え後) を使う
-              const revertedBoard = prevBoard.map((r) => [...r]);
-              const revertedTemp = revertedBoard[selectedRow][selectedCol];
-              revertedBoard[selectedRow][selectedCol] = revertedBoard[row][col];
-              revertedBoard[row][col] = revertedTemp;
-              // 状態を比較して本当に戻す必要があるか確認する方が良い
-              // if (JSON.stringify(prevBoard) === JSON.stringify(newBoard)) { // 簡易比較
-              //   return board; // 元のboard stateに戻す (入れ替え前の状態)
-              // }
-              // return prevBoard; // 変更があればそのまま
-              // --- 修正: マッチしない場合は元の状態に戻す ---
-              const originalBoard = board.map((r) => [...r]); // handleClick開始時のboardを使う
-              return originalBoard;
-            });
-          }, 300); // 例：少し待ってから戻す
+            // handleClick開始時のboard state (スワップ前) を使う
+            setBoard(board.map((r) => [...r]));
+          }, 300); // 少し待ってから戻す
         }
       } else {
         // 隣接していないセルをクリックした場合
@@ -99,20 +88,39 @@ const GameBoard: React.FC = () => {
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
         {isGameOver && (
-          <GameOverModal highScore={highScore} resetBoard={resetBoard} />
+          <GameOverModal
+            highestStageCleared={highestStageCleared}
+            resetBoard={resetBoard}
+            stage={stage}
+          /> // highScore を highestStageCleared に変更
+        )}
+        {/* ステージクリア表示 (オプション) */}
+        {isStageClear && (
+          <motion.div
+            className="absolute inset-0 bg-green-500 bg-opacity-80 flex items-center justify-center z-20 text-white text-4xl font-bold"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            Stage {stage} Clear!
+          </motion.div>
         )}
       </AnimatePresence>
-      <div className="flex justify-between mb-2 text-lg">
-        <span>ターン: {moves}</span>
-        <span>倍率: x{scoreMultiplier.toFixed(1)}</span>{" "}
-        {/* 小数点第一位まで表示 */}
-        <span>ハイスコア: {highScore}</span>
+      <div className="flex justify-between mb-2 text-sm sm:text-base">
+        <span>Stage: {stage}</span> {/* ステージ表示 */}
+        <span>残り: {currentMaxMoves - moves}</span>
+        <span>目標: {currentTargetScore.toLocaleString()}</span>
+        <span>倍率: x{scoreMultiplier.toFixed(1)}</span>
+        <span>最高記録: Stage {highestStageCleared}</span>{" "}
+        {/* highScore を highestStageCleared に変更 */}
       </div>
-      <div className="mb-4 text-xl font-bold text-center">スコア: {score}</div>
-      {" "}
-      {/* スコア表示 */}
+      <div className="mb-4 text-xl font-bold text-center">
+        スコア: {score.toLocaleString()}
+      </div>
       <div
-        className={`grid gap-0 ${isGameOver ? "opacity-50" : ""}`}
+        className={`grid gap-0 ${
+          isGameOver || isStageClear ? "opacity-50" : ""
+        }`} // ステージクリア中も操作不可にする
         style={{ gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))` }}
       >
         {board.map((rowArr, rowIndex) =>
