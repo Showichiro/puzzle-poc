@@ -1,6 +1,10 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { generateColorClasses, getNumBlockTypes } from "../utils/gameLogic";
+import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  generateColorClasses,
+  getNumBlockTypes,
+  generatePatternSymbols, // 追加
+} from '../utils/gameLogic';
 
 interface CellProps {
   value: number | null;
@@ -13,11 +17,16 @@ const Cell: React.FC<CellProps> = ({ value, onClick, isSelected }) => {
   const baseStyle = `w-16 h-16 border ${
     isSelected ? "border-red-500 border-4" : "border-gray-400"
   } flex items-center justify-center text-xl font-bold cursor-pointer select-none transition-colors duration-300`;
-  // 値に応じて背景色を変える
-  const colorClasses = generateColorClasses(getNumBlockTypes());
+  // 値に応じて背景色とパターンを取得
+  const numBlockTypes = getNumBlockTypes();
+  const colorClasses = generateColorClasses(numBlockTypes);
+  const patternSymbols = generatePatternSymbols(numBlockTypes); // 追加
   const colorStyle = value !== null && colorClasses[value]
     ? colorClasses[value]
-    : "bg-gray-200";
+    : 'bg-gray-200';
+  const patternSymbol = value !== null && patternSymbols[value]
+    ? patternSymbols[value]
+    : ''; // 追加
 
   return (
     <motion.div
@@ -26,10 +35,10 @@ const Cell: React.FC<CellProps> = ({ value, onClick, isSelected }) => {
       onClick={onClick}
       initial={{ scale: 0 }} // Initial animation state (optional)
       animate={{ scale: 1 }} // Animate to this state (optional)
-      transition={{ type: "spring", stiffness: 300, damping: 20 }} // Animation transition (optional)
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }} // Animation transition (optional)
     >
-      {/* Display value for debugging, can be removed later */}
-      {/* {value !== null ? value : ''} */}
+      {/* パターン記号を表示 */}
+      <span className="text-3xl text-black opacity-70">{patternSymbol}</span>
     </motion.div>
   );
 };

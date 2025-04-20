@@ -51,6 +51,28 @@ export const generateColorClasses = (
   return colorClasses;
 };
 
+// ブロックの種類数に基づいてパターンのシンボル配列を生成する関数
+export const generatePatternSymbols = (
+  numBlockTypes: number,
+): { [key: number]: string } => {
+  const patternSymbols: { [key: number]: string } = {};
+  // Unicode記号や絵文字を使用
+  const symbols = [
+    "●", // Circle
+    "■", // Square
+    "▲", // Triangle Up
+    "◆", // Diamond
+    "★", // Star
+    "+", // Plus
+    "✿", // Flower
+    "♥", // Heart
+  ];
+  for (let i = 0; i < numBlockTypes; i++) {
+    patternSymbols[i] = symbols[i % symbols.length];
+  }
+  return patternSymbols;
+};
+
 // マッチを見つける関数 (変更なし)
 export const findMatches = (
   currentBoard: Array<Array<number | null>>,
