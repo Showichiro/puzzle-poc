@@ -14,9 +14,11 @@ interface CellProps {
 
 const Cell: React.FC<CellProps> = ({ value, onClick, isSelected }) => {
   // セルのスタイルをTailwind CSSで定義
-  const baseStyle = `h-16 border ${
-    isSelected ? "border-red-500 border-4" : "border-gray-400"
-  } flex items-center justify-center text-xl font-bold cursor-pointer select-none transition-colors duration-300`;
+  const baseStyle = `h-16 border-2 ${
+    // border を border-2 に変更
+    isSelected
+      ? "border-red-500 border-4"
+      : "border-gray-400"} flex items-center justify-center text-xl font-extrabold cursor-pointer select-none transition-colors duration-300`; // font-bold を font-extrabold に変更
   // 値に応じて背景色とパターンを取得
   const colorClasses = generateColorClasses();
   const patternSymbols = generatePatternSymbols();
