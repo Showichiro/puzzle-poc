@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "TAURI_BUILD=true tauri"
   },
   "dependencies": {
     "framer-motion": "^12.7.4",
