@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   applyGravity,
+  BOARD_SIZE,
   checkForPossibleMoves,
   findMatches,
   getNumBlockTypes,
   getRandomBlock,
   refillBoard,
   resetBlockTypes,
-  BOARD_SIZE,
 } from "../utils/gameLogic";
 
 const useGameBoard = () => {
@@ -24,10 +24,12 @@ const useGameBoard = () => {
   // 手数を管理
   const [moves, setMoves] = useState(0);
   // 選択中のセルを管理
-  const [selectedCell, setSelectedCell] = useState<{
-    row: number;
-    col: number;
-  } | null>(null);
+  const [selectedCell, setSelectedCell] = useState<
+    {
+      row: number;
+      col: number;
+    } | null
+  >(null);
   // 操作中フラグ(連鎖中の誤操作防止)
   const [isProcessing, setIsProcessing] = useState(false);
   // ゲームオーバーフラグ
@@ -93,7 +95,7 @@ const useGameBoard = () => {
 
   // マッチ処理、落下、補充、連鎖処理を行う関数
   const processMatchesAndGravity = async (
-    currentBoard: Array<Array<number | null>>
+    currentBoard: Array<Array<number | null>>,
   ) => {
     setIsProcessing(true);
     let boardAfterProcessing = currentBoard.map((r) => [...r]);
@@ -108,7 +110,7 @@ const useGameBoard = () => {
       const chainBonus = Math.pow(3, chainCount - 1); // 1連鎖: 1倍, 2連鎖: 3倍, 3連鎖: 9倍...
       const blockTypeBonus = Math.max(
         1,
-        Math.floor(getNumBlockTypes() ** 2 / 9)
+        Math.floor(getNumBlockTypes() ** 2 / 9),
       ); // 最低1倍
       const currentMultiplier = chainBonus * blockTypeBonus; // 現在の連鎖での倍率
       setScoreMultiplier(currentMultiplier); // スコア倍率の状態を更新
@@ -116,7 +118,7 @@ const useGameBoard = () => {
       // 消したブロック数が多いほどスコアが大きく増えるように、matches.lengthに累乗を適用
       const clearedBlocksBonus = Math.pow(matches.length, 1.5);
       const pointsEarned = Math.floor(
-        basePoints * clearedBlocksBonus * currentMultiplier
+        basePoints * clearedBlocksBonus * currentMultiplier,
       ); // 整数にする
       setScore((prevScore) => prevScore + pointsEarned);
 
@@ -165,7 +167,6 @@ const useGameBoard = () => {
       setScoreMultiplier(1);
     }
 
-
     setIsProcessing(false); // 処理完了
   };
 
@@ -196,7 +197,6 @@ const useGameBoard = () => {
     if (!checkForPossibleMoves(initialBoard)) {
       console.warn("Initial board has no possible moves!");
     }
-
   }, []);
 
   return {

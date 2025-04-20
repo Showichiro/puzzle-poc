@@ -3,7 +3,11 @@ import { AnimatePresence } from "framer-motion"; // AnimatePresence をインポ
 import Cell from "./Cell";
 import GameOverModal from "./GameOverModal";
 import useGameBoard from "../hooks/useGameBoard";
-import { BOARD_SIZE, findMatches, increaseBlockTypes } from "../utils/gameLogic";
+import {
+  BOARD_SIZE,
+  findMatches,
+  increaseBlockTypes,
+} from "../utils/gameLogic";
 
 const GameBoard: React.FC = () => {
   const {
@@ -100,10 +104,12 @@ const GameBoard: React.FC = () => {
       </AnimatePresence>
       <div className="flex justify-between mb-2 text-lg">
         <span>ターン: {moves}</span>
-        <span>倍率: x{scoreMultiplier.toFixed(1)}</span> {/* 小数点第一位まで表示 */}
+        <span>倍率: x{scoreMultiplier.toFixed(1)}</span>{" "}
+        {/* 小数点第一位まで表示 */}
         <span>ハイスコア: {highScore}</span>
       </div>
-      <div className="mb-4 text-xl font-bold text-center">スコア: {score}</div>{" "}
+      <div className="mb-4 text-xl font-bold text-center">スコア: {score}</div>
+      {" "}
       {/* スコア表示 */}
       <div
         className={`grid gap-0 ${isGameOver ? "opacity-50" : ""}`}
