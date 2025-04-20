@@ -13,22 +13,19 @@ interface CellProps {
 }
 
 const Cell: React.FC<CellProps> = ({ value, onClick, isSelected }) => {
-  // セルのスタイルをTailwind CSSで定義 (w-16 を削除)
+  // セルのスタイルをTailwind CSSで定義
   const baseStyle = `h-16 border ${
-    // w-16 を削除
-    isSelected
-      ? "border-red-500 border-4"
-      : "border-gray-400"} flex items-center justify-center text-xl font-bold cursor-pointer select-none transition-colors duration-300`;
-  // 値に応じて背景色とパターンを取得 (引数なしで呼び出す)
-  // const numBlockTypes = getNumBlockTypes(); // 削除
-  const colorClasses = generateColorClasses(); // 引数なし
-  const patternSymbols = generatePatternSymbols(); // 引数なし
+    isSelected ? "border-red-500 border-4" : "border-gray-400"
+  } flex items-center justify-center text-xl font-bold cursor-pointer select-none transition-colors duration-300`;
+  // 値に応じて背景色とパターンを取得
+  const colorClasses = generateColorClasses();
+  const patternSymbols = generatePatternSymbols();
   const colorStyle = value !== null && colorClasses[value]
     ? colorClasses[value]
     : "bg-gray-200";
   const patternSymbol = value !== null && patternSymbols[value]
     ? patternSymbols[value]
-    : ""; // 追加
+    : "";
 
   return (
     <motion.div

@@ -15,10 +15,10 @@ import {
 const calculateStageGoals = (
   stage: number,
 ): { maxMoves: number; targetScore: number } => {
-  const baseMaxMoves = 20; // 50から40に変更
+  const baseMaxMoves = 30;
   const baseTargetScore = 100000;
-  const moveDecrementPerStage = 2; // そのまま
-  const scoreMultiplierPerStage = 3; // そのまま
+  const moveDecrementPerStage = 2;
+  const scoreMultiplierPerStage = 1.5;
   const minMoves = 10;
 
   const maxMoves = Math.max(
@@ -369,31 +369,28 @@ const useGameBoard = () => {
     board,
     setBoard,
     moves,
-    setMoves,
+    setMoves, // 手数設定は外部で必要になる可能性は低いが、残しておく
     selectedCell,
     setSelectedCell,
-    isProcessing,
-    setIsProcessing,
-    isGameOver,
-    setIsGameOver,
+    isProcessing, // 処理中フラグは外部で参照する可能性あり
+    // setIsProcessing, // 内部でのみ使用
+    isGameOver, // ゲームオーバー状態は外部で参照
+    // setIsGameOver, // 内部でのみ使用
     score,
-    // setScore, // 内部でのみ使う
-    // highScore, // highestStageCleared に変更
-    // setHighScore, // setHighestStageCleared に変更 (内部でのみ使う)
-    highestStageCleared, // highScore の代わりに export
+    // setScore, // 内部でのみ使用
+    highestStageCleared,
+    // setHighestStageCleared, // 内部でのみ使用
     scoreMultiplier,
-    resetBoard,
+    resetBoard, // リセットは外部から必要
     processMatchesAndGravity,
     floatingScores,
-    // checkGameOver, // checkGameStatus にリネームしたので削除
-    checkGameStatus, // 新しい関数名で export
-    // MAX_MOVES, // currentMaxMoves に変更したので削除
-    // TARGET_SCORE, // currentTargetScore に変更したので削除
-    stage, // ステージレベルを export
-    currentMaxMoves, // 現在の目標手数を export
-    currentTargetScore, // 現在の目標スコアを export
-    isStageClear, // ステージクリア状態を export
-    advanceToNextStage, // 次のステージに進む関数を export (デバッグや手動進行用)
+    // checkGameOver, // 削除済み
+    checkGameStatus, // ゲームステータスチェックは内部ロジックの一部なので export しない
+    stage,
+    currentMaxMoves,
+    currentTargetScore,
+    isStageClear, // ステージクリア状態は外部で参照する可能性あり
+    // advanceToNextStage, // 内部でのみ使用
   };
 };
 

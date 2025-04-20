@@ -22,15 +22,11 @@ const GameBoard: React.FC = () => {
     resetBoard,
     processMatchesAndGravity,
     floatingScores,
-    // checkGameOver, // 削除
-    // MAX_MOVES,     // 削除
-    // TARGET_SCORE,  // 削除
-    checkGameStatus, // checkGameOver から変更
-    stage, // 追加
-    currentMaxMoves, // MAX_MOVES から変更
-    currentTargetScore, // TARGET_SCORE から変更
-    isStageClear, // 追加
-    // advanceToNextStage, // UIからは直接呼ばないので不要かも
+    // checkGameStatus, // 内部ロジックになったので削除
+    stage,
+    currentMaxMoves,
+    currentTargetScore,
+    isStageClear,
   } = useGameBoard();
 
   // セルクリック時のハンドラ
@@ -53,10 +49,10 @@ const GameBoard: React.FC = () => {
         setBoard(newBoard);
         setSelectedCell(null); // 選択解除
 
-        // 手数を増やし、ゲームステータスチェックを行う
+        // 手数を増やし、ゲームステータスチェックは processMatchesAndGravity 内で行われる
         const nextMoves = moves + 1;
         setMoves(nextMoves);
-        checkGameStatus(nextMoves, score); // checkGameOver から変更
+        // checkGameStatus(nextMoves, score); // 削除
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
         const initialMatches = findMatches(newBoard);

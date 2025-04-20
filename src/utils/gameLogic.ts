@@ -40,10 +40,7 @@ export const getRandomBlock = (): number => {
   return currentStageColorIndices[randomIndex];
 };
 
-// getNumBlockTypes は不要になったのでコメントアウト
-// export const getNumBlockTypes = () => NUM_BLOCK_TYPES;
-
-// resetBlockTypes も不要だが、呼ばれている可能性があるので空のまま残す
+// resetBlockTypes は useGameBoard で呼ばれているため空のまま残す
 export const resetBlockTypes = () => {
   // 何もしない
 };
@@ -75,7 +72,6 @@ const allPatternSymbols = [
 ];
 
 // 現在選択されている色に基づいて色のクラスを生成する関数
-// 引数 numBlockTypes は不要になった
 export const generateColorClasses = (): { [key: number]: string } => {
   const colorClasses: { [key: number]: string } = {};
   currentStageColorIndices.forEach((index) => {
@@ -87,7 +83,6 @@ export const generateColorClasses = (): { [key: number]: string } => {
 };
 
 // 現在選択されている色に基づいてパターンのシンボルを生成する関数
-// 引数 numBlockTypes は不要になった
 export const generatePatternSymbols = (): { [key: number]: string } => {
   const patternSymbols: { [key: number]: string } = {};
   currentStageColorIndices.forEach((index) => {
