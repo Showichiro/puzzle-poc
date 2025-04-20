@@ -38,10 +38,11 @@ const useGameBoard = () => {
     selectStageColors(); // まず色を選択
     return Array(BOARD_SIZE)
       .fill(null)
-      .map(() =>
-        Array(BOARD_SIZE)
-          .fill(null)
-          .map(() => getRandomBlock()) // 選択された色で盤面生成
+      .map(
+        () =>
+          Array(BOARD_SIZE)
+            .fill(null)
+            .map(() => getRandomBlock()), // 選択された色で盤面生成
       );
   });
   // 手数を管理
@@ -103,7 +104,7 @@ const useGameBoard = () => {
   }, [isGameOver, stage, highestStageCleared]); // stage と highestStageCleared も依存配列に追加
 
   // ゲームステータス（ゲームオーバー or ステージクリア）をチェックする関数
-  const checkGameStatus = (currentMoves: number, currentScore: number) => {
+  const checkGameStatus = (currentScore: number) => {
     if (isStageClear || isGameOver) return; // すでにステージクリアorゲームオーバーなら何もしない
 
     if (currentScore >= currentTargetScore) {
@@ -138,17 +139,18 @@ const useGameBoard = () => {
     // ★★★ 盤面全体を新しいステージの色で再生成 ★★★
     const newBoard = Array(BOARD_SIZE)
       .fill(null)
-      .map(() =>
-        Array(BOARD_SIZE)
-          .fill(null)
-          .map(() => getRandomBlock()) // 新しい色で盤面を生成
+      .map(
+        () =>
+          Array(BOARD_SIZE)
+            .fill(null)
+            .map(() => getRandomBlock()), // 新しい色で盤面を生成
       );
 
     // ★ 新しい盤面でマッチがないかチェックし、調整する (resetBoard と同様の処理)
     // adjustedBoard の型を明示的に指定
-    let adjustedBoard: Array<Array<number | null>> = newBoard.map(
-      (r) => [...r],
-    );
+    let adjustedBoard: Array<Array<number | null>> = newBoard.map((r) => [
+      ...r,
+    ]);
     let matches = findMatches(adjustedBoard);
     while (matches.length > 0) {
       matches.forEach(({ row, col }) => {
@@ -180,10 +182,11 @@ const useGameBoard = () => {
     // ★ 新しい色で初期盤面を生成
     let initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
       .fill(null)
-      .map(() =>
-        Array(BOARD_SIZE)
-          .fill(null)
-          .map(() => getRandomBlock()) // getRandomBlock を使用
+      .map(
+        () =>
+          Array(BOARD_SIZE)
+            .fill(null)
+            .map(() => getRandomBlock()), // getRandomBlock を使用
       );
 
     // 初期盤面でマッチがないように調整 (新しい色で)
@@ -302,9 +305,10 @@ const useGameBoard = () => {
     }
 
     // ★★★ 連鎖処理完了後に最終的なスコアでゲームステータスをチェック ★★★
-    if (!isStageClear) { // ステージクリアしていなければ判定
+    if (!isStageClear) {
+      // ステージクリアしていなければ判定
       // 1. ステージクリア判定
-      checkGameStatus(moves, currentChainScore);
+      checkGameStatus(currentChainScore);
 
       // 2. ★ ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
       //    引数で渡された currentMoves を使用
