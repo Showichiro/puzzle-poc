@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* 加算スコア表示用スタイル */
+.floating-score {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; /* 少し大きめに */
+  font-weight: bold;
+  color: white; /* 見やすいように白文字 */
+  text-shadow: 1px 1px 2px black; /* 影をつけて視認性向上 */
+  pointer-events: none; /* クリックイベントを透過 */
+  animation: float-up 1s ease-out forwards; /* アニメーションを適用 */
+  z-index: 10; /* 他の要素より手前に表示 */
+}
+
+/* 上に移動しながらフェードアウトするアニメーション */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px); /* 上に30px移動 */
+  }
+}
