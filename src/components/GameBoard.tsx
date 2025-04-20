@@ -84,7 +84,7 @@ const GameBoard: React.FC = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
         {isGameOver && (
@@ -106,17 +106,42 @@ const GameBoard: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="flex justify-between mb-2 text-sm sm:text-base">
-        <span>Stage: {stage}</span> {/* ステージ表示 */}
-        <span>残り: {currentMaxMoves - moves}</span>
-        <span>目標: {currentTargetScore.toLocaleString()}</span>
-        <span>倍率: x{scoreMultiplier.toFixed(1)}</span>
-        <span>最高記録: Stage {highestStageCleared}</span>{" "}
-        {/* highScore を highestStageCleared に変更 */}
+
+      {/* --- 情報表示エリア --- */}
+      <div className="grid grid-cols-3 gap-x-4 gap-y-1 mb-4 p-2 bg-gray-100 rounded">
+        {/* Row 1 */}
+        <div className="text-center">
+          <span className="text-xs text-gray-600 block">Stage</span>
+          <span className="text-lg font-semibold">{stage}</span>
+        </div>
+        <div className="text-center">
+          <span className="text-xs text-gray-600 block">残り手数</span>
+          <span className="text-lg font-semibold">
+            {currentMaxMoves - moves}
+          </span>
+        </div>
+        <div className="text-center">
+          <span className="text-xs text-gray-600 block">最高記録</span>
+          <span className="text-lg font-semibold">
+            Stage {highestStageCleared}
+          </span>
+        </div>
+        {/* Row 2 */}
+        <div className="text-center col-span-2">
+          {/* スコアは2列分使う */}
+          <span className="text-xs text-gray-600 block">スコア / 目標</span>
+          <span className="text-lg font-semibold">
+            {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
+          </span>
+        </div>
+        <div className="text-center">
+          <span className="text-xs text-gray-600 block">倍率</span>
+          <span className="text-lg font-semibold">
+            x{scoreMultiplier.toFixed(1)}
+          </span>
+        </div>
       </div>
-      <div className="mb-4 text-xl font-bold text-center">
-        スコア: {score.toLocaleString()}
-      </div>
+      {/* --- ゲーム盤エリア --- */}
       <div
         className={`grid gap-0 ${
           isGameOver || isStageClear ? "opacity-50" : ""
