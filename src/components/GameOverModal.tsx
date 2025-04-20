@@ -2,12 +2,14 @@ import React from "react";
 import { motion } from "framer-motion";
 
 interface GameOverModalProps {
-  highScore: number;
+  // highScore: number; // 削除
+  highestStageCleared: number; // highScore から変更
   resetBoard: () => void;
+  stage: number;
 }
 
 const GameOverModal: React.FC<GameOverModalProps> = (
-  { highScore, resetBoard },
+  { highestStageCleared, resetBoard, stage }, // highScore を highestStageCleared に変更
 ) => {
   return (
     <motion.div
@@ -24,9 +26,12 @@ const GameOverModal: React.FC<GameOverModalProps> = (
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        <h2 className="text-2xl font-bold mb-4">ゲームオーバー</h2>
-        <p>有効な手がなくなりました。</p>
-        <p className="mb-4">ハイスコア: {highScore}</p>
+        <h2 className="text-2xl font-bold mb-4">
+          ゲームオーバー (Stage {stage})
+        </h2>
+        <p>ターン数制限内に目標スコアを達成できませんでした。</p>
+        <p className="mb-4">最高記録: Stage {highestStageCleared}</p>{" "}
+        {/* highScore を highestStageCleared に変更 */}
         <button
           type="button"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

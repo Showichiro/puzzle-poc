@@ -30,5 +30,5 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
-  base: "/puzzle-poc/"
+  base: "/puzzle-poc/",
 }));

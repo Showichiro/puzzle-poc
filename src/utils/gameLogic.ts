@@ -1,75 +1,100 @@
 // ゲーム盤のサイズ
 export const BOARD_SIZE = 6;
-// ブロックの種類（色の数）の最大値
-let maxBlockTypes = 3; // 初期値を3に設定
+const TOTAL_AVAILABLE_COLORS = 8; // 利用可能な色の総数
+const COLORS_PER_STAGE = 3; // ステージごとに使用する色の数
 
-// ブロックの種類（色の数）を取得
-export const getNumBlockTypes = () => maxBlockTypes;
+// 利用可能な全色のインデックス (0から7)
+const AVAILABLE_COLOR_INDICES = Array.from(
+  { length: TOTAL_AVAILABLE_COLORS },
+  (_, i) => i,
+);
 
-// 新しいランダムなブロック値を生成
-export const getRandomBlock = () =>
-  Math.floor(Math.random() * getNumBlockTypes());
+// 現在のステージで使用する色のインデックスを保持する配列
+let currentStageColorIndices: number[] = [];
 
-// 手数に応じてブロックの種類数を増やす
-export const increaseBlockTypes = (moves: number) => {
-  if (moves > 10 && maxBlockTypes < 4) {
-    maxBlockTypes = 4;
-  } else if (moves > 20 && maxBlockTypes < 5) {
-    maxBlockTypes = 5;
-  } else if (moves > 30 && maxBlockTypes < 6) {
-    maxBlockTypes = 6;
-  } else if (moves > 40 && maxBlockTypes < 7) {
-    maxBlockTypes = 7;
-  } else if (moves > 50 && maxBlockTypes < 8) {
-    maxBlockTypes = 8;
+// ステージで使用する色をランダムに選択する関数
+export const selectStageColors = () => {
+  // Fisher-Yates (Knuth) シャッフルアルゴリズムで配列をシャッフル
+  const shuffledIndices = [...AVAILABLE_COLOR_INDICES];
+  for (let i = shuffledIndices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledIndices[i], shuffledIndices[j]] = [
+      shuffledIndices[j],
+      shuffledIndices[i],
+    ];
   }
+  // シャッフルされた配列から最初の3つを選択
+  currentStageColorIndices = shuffledIndices.slice(0, COLORS_PER_STAGE);
+  console.log("Selected stage colors (indices):", currentStageColorIndices); // デバッグ用
 };
 
-// ブロックの種類数をリセットする関数
+// 選択された色の中からランダムなブロック値（色のインデックス）を生成
+export const getRandomBlock = (): number => {
+  if (currentStageColorIndices.length === 0) {
+    // まだ色が選択されていない場合（初期化時など）はエラーを防ぐため仮選択
+    selectStageColors();
+  }
+  const randomIndex = Math.floor(
+    Math.random() * currentStageColorIndices.length,
+  );
+  return currentStageColorIndices[randomIndex];
+};
+
+// getNumBlockTypes は不要になったのでコメントアウト
+// export const getNumBlockTypes = () => NUM_BLOCK_TYPES;
+
+// resetBlockTypes も不要だが、呼ばれている可能性があるので空のまま残す
 export const resetBlockTypes = () => {
-  maxBlockTypes = 3;
+  // 何もしない
 };
 
-// ブロックの種類数に基づいて色の配列を生成する関数
-export const generateColorClasses = (
-  numBlockTypes: number,
-): { [key: number]: string } => {
+// --- 色とパターンの生成関数を修正 ---
+
+// 利用可能な全色のクラス名リスト
+const allColorClasses = [
+  "bg-blue-300",
+  "bg-green-300",
+  "bg-yellow-300",
+  "bg-red-300",
+  "bg-purple-300",
+  "bg-pink-300",
+  "bg-orange-300",
+  "bg-cyan-300",
+];
+
+// 利用可能な全パターンのシンボルリスト
+const allPatternSymbols = [
+  "●",
+  "■",
+  "▲",
+  "◆",
+  "★",
+  "+",
+  "✿",
+  "♥",
+];
+
+// 現在選択されている色に基づいて色のクラスを生成する関数
+// 引数 numBlockTypes は不要になった
+export const generateColorClasses = (): { [key: number]: string } => {
   const colorClasses: { [key: number]: string } = {};
-  const colors = [
-    "bg-blue-300",
-    "bg-green-300",
-    "bg-yellow-300",
-    "bg-red-300",
-    "bg-purple-300",
-    "bg-pink-300",
-    "bg-orange-300",
-    "bg-cyan-300",
-  ];
-  for (let i = 0; i < numBlockTypes; i++) {
-    colorClasses[i] = colors[i % colors.length];
-  }
+  currentStageColorIndices.forEach((index) => {
+    if (index >= 0 && index < allColorClasses.length) {
+      colorClasses[index] = allColorClasses[index];
+    }
+  });
   return colorClasses;
 };
 
-// ブロックの種類数に基づいてパターンのシンボル配列を生成する関数
-export const generatePatternSymbols = (
-  numBlockTypes: number,
-): { [key: number]: string } => {
+// 現在選択されている色に基づいてパターンのシンボルを生成する関数
+// 引数 numBlockTypes は不要になった
+export const generatePatternSymbols = (): { [key: number]: string } => {
   const patternSymbols: { [key: number]: string } = {};
-  // Unicode記号や絵文字を使用
-  const symbols = [
-    "●", // Circle
-    "■", // Square
-    "▲", // Triangle Up
-    "◆", // Diamond
-    "★", // Star
-    "+", // Plus
-    "✿", // Flower
-    "♥", // Heart
-  ];
-  for (let i = 0; i < numBlockTypes; i++) {
-    patternSymbols[i] = symbols[i % symbols.length];
-  }
+  currentStageColorIndices.forEach((index) => {
+    if (index >= 0 && index < allPatternSymbols.length) {
+      patternSymbols[index] = allPatternSymbols[index];
+    }
+  });
   return patternSymbols;
 };
 
