@@ -11,15 +11,15 @@ export const getRandomBlock = () => Math.floor(Math.random() * getNumBlockTypes(
 
 // 手数に応じてブロックの種類数を増やす
 export const increaseBlockTypes = (moves: number) => {
-  if (moves > 5 && maxBlockTypes < 4) {
+  if (moves > 10 && maxBlockTypes < 4) {
     maxBlockTypes = 4;
-  } else if (moves > 10 && maxBlockTypes < 5) {
+  } else if (moves > 20 && maxBlockTypes < 5) {
     maxBlockTypes = 5;
-  } else if (moves > 15 && maxBlockTypes < 6) {
+  } else if (moves > 30 && maxBlockTypes < 6) {
     maxBlockTypes = 6;
-  } else if (moves > 20 && maxBlockTypes < 7) {
+  } else if (moves > 40 && maxBlockTypes < 7) {
     maxBlockTypes = 7;
-  } else if (moves > 25 && maxBlockTypes < 8) {
+  } else if (moves > 50 && maxBlockTypes < 8) {
     maxBlockTypes = 8;
   }
 };
