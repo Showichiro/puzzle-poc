@@ -1,0 +1,460 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		35529856E999C3ECA2E32D2E /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 350CA8B306B6290DC724D020 /* CoreGraphics.framework */; };
+		4DE8A636E91A512EA34A2309 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EA9EEF9458BA90B69956676 /* MetalKit.framework */; };
+		4E60D190D1342A2BF6163F06 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F36AD43BD260D0DD60FC4A /* UIKit.framework */; };
+		5C8114581C982988448295EA /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B0ADA90127B9C3A515FCFA /* QuartzCore.framework */; };
+		5D5260DA809D3236A60DE810 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F267E1504F81B89A6A4437 /* Metal.framework */; };
+		675D1F77B75EE2C3AA12720C /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEEDFCBB585ED99BD62CBB66 /* libapp.a */; };
+		68520D758E9CB2687489BA01 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C077B407F6755D8548863F26 /* Assets.xcassets */; };
+		78B32149AB70493F1E4E4643 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = A0D7532D2C29B5B30917C849 /* main.mm */; };
+		95B0C5ECE0E40327E655887B /* assets in Resources */ = {isa = PBXBuildFile; fileRef = A9829F03210106041DF9906E /* assets */; };
+		B20CB12AD69785E50474B9FE /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9F1A93A965D6EC654C76C92 /* WebKit.framework */; };
+		B2AC2F7815736B4CD85D1DDD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91FE747440CD32C39AE6D6AB /* LaunchScreen.storyboard */; };
+		CC3BAABA5468D7EB3A7D8EB9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84231F78A0EAD4C63326330F /* Security.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		01B0ADA90127B9C3A515FCFA /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		186875858AD37DEC9C85920D /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
+		19F36AD43BD260D0DD60FC4A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2C5F3CB4ABAF35F9D9015787 /* pazzle-app_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "pazzle-app_iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		350CA8B306B6290DC724D020 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		4BA369C1B3E5FB771A95AB9C /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
+		69F267E1504F81B89A6A4437 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		6FE6CCD4442C59C8F4C76954 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		84231F78A0EAD4C63326330F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		8EA9EEF9458BA90B69956676 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		91FE747440CD32C39AE6D6AB /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A0D7532D2C29B5B30917C849 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		A9829F03210106041DF9906E /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
+		AE409DFBD79ADF412E740F65 /* pazzle-app_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "pazzle-app_iOS.entitlements"; sourceTree = "<group>"; };
+		BEEDFCBB585ED99BD62CBB66 /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
+		C077B407F6755D8548863F26 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D9F1A93A965D6EC654C76C92 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		F1F0DE8E8C5BA8F306669B6D /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A9B42774B7CE0AC25F002678 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				675D1F77B75EE2C3AA12720C /* libapp.a in Frameworks */,
+				35529856E999C3ECA2E32D2E /* CoreGraphics.framework in Frameworks */,
+				5D5260DA809D3236A60DE810 /* Metal.framework in Frameworks */,
+				4DE8A636E91A512EA34A2309 /* MetalKit.framework in Frameworks */,
+				5C8114581C982988448295EA /* QuartzCore.framework in Frameworks */,
+				CC3BAABA5468D7EB3A7D8EB9 /* Security.framework in Frameworks */,
+				4E60D190D1342A2BF6163F06 /* UIKit.framework in Frameworks */,
+				B20CB12AD69785E50474B9FE /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0AFD69A7DFA572B7BFC06D0B /* pazzle-app_iOS */ = {
+			isa = PBXGroup;
+			children = (
+				6FE6CCD4442C59C8F4C76954 /* Info.plist */,
+				AE409DFBD79ADF412E740F65 /* pazzle-app_iOS.entitlements */,
+			);
+			path = "pazzle-app_iOS";
+			sourceTree = "<group>";
+		};
+		27E25A041017382F91CC0DA7 /* pazzle-app */ = {
+			isa = PBXGroup;
+			children = (
+				A0D7532D2C29B5B30917C849 /* main.mm */,
+				FD66AAC82D39824D76A9E6A7 /* bindings */,
+			);
+			path = "pazzle-app";
+			sourceTree = "<group>";
+		};
+		378822EF8B88013778B9DB5A /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Externals;
+			sourceTree = "<group>";
+		};
+		3DED969F89EAA79F0B06F5D2 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				186875858AD37DEC9C85920D /* lib.rs */,
+				F1F0DE8E8C5BA8F306669B6D /* main.rs */,
+			);
+			name = src;
+			path = ../../src;
+			sourceTree = "<group>";
+		};
+		3F42F28DE0F2878EFE3ACCF1 = {
+			isa = PBXGroup;
+			children = (
+				A9829F03210106041DF9906E /* assets */,
+				C077B407F6755D8548863F26 /* Assets.xcassets */,
+				91FE747440CD32C39AE6D6AB /* LaunchScreen.storyboard */,
+				378822EF8B88013778B9DB5A /* Externals */,
+				0AFD69A7DFA572B7BFC06D0B /* pazzle-app_iOS */,
+				90A0F9999BA8D40119CBC1AB /* Sources */,
+				3DED969F89EAA79F0B06F5D2 /* src */,
+				9289FAC243A2F81DC0AC2557 /* Frameworks */,
+				57DFF74D459FFFECEC5E2127 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		57DFF74D459FFFECEC5E2127 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2C5F3CB4ABAF35F9D9015787 /* pazzle-app_iOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		90A0F9999BA8D40119CBC1AB /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				27E25A041017382F91CC0DA7 /* pazzle-app */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		9289FAC243A2F81DC0AC2557 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				350CA8B306B6290DC724D020 /* CoreGraphics.framework */,
+				BEEDFCBB585ED99BD62CBB66 /* libapp.a */,
+				69F267E1504F81B89A6A4437 /* Metal.framework */,
+				8EA9EEF9458BA90B69956676 /* MetalKit.framework */,
+				01B0ADA90127B9C3A515FCFA /* QuartzCore.framework */,
+				84231F78A0EAD4C63326330F /* Security.framework */,
+				19F36AD43BD260D0DD60FC4A /* UIKit.framework */,
+				D9F1A93A965D6EC654C76C92 /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FD66AAC82D39824D76A9E6A7 /* bindings */ = {
+			isa = PBXGroup;
+			children = (
+				4BA369C1B3E5FB771A95AB9C /* bindings.h */,
+			);
+			path = bindings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		068402560B942E4EAC2F3851 /* pazzle-app_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B1E68FBF14FD454DD6D16994 /* Build configuration list for PBXNativeTarget "pazzle-app_iOS" */;
+			buildPhases = (
+				C17396B5831CBE257AC7D372 /* Build Rust Code */,
+				E276C9DDDEB28C4934425F51 /* Sources */,
+				84A25B18E41215FD1286E1ED /* Resources */,
+				A9B42774B7CE0AC25F002678 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "pazzle-app_iOS";
+			packageProductDependencies = (
+			);
+			productName = "pazzle-app_iOS";
+			productReference = 2C5F3CB4ABAF35F9D9015787 /* pazzle-app_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1F1A6241CB2C53D2C352B9C0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 897138E9C48AD5A2A274BEF1 /* Build configuration list for PBXProject "pazzle-app" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3F42F28DE0F2878EFE3ACCF1;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 54;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				068402560B942E4EAC2F3851 /* pazzle-app_iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		84A25B18E41215FD1286E1ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				68520D758E9CB2687489BA01 /* Assets.xcassets in Resources */,
+				B2AC2F7815736B4CD85D1DDD /* LaunchScreen.storyboard in Resources */,
+				95B0C5ECE0E40327E655887B /* assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C17396B5831CBE257AC7D372 /* Build Rust Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust Code";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libapp.a",
+				"$(SRCROOT)/Externals/arm64/${CONFIGURATION}/libapp.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "deno task tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E276C9DDDEB28C4934425F51 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78B32149AB70493F1E4E4643 /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		57695756927FF13F6118B2FE /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = release;
+		};
+		62570F6992887AEC1222727D /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "pazzle-app_iOS/pazzle-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "pazzle-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pazzle-app.app;
+				PRODUCT_NAME = "pazzle-app";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = debug;
+		};
+		C3F0B56A9FC08FF6DFC4024A /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "pazzle-app_iOS/pazzle-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "pazzle-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.pazzle-app.app;
+				PRODUCT_NAME = "pazzle-app";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = release;
+		};
+		F89C8C44DD0E0507EBE4E161 /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		897138E9C48AD5A2A274BEF1 /* Build configuration list for PBXProject "pazzle-app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F89C8C44DD0E0507EBE4E161 /* debug */,
+				57695756927FF13F6118B2FE /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+		B1E68FBF14FD454DD6D16994 /* Build configuration list for PBXNativeTarget "pazzle-app_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62570F6992887AEC1222727D /* debug */,
+				C3F0B56A9FC08FF6DFC4024A /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1F1A6241CB2C53D2C352B9C0 /* Project object */;
+}
