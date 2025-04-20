@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "pazzle-app",
+  "productName": "puzzle-app",
   "version": "0.1.0",
-  "identifier": "com.pazzle-app.app",
+  "identifier": "com.puzzle-app.app",
   "build": {
     "beforeDevCommand": "deno task dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:1420/puzzle-poc",
     "beforeBuildCommand": "deno task build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
       {
-        "title": "pazzle-app",
+        "title": "puzzle-app",
         "width": 800,
         "height": 600
       }
