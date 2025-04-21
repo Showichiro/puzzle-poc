@@ -1,6 +1,6 @@
 name: pazzle-app
 options:
-  bundleIdPrefix: com.pazzle-app.app
+  bundleIdPrefix: com.puzzle-app.app
   deploymentTarget:
     iOS: 13.0
 fileGroups: [../../src]
@@ -10,8 +10,8 @@ configs:
 settingGroups:
   app:
     base:
-      PRODUCT_NAME: pazzle-app
-      PRODUCT_BUNDLE_IDENTIFIER: com.pazzle-app.app
+      PRODUCT_NAME: puzzle-app
+      PRODUCT_BUNDLE_IDENTIFIER: com.puzzle-app.app
 targetTemplates:
   app:
     type: application
