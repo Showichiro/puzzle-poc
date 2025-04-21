@@ -16,7 +16,7 @@ type Difficulty = "easy" | "medium" | "hard";
 // ★ ステージ1の初期手数を定義
 const initialMovesMap: Record<Difficulty, number> = {
   easy: 5,
-  medium: 20,
+  medium: 30,
   hard: 20,
 };
 
@@ -27,14 +27,14 @@ const calculateStageGoals = (
 ): { addedMoves: number; targetScore: number } => {
   // 難易度ごとのランダム変動幅を定義
   const addedMovesRange: Record<Difficulty, [number, number]> = {
-    easy: [-1, 1], // -1から+1の範囲で変動
-    medium: [-3, 3],
-    hard: [-5, 5],
+    easy: [-1, 2], // -1から+1の範囲で変動
+    medium: [-3, 4],
+    hard: [-3, 6],
   };
   const targetScoreRange: Record<Difficulty, [number, number]> = {
-    easy: [-5000, 5000], // -5000から+5000の範囲で変動
-    medium: [-20000, 20000],
-    hard: [-30000, 30000],
+    easy: [-1000, 5000], // -5000から+5000の範囲で変動
+    medium: [-5000, 20000],
+    hard: [-20000, 40000],
   };
 
   // 難易度に応じたステージクリア時の加算手数
