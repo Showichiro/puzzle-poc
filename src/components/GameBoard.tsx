@@ -5,7 +5,14 @@ import GameOverModal from "./GameOverModal";
 import useGameBoard from "../hooks/useGameBoard";
 import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTypes を削除
 
-const GameBoard: React.FC = () => {
+// Difficulty 型を App.tsx からインポートするか、ここで定義
+type Difficulty = "easy" | "medium" | "hard";
+
+interface GameBoardProps {
+  difficulty: Difficulty; // difficulty プロパティを追加
+}
+
+const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を受け取る
   const {
     board,
     setBoard,
@@ -16,18 +23,16 @@ const GameBoard: React.FC = () => {
     isProcessing,
     isGameOver,
     score,
-    // highScore, // highestStageCleared に変更
     highestStageCleared, // 追加
     scoreMultiplier,
     resetBoard,
     processMatchesAndGravity,
     floatingScores,
-    // checkGameStatus, // 内部ロジックになったので削除
     stage,
     currentMaxMoves,
     currentTargetScore,
     isStageClear,
-  } = useGameBoard();
+  } = useGameBoard(difficulty); // difficulty をフックに渡す
 
   // セルクリック時のハンドラ
   const handleClick = (row: number, col: number) => {

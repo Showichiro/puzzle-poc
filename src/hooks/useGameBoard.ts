@@ -11,28 +11,46 @@ import {
   selectStageColors, // 追加
 } from "../utils/gameLogic";
 
-// ステージ目標を計算する関数
+// ステージ目標と初期手数を計算する関数
 const calculateStageGoals = (
   stage: number,
+  difficulty?: Difficulty, // difficulty をオプション引数に追加
 ): { maxMoves: number; targetScore: number } => {
-  const baseMaxMoves = 30;
+  // 難易度に応じた初期手数
+  const initialMovesMap: Record<Difficulty, number> = {
+    easy: 50,
+    medium: 30,
+    hard: 20,
+  };
+
+  const baseMaxMoves = 30; // ステージ2以降の基準手数
   const baseTargetScore = 100000;
-  const moveDecrementPerStage = 2;
+  const moveDecrementPerStage = 2; // ステージが進むごとの手数減少量
   const scoreMultiplierPerStage = 1.5;
   const minMoves = 10;
 
-  const maxMoves = Math.max(
-    minMoves,
-    baseMaxMoves - (stage - 1) * moveDecrementPerStage,
-  );
+  let maxMoves: number;
+  if (stage === 1 && difficulty) {
+    maxMoves = initialMovesMap[difficulty]; // ステージ1は難易度で手数を決定
+  } else {
+    // ステージ2以降は計算で手数を決定
+    maxMoves = Math.max(
+      minMoves,
+      baseMaxMoves - (stage - 1) * moveDecrementPerStage, // ステージ1を基準にするため stage - 1
+    );
+  }
+
   const targetScore = Math.floor(
-    baseTargetScore * Math.pow(scoreMultiplierPerStage, stage - 1),
+    baseTargetScore * Math.pow(scoreMultiplierPerStage, stage - 1), // 目標スコアはステージに応じて増加
   );
 
   return { maxMoves, targetScore };
 };
 
-const useGameBoard = () => {
+// Difficulty 型を定義 (GameBoard.tsx と共有する場合は utils などに移動)
+type Difficulty = "easy" | "medium" | "hard";
+
+const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追加
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
@@ -64,11 +82,11 @@ const useGameBoard = () => {
   const [highestStageCleared, setHighestStageCleared] = useState(0); // highScore から変更
   // ステージレベル
   const [stage, setStage] = useState(1); // 現在のステージレベル
-  // 現在の目標 (初期値は stage 1 で計算)
-  const initialGoals = calculateStageGoals(1);
+  // 現在の目標 (初期値は stage 1 と difficulty で計算)
+  const initialGoals = calculateStageGoals(1, difficulty); // difficulty を渡す
   const [currentMaxMoves, setCurrentMaxMoves] = useState(initialGoals.maxMoves); // 現在の目標手数
   const [currentTargetScore, setCurrentTargetScore] = useState(
-    initialGoals.targetScore,
+    initialGoals.targetScore, // 目標スコアは difficulty に依存しない
   ); // 現在の目標スコア
   // ステージクリアフラグ
   const [isStageClear, setIsStageClear] = useState(false);
@@ -205,13 +223,13 @@ const useGameBoard = () => {
     setMoves(0);
     setBoard(initialBoard);
 
-    // ステージと目標を初期化 (Stage 1 で計算)
+    // ステージと目標を初期化 (Stage 1 と difficulty で計算)
     setStage(1);
-    const initialResetGoals = calculateStageGoals(1);
-    setCurrentMaxMoves(initialResetGoals.maxMoves);
+    const initialResetGoals = calculateStageGoals(1, difficulty); // difficulty を渡す
+    setCurrentMaxMoves(initialResetGoals.maxMoves); // 難易度に応じた初期手数
     setCurrentTargetScore(initialResetGoals.targetScore);
 
-    setMoves(0); // ここでリセットされるので上の setMoves(0) は不要かもだが念のため
+    setMoves(0);
     setScore(0);
     setIsGameOver(false);
     setIsStageClear(false); // クリアフラグもリセット
