@@ -32,6 +32,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
     currentMaxMoves,
     currentTargetScore,
     isStageClear,
+    advanceToNextStage, // ★ 追加: 次のステージへ進む関数
   } = useGameBoard(difficulty); // difficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -57,7 +58,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
         // 手数を増やし、ゲームステータスチェックは processMatchesAndGravity 内で行われる
         const nextMoves = moves + 1;
         setMoves(nextMoves);
-        // checkGameStatus(nextMoves, score); // 削除
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
         const initialMatches = findMatches(newBoard);
@@ -99,15 +99,36 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
             stage={stage}
           /> // highScore を highestStageCleared に変更
         )}
-        {/* ステージクリア表示 (オプション) */}
+        {/* ★ ステージクリア時の表示を修正 */}
         {isStageClear && (
           <motion.div
-            className="absolute inset-0 bg-green-500 bg-opacity-80 flex items-center justify-center z-20 text-white text-4xl font-bold"
-            initial={{ opacity: 0, scale: 0.5 }}
+            className="absolute inset-0 bg-blue-500 bg-opacity-95 flex flex-col items-center justify-center z-20 text-white p-6 rounded-lg shadow-xl" // スタイル調整
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            exit={{ opacity: 0, scale: 0.8 }} // exit アニメーション追加
+            transition={{ duration: 0.3 }}
           >
-            Stage {stage} Clear!
+            <h2 className="text-4xl font-bold mb-4">Stage {stage} Clear!</h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-6 text-lg bg-blue-600 p-4 rounded">
+              {/* 情報表示エリア */}
+              {/* ★ 難易度表示を追加 (日本語化) */}
+              <div className="text-right font-semibold">難易度:</div>
+              <div className="text-left">
+                {difficulty === "easy" ? "かんたん" : difficulty === "medium" ? "ふつう" : "むずかしい"}
+              </div>
+              <div className="text-right font-semibold">スコア:</div>
+              <div className="text-left">
+                {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
+              </div>
+              <div className="text-right font-semibold">残り手数:</div>
+              <div className="text-left">{currentMaxMoves - moves}</div>
+            </div>
+            <button
+              onClick={advanceToNextStage} // ★ ボタンクリックで次のステージへ
+              className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-200 transition duration-200 text-xl" // スタイル調整
+            >
+              Next Stage →
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

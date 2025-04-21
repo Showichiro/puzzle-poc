@@ -129,11 +129,7 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
       // ステージクリア！
       setIsStageClear(true);
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
-      // 自動で次のステージに進む
-      setTimeout(() => advanceToNextStage(), 1500); // 少し待ってから次のステージへ
     }
-    // ★ 手数によるゲームオーバー判定はここでは行わない
-    // else if (currentMoves >= currentMaxMoves) { ... }
   };
 
   // 次のステージに進む関数
@@ -395,24 +391,19 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
     selectedCell,
     setSelectedCell,
     isProcessing, // 処理中フラグは外部で参照する可能性あり
-    // setIsProcessing, // 内部でのみ使用
     isGameOver, // ゲームオーバー状態は外部で参照
-    // setIsGameOver, // 内部でのみ使用
     score,
-    // setScore, // 内部でのみ使用
     highestStageCleared,
-    // setHighestStageCleared, // 内部でのみ使用
     scoreMultiplier,
     resetBoard, // リセットは外部から必要
     processMatchesAndGravity,
     floatingScores,
-    // checkGameOver, // 削除済み
     checkGameStatus, // ゲームステータスチェックは内部ロジックの一部なので export しない
     stage,
     currentMaxMoves,
     currentTargetScore,
     isStageClear, // ステージクリア状態は外部で参照する可能性あり
-    // advanceToNextStage, // 内部でのみ使用
+    advanceToNextStage, // ★ 外部から呼び出せるように追加
   };
 };
 
