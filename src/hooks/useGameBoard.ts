@@ -2,55 +2,92 @@ import { useEffect, useRef, useState } from "react";
 import {
   applyGravity,
   BOARD_SIZE,
-  checkForPossibleMoves, // 詰みチェック自体は残すが、ゲームオーバーにはしない
+  checkForPossibleMoves,
   findMatches,
-  // getNumBlockTypes, // 削除
   getRandomBlock,
   refillBoard,
   resetBlockTypes,
-  selectStageColors, // 追加
+  selectStageColors,
 } from "../utils/gameLogic";
 
-// ステージ目標と初期手数を計算する関数
-const calculateStageGoals = (
-  stage: number,
-  difficulty?: Difficulty, // difficulty をオプション引数に追加
-): { maxMoves: number; targetScore: number } => {
-  // 難易度に応じた初期手数
-  const initialMovesMap: Record<Difficulty, number> = {
-    easy: 50,
-    medium: 30,
-    hard: 20,
-  };
-
-  const baseMaxMoves = 30; // ステージ2以降の基準手数
-  const baseTargetScore = 100000;
-  const moveDecrementPerStage = 2; // ステージが進むごとの手数減少量
-  const scoreMultiplierPerStage = 1.5;
-  const minMoves = 10;
-
-  let maxMoves: number;
-  if (stage === 1 && difficulty) {
-    maxMoves = initialMovesMap[difficulty]; // ステージ1は難易度で手数を決定
-  } else {
-    // ステージ2以降は計算で手数を決定
-    maxMoves = Math.max(
-      minMoves,
-      baseMaxMoves - (stage - 1) * moveDecrementPerStage, // ステージ1を基準にするため stage - 1
-    );
-  }
-
-  const targetScore = Math.floor(
-    baseTargetScore * Math.pow(scoreMultiplierPerStage, stage - 1), // 目標スコアはステージに応じて増加
-  );
-
-  return { maxMoves, targetScore };
-};
-
-// Difficulty 型を定義 (GameBoard.tsx と共有する場合は utils などに移動)
+// Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
 
-const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追加
+// ★ ステージ1の初期手数を定義
+const initialMovesMap: Record<Difficulty, number> = {
+  easy: 5,
+  medium: 20,
+  hard: 20,
+};
+
+// ★ ステージクリア時の加算手数と目標スコアを計算する関数に変更
+const calculateStageGoals = (
+  stage: number, // 計算対象のステージ (次のステージ)
+  difficulty: Difficulty, // 次のステージの難易度
+): { addedMoves: number; targetScore: number } => {
+  // 難易度ごとのランダム変動幅を定義
+  const addedMovesRange: Record<Difficulty, [number, number]> = {
+    easy: [-1, 1], // -1から+1の範囲で変動
+    medium: [-3, 3],
+    hard: [-5, 5],
+  };
+  const targetScoreRange: Record<Difficulty, [number, number]> = {
+    easy: [-5000, 5000], // -5000から+5000の範囲で変動
+    medium: [-20000, 20000],
+    hard: [-30000, 30000],
+  };
+
+  // 難易度に応じたステージクリア時の加算手数
+  const addedMovesMap: Record<Difficulty, number> = {
+    easy: 1, // 簡単なら多く加算
+    medium: 3,
+    hard: 5, // 難しいなら少なく加算
+  };
+
+  // ★ 加算手数はステージや難易度で固定とする (シンプル化のため)
+  let addedMoves = addedMovesMap[difficulty];
+  // ランダムな変動を加える
+  const [minMoves, maxMoves] = addedMovesRange[difficulty];
+  addedMoves += Math.floor(
+    Math.random() * (maxMoves - minMoves + 1) + minMoves,
+  );
+  // 最小値を0とする
+  addedMoves = Math.max(0, addedMoves);
+
+  const baseTargetScore = 100000;
+  // 難易度に応じた目標スコア倍率
+  const scoreMultiplierMap: Record<Difficulty, number> = {
+    easy: 0.8,
+    medium: 1.5,
+    hard: 3,
+  };
+
+  // ★ 難易度に応じたスコア倍率を取得
+  const difficultyScoreMultiplier = scoreMultiplierMap[difficulty];
+
+  // ★ 目標スコアの計算ロジックは維持 (ステージに応じて増加)
+  const scoreMultiplierPerStage = 1.5;
+  let targetScore = stage === 1 ? 150000 : Math.floor(
+    baseTargetScore *
+      difficultyScoreMultiplier *
+      Math.pow(scoreMultiplierPerStage, stage - 1), // stage は次のステージ番号なのでそのまま使う
+  );
+  // ランダムな変動を加える
+  if (stage > 1) {
+    const [minScore, maxScore] = targetScoreRange[difficulty];
+    targetScore += Math.floor(
+      Math.random() * (maxScore - minScore + 1) + minScore,
+    );
+    // 最小値を0とする
+    targetScore = Math.max(baseTargetScore, targetScore);
+  }
+  // ★ addedMoves と targetScore を返す
+  return { addedMoves, targetScore };
+};
+
+const useGameBoard = (initialDifficulty: Difficulty) => {
+  // ★ 現在の難易度を管理する state を追加
+  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
@@ -79,17 +116,34 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
   // スコア
   const [score, setScore] = useState(0);
   // 最高クリアステージ
-  const [highestStageCleared, setHighestStageCleared] = useState(0); // highScore から変更
+  const [highestStageCleared, setHighestStageCleared] = useState(0);
   // ステージレベル
   const [stage, setStage] = useState(1); // 現在のステージレベル
-  // 現在の目標 (初期値は stage 1 と difficulty で計算)
-  const initialGoals = calculateStageGoals(1, difficulty); // difficulty を渡す
-  const [currentMaxMoves, setCurrentMaxMoves] = useState(initialGoals.maxMoves); // 現在の目標手数
+  // ★ 現在の目標 (初期値は stage 1 の初期手数と目標スコア)
+  const initialTargetScore = calculateStageGoals(
+    1,
+    initialDifficulty,
+  ).targetScore; // Stage 1 の目標スコアのみ計算
+  const [currentMaxMoves, setCurrentMaxMoves] = useState(
+    initialMovesMap[initialDifficulty],
+  ); // ★ Stage 1 の初期手数
   const [currentTargetScore, setCurrentTargetScore] = useState(
-    initialGoals.targetScore, // 目標スコアは difficulty に依存しない
-  ); // 現在の目標スコア
+    initialTargetScore,
+  ); // ★ Stage 1 の目標スコア
   // ステージクリアフラグ
   const [isStageClear, setIsStageClear] = useState(false);
+  // ★ ステージクリアモーダル表示フラグを追加
+  const [showStageClearModal, setShowStageClearModal] = useState(false);
+  // 難易度選択モーダル表示フラグ
+  const [showDifficultySelector, setShowDifficultySelector] = useState(false);
+  // ★ 次のステージの難易度ごとの目標 (加算手数と目標スコア)
+  const [nextStageGoals, setNextStageGoals] = useState<
+    Record<
+      Difficulty,
+      // ★ 型定義を calculateStageGoals の戻り値に合わせる
+      { addedMoves: number; targetScore: number }
+    > | null
+  >(null);
   // スコア倍率
   const [scoreMultiplier, setScoreMultiplier] = useState(1); // 初期値は1倍
   // 加算スコア表示用 state
@@ -119,11 +173,39 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
         console.log(`New highest stage cleared: ${lastClearedStage}`);
       }
     }
-  }, [isGameOver, stage, highestStageCleared]); // stage と highestStageCleared も依存配列に追加
+  }, [isGameOver, stage, highestStageCleared]);
+
+  // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
+  useEffect(() => {
+    if (isStageClear) {
+      // ★ 難易度選択ではなく、ステージクリアモーダルを表示
+      setShowStageClearModal(true);
+      // 次のステージの目標計算はここで行う
+      const nextStage = stage + 1;
+      // ★ 次のステージの目標計算 (calculateStageGoals は difficulty が必須になった)
+      setNextStageGoals({
+        easy: calculateStageGoals(nextStage, "easy"),
+        medium: calculateStageGoals(nextStage, "medium"),
+        hard: calculateStageGoals(nextStage, "hard"),
+      });
+    } else {
+      // ★ ステージクリアモーダルも非表示にする
+      setShowStageClearModal(false);
+      setNextStageGoals(null); // 目標情報もリセット
+    }
+  }, [isStageClear, stage]);
 
   // ゲームステータス（ゲームオーバー or ステージクリア）をチェックする関数
   const checkGameStatus = (currentScore: number) => {
-    if (isStageClear || isGameOver) return; // すでにステージクリアorゲームオーバーなら何もしない
+    // ★ showStageClearModal もチェック条件に追加
+    if (
+      isStageClear ||
+      isGameOver ||
+      showDifficultySelector ||
+      showStageClearModal
+    ) {
+      return;
+    }
 
     if (currentScore >= currentTargetScore) {
       // ステージクリア！
@@ -132,23 +214,84 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
     }
   };
 
-  // 次のステージに進む関数
-  const advanceToNextStage = () => {
+  // ★ ステージクリアモーダルから難易度選択へ進む関数
+  const handleProceedToNextStage = () => {
+    setShowStageClearModal(false); // ステージクリアモーダルを非表示
+    setShowDifficultySelector(true); // 難易度選択モーダルを表示
+  };
+
+  // 難易度選択後に次のステージに進む関数
+  const handleDifficultySelected = (selectedDifficulty: Difficulty) => {
+    // 引数名を変更
+    // ★ 念のためステージクリアモーダルも非表示にする
+    setShowStageClearModal(false);
+    setShowDifficultySelector(false); // 難易度選択モーダルを非表示
+    setNextStageGoals(null); // 目標情報をリセット
+
     // ★ 次のステージの色を選択
     selectStageColors();
 
     const nextStage = stage + 1;
-    // if (nextStage > stageGoals.length) { ... }
 
-    console.log(`Advancing to Stage ${nextStage}`);
+    // ★ 選択された難易度で state を更新
+    setDifficulty(selectedDifficulty);
+
+    console.log(
+      `Advancing to Stage ${nextStage} with difficulty: ${selectedDifficulty}`,
+    );
     setStage(nextStage);
-    // 次のステージの目標を計算
-    const nextGoal = calculateStageGoals(nextStage);
-    setCurrentMaxMoves(nextGoal.maxMoves);
+
+    // ★ 次のステージの難易度ごとの目標を計算
+    const easyGoal = calculateStageGoals(nextStage, "easy");
+    const mediumGoal = calculateStageGoals(nextStage, "medium");
+    const hardGoal = calculateStageGoals(nextStage, "hard");
+
+    // 難易度順序が逆転しないように調整
+    const adjustedMediumMoves = Math.max(
+      easyGoal.addedMoves,
+      mediumGoal.addedMoves,
+    );
+    const adjustedHardMoves = Math.max(
+      adjustedMediumMoves,
+      hardGoal.addedMoves,
+    );
+
+    const adjustedMediumScore = Math.max(
+      easyGoal.targetScore,
+      mediumGoal.targetScore,
+    );
+    const adjustedHardScore = Math.max(
+      adjustedMediumScore,
+      hardGoal.targetScore,
+    );
+
+    const nextGoals = {
+      easy: {
+        addedMoves: easyGoal.addedMoves,
+        targetScore: easyGoal.targetScore,
+      },
+      medium: {
+        addedMoves: adjustedMediumMoves,
+        targetScore: adjustedMediumScore,
+      },
+      hard: { addedMoves: adjustedHardMoves, targetScore: adjustedHardScore },
+    };
+
+    // 選択された難易度に応じて目標を設定
+    const nextGoal = nextGoals[selectedDifficulty];
+
+    // ★ 残り手数に加算手数を足して、次のステージの最大手数を設定
+    const remainingMoves = currentMaxMoves - moves; // 現在の残り手数
+    const newMaxMoves = remainingMoves + nextGoal.addedMoves;
+    setCurrentMaxMoves(newMaxMoves);
+
+    // ★ 目標スコアを設定
     setCurrentTargetScore(nextGoal.targetScore);
-    setMoves(0);
+
+    setMoves(0); // 次のステージは0手から開始
+    // ★ スコアはリセットしない (引き継ぐ場合) か、リセットするかは要件次第。今回はリセットする。
     setScore(0);
-    setIsStageClear(false);
+    setIsStageClear(false); // ステージクリアフラグをリセット
 
     // ★★★ 盤面全体を新しいステージの色で再生成 ★★★
     const newBoard = Array(BOARD_SIZE)
@@ -219,39 +362,53 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
     setMoves(0);
     setBoard(initialBoard);
 
-    // ステージと目標を初期化 (Stage 1 と difficulty で計算)
+    // ★ 難易度も初期化
+    setDifficulty(initialDifficulty);
+    // ステージと目標を初期化 (Stage 1)
     setStage(1);
-    const initialResetGoals = calculateStageGoals(1, difficulty); // difficulty を渡す
-    setCurrentMaxMoves(initialResetGoals.maxMoves); // 難易度に応じた初期手数
-    setCurrentTargetScore(initialResetGoals.targetScore);
+    // ★ Stage 1 の初期手数と目標スコアを設定
+    const initialResetTargetScore = calculateStageGoals(
+      1,
+      initialDifficulty,
+    ).targetScore;
+    setCurrentMaxMoves(initialMovesMap[initialDifficulty]);
+    setCurrentTargetScore(initialResetTargetScore);
 
     setMoves(0);
     setScore(0);
     setIsGameOver(false);
     setIsStageClear(false); // クリアフラグもリセット
+    // ★ ステージクリアモーダルもリセット
+    setShowStageClearModal(false);
+    setShowDifficultySelector(false); // 難易度選択フラグもリセット
+    setNextStageGoals(null); // 目標情報もリセット
     setScoreMultiplier(1);
     setFloatingScores([]);
     scoreIdCounter.current = 0;
   };
 
   // マッチ処理、落下、補充、連鎖処理を行う関数
-  // ★ 引数に currentMoves を追加
   const processMatchesAndGravity = async (
     currentBoard: Array<Array<number | null>>,
     currentMoves: number,
   ) => {
-    // isProcessing のチェックは先に行う
     if (isProcessing) return;
-    // ゲームオーバー or ステージクリアなら処理しない
-    if (isGameOver || isStageClear) {
-      setIsProcessing(false); // 念のためフラグを下ろす
+    // ★ showStageClearModal もチェック条件に追加
+    // ゲームオーバー or ステージクリア or 難易度選択中 or ステージクリアモーダル表示中なら処理しない
+    if (
+      isGameOver ||
+      isStageClear ||
+      showDifficultySelector ||
+      showStageClearModal
+    ) {
+      setIsProcessing(false);
       return;
     }
     setIsProcessing(true);
     let boardAfterProcessing = currentBoard.map((r) => [...r]);
     let matches = findMatches(boardAfterProcessing);
     let chainCount = 0; // 連鎖カウントを初期化
-    let currentChainScore = score; // ★ ループ開始前のスコアを保持する変数
+    let currentChainScore = score; // ループ開始前のスコアを保持する変数
 
     while (matches.length > 0) {
       chainCount++; // 連鎖カウントを増やす
@@ -259,7 +416,6 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
       // スコア計算 (例: 基本点10点 * 消した数 * 連鎖ボーナス)
       const basePoints = 10;
       const chainBonus = Math.pow(3, chainCount - 1); // 1連鎖: 1倍, 2連鎖: 3倍, 3連鎖: 9倍...
-      // const blockTypeBonus = Math.max(1, Math.floor(getNumBlockTypes() ** 2 / 9)); // 色数固定なのでボーナスは一定になる
       const blockTypeBonus = 1; // 固定値にするか、削除しても良い
       const currentMultiplier = chainBonus * blockTypeBonus; // 現在の連鎖での倍率
       setScoreMultiplier(currentMultiplier); // スコア倍率の状態を更新
@@ -270,7 +426,7 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
         basePoints * clearedBlocksBonus * currentMultiplier,
       ); // 整数にする
 
-      // ★ ループ内で計算したスコアを一時変数に加算
+      // ループ内で計算したスコアを一時変数に加算
       currentChainScore += pointsEarned;
       // スコアの state を更新
       setScore(currentChainScore);
@@ -311,40 +467,28 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
       // 4. 再度マッチをチェック (連鎖)
       matches = findMatches(boardAfterProcessing);
 
-      // ★ ループの最後にステージクリア状態をチェック (連鎖中にクリアした場合にループを抜ける)
+      // ループの最後にステージクリア状態をチェック (連鎖中にクリアした場合にループを抜ける)
       if (isStageClear) {
         console.log("Stage cleared during chain, exiting process loop.");
         break; // 連鎖処理を中断
       }
     }
 
-    // ★★★ 連鎖処理完了後に最終的なスコアでゲームステータスをチェック ★★★
-    if (!isStageClear) {
+    // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
+    // ★ showStageClearModal もチェック条件に追加
+    if (!isStageClear && !showDifficultySelector && !showStageClearModal) {
       // ステージクリアしていなければ判定
       // 1. ステージクリア判定
       checkGameStatus(currentChainScore);
 
-      // 2. ★ ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
-      //    引数で渡された currentMoves を使用
+      // 2. ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
       if (!isStageClear && currentMoves >= currentMaxMoves) {
-        // スコア判定は checkGameStatus で行われているので不要
-        // if (currentChainScore < currentTargetScore) {
         console.log(
           `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentChainScore}, Target: ${currentTargetScore}`,
         );
         setIsGameOver(true); // ゲームオーバーフラグを立てる
-        // }
-        // 目標スコア達成の場合は checkGameStatus で isStageClear が true になっているはず
       }
     }
-    // 処理完了後、詰み状態かチェック (ゲームオーバーにはしない)
-    // const hasMoves = checkForPossibleMoves(boardAfterProcessing);
-    // if (!hasMoves) {
-    //   // setIsGameOver(true); // ★ 詰みによるゲームオーバー判定を削除
-    //   console.log("No possible moves left, but game continues until move limit.");
-    // } else {
-    //   setScoreMultiplier(1);
-    // }
     // 連鎖が終わったら倍率をリセットするのは継続
     setScoreMultiplier(1);
 
@@ -387,23 +531,29 @@ const useGameBoard = (difficulty: Difficulty) => { // difficulty を引数に追
     board,
     setBoard,
     moves,
-    setMoves, // 手数設定は外部で必要になる可能性は低いが、残しておく
+    setMoves,
     selectedCell,
     setSelectedCell,
-    isProcessing, // 処理中フラグは外部で参照する可能性あり
-    isGameOver, // ゲームオーバー状態は外部で参照
+    isProcessing,
+    isGameOver,
     score,
     highestStageCleared,
     scoreMultiplier,
-    resetBoard, // リセットは外部から必要
+    resetBoard,
     processMatchesAndGravity,
     floatingScores,
-    checkGameStatus, // ゲームステータスチェックは内部ロジックの一部なので export しない
     stage,
     currentMaxMoves,
     currentTargetScore,
-    isStageClear, // ステージクリア状態は外部で参照する可能性あり
-    advanceToNextStage, // ★ 外部から呼び出せるように追加
+    isStageClear,
+    // ★ ステージクリアモーダル関連を追加
+    showStageClearModal,
+    handleProceedToNextStage,
+    showDifficultySelector, // 難易度選択フラグを外部に公開
+    handleDifficultySelected, // 難易度選択ハンドラを外部に公開
+    nextStageGoals, // 次のステージの難易度ごとの目標を外部に公開
+    // ★ 現在の難易度を公開
+    difficulty,
   };
 };
 

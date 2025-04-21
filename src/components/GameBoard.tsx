@@ -2,6 +2,7 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion"; // motion をインポート
 import Cell from "./Cell";
 import GameOverModal from "./GameOverModal";
+import DifficultySelector from "./DifficultySelector"; // DifficultySelector をインポート
 import useGameBoard from "../hooks/useGameBoard";
 import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTypes を削除
 
@@ -9,10 +10,56 @@ import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTy
 type Difficulty = "easy" | "medium" | "hard";
 
 interface GameBoardProps {
-  difficulty: Difficulty; // difficulty プロパティを追加
+  initialDifficulty: Difficulty; // initialDifficulty プロパティに変更
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を受け取る
+// ★ StageClearModal の Props を拡張
+interface StageClearModalProps {
+  stage: number;
+  score: number; // スコアを追加
+  targetScore: number; // 目標スコアを追加
+  onProceed: () => void;
+}
+// ★ StageClearModal の実装を修正して追加情報を表示
+const StageClearModal: React.FC<StageClearModalProps> = ({
+  stage,
+  score,
+  targetScore,
+  onProceed,
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.9 }}
+    // ★ absolute を fixed に変更して画面全体に対して中央揃え
+    className="fixed inset-0 bg-black bg-opacity-75 flex flex-col justify-center items-center z-50"
+  >
+    <div className="bg-white p-8 rounded-lg shadow-xl text-center w-80">
+      {/* 幅を少し指定 */}
+      <h2 className="text-3xl font-bold mb-6 text-green-600">
+        Stage {stage} Clear!
+      </h2>
+      {/* ★ 追加情報を表示 */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-6 text-left">
+        <span className="font-semibold text-gray-600">スコア:</span>
+        <span>{score.toLocaleString()}</span>
+        <span className="font-semibold text-gray-600">目標スコア:</span>
+        <span>{targetScore.toLocaleString()}</span>
+      </div>
+      <p className="text-lg mb-8">おめでとうございます！</p>{" "}
+      {/* 少しマージン調整 */}
+      <button
+        type="button"
+        onClick={onProceed}
+        className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
+      >
+        次のステージへ進む
+      </button>
+    </div>
+  </motion.div>
+);
+
+const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Props を受け取る
   const {
     board,
     setBoard,
@@ -32,8 +79,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
     currentMaxMoves,
     currentTargetScore,
     isStageClear,
-    advanceToNextStage, // ★ 追加: 次のステージへ進む関数
-  } = useGameBoard(difficulty); // difficulty をフックに渡す
+    // ★ ステージクリアモーダル関連の state と関数を取得
+    showStageClearModal,
+    handleProceedToNextStage,
+    showDifficultySelector, // 難易度選択フラグを追加
+    handleDifficultySelected, // 難易度選択ハンドラを追加
+    nextStageGoals, // 次のステージの難易度ごとの目標を追加
+    // ★ 現在の難易度を取得
+  } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
   const handleClick = (row: number, col: number) => {
@@ -97,39 +150,25 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
             highestStageCleared={highestStageCleared}
             resetBoard={resetBoard}
             stage={stage}
-          /> // highScore を highestStageCleared に変更
+            score={score}
+          />
         )}
-        {/* ★ ステージクリア時の表示を修正 */}
-        {isStageClear && (
-          <motion.div
-            className="absolute inset-0 bg-blue-500 bg-opacity-95 flex flex-col items-center justify-center z-20 text-white p-6 rounded-lg shadow-xl" // スタイル調整
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }} // exit アニメーション追加
-            transition={{ duration: 0.3 }}
-          >
-            <h2 className="text-4xl font-bold mb-4">Stage {stage} Clear!</h2>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-6 text-lg bg-blue-600 p-4 rounded">
-              {/* 情報表示エリア */}
-              {/* ★ 難易度表示を追加 (日本語化) */}
-              <div className="text-right font-semibold">難易度:</div>
-              <div className="text-left">
-                {difficulty === "easy" ? "かんたん" : difficulty === "medium" ? "ふつう" : "むずかしい"}
-              </div>
-              <div className="text-right font-semibold">スコア:</div>
-              <div className="text-left">
-                {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
-              </div>
-              <div className="text-right font-semibold">残り手数:</div>
-              <div className="text-left">{currentMaxMoves - moves}</div>
-            </div>
-            <button
-              onClick={advanceToNextStage} // ★ ボタンクリックで次のステージへ
-              className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg shadow hover:bg-gray-200 transition duration-200 text-xl" // スタイル調整
-            >
-              Next Stage →
-            </button>
-          </motion.div>
+        {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
+        {showStageClearModal && !isGameOver && (
+          <StageClearModal
+            stage={stage}
+            score={score} // スコアを渡す
+            targetScore={currentTargetScore} // 目標スコアを渡す
+            onProceed={handleProceedToNextStage} // 次へ進む関数を渡す
+          />
+        )}
+        {/* ★ 難易度選択モーダルを表示 */}
+        {showDifficultySelector && !isGameOver && nextStageGoals && (
+          <DifficultySelector
+            onSelectDifficulty={handleDifficultySelected}
+            // ★ nextStageGoals の型を修正
+            nextStageGoals={nextStageGoals}
+          />
         )}
       </AnimatePresence>
 
@@ -168,24 +207,31 @@ const GameBoard: React.FC<GameBoardProps> = ({ difficulty }) => { // Props を�
         </div>
       </div>
       {/* --- ゲーム盤エリア --- */}
-      <div
-        className={`grid gap-0 ${
-          isGameOver || isStageClear ? "opacity-50" : ""
-        }`} // ステージクリア中も操作不可にする
-        style={{ gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))` }}
-      >
-        {board.map((rowArr, rowIndex) =>
-          rowArr.map((cellValue, colIndex) => (
-            <Cell
-              key={`${rowIndex}-${colIndex}`}
-              value={cellValue}
-              onClick={() => handleClick(rowIndex, colIndex)}
-              isSelected={selectedCell?.row === rowIndex &&
-                selectedCell?.col === colIndex}
-            />
-          ))
-        )}
-      </div>
+      {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
+      {!showDifficultySelector && !showStageClearModal && (
+        <div
+          className={`grid gap-0 ${
+            // ★ ステージクリアモーダル表示中も opacity を適用
+            isGameOver || isStageClear || showStageClearModal
+              ? "opacity-50"
+              : ""}`}
+          style={{
+            gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
+          }}
+        >
+          {board.map((rowArr, rowIndex) =>
+            rowArr.map((cellValue, colIndex) => (
+              <Cell
+                key={`${rowIndex}-${colIndex}`}
+                value={cellValue}
+                onClick={() => handleClick(rowIndex, colIndex)}
+                isSelected={selectedCell?.row === rowIndex &&
+                  selectedCell?.col === colIndex}
+              />
+            ))
+          )}
+        </div>
+      )}
       {/* 加算スコア表示 */}
       {floatingScores.map(({ row, col, score, id }) => (
         <div

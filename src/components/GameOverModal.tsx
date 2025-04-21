@@ -6,10 +6,11 @@ interface GameOverModalProps {
   highestStageCleared: number; // highScore から変更
   resetBoard: () => void;
   stage: number;
+  score: number;
 }
 
 const GameOverModal: React.FC<GameOverModalProps> = (
-  { highestStageCleared, resetBoard, stage }, // highScore を highestStageCleared に変更
+  { highestStageCleared, resetBoard, stage, score }, // highScore を highestStageCleared に変更
 ) => {
   return (
     <motion.div
@@ -30,6 +31,7 @@ const GameOverModal: React.FC<GameOverModalProps> = (
           ゲームオーバー (Stage {stage})
         </h2>
         <p>ターン数制限内に目標スコアを達成できませんでした。</p>
+        <p>スコア: {score}</p>
         <p className="mb-4">最高記録: Stage {highestStageCleared}</p>{" "}
         {/* highScore を highestStageCleared に変更 */}
         <button

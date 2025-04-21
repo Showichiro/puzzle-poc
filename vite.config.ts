@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
-export default defineConfig(async ({ command, mode }) => {
+export default defineConfig(() => {
   // @ts-expect-error process is a nodejs global
   const isTauriBuild = process.env.TAURI_BUILD === "true";
   const repoName = "puzzle-poc";
