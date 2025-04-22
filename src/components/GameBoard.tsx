@@ -233,20 +233,51 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         </div>
       )}
       {/* 加算スコア表示 */}
-      {floatingScores.map(({ row, col, score, id }) => (
-        <div
-          key={id}
-          className="floating-score"
-          style={{
-            top: `${row * (100 / BOARD_SIZE)}%`, // セルの高さに基づいて位置を計算
-            left: `${col * (100 / BOARD_SIZE)}%`, // セルの幅に基づいて位置を計算
-            width: `${100 / BOARD_SIZE}%`, // セルの幅に合わせる
-            height: `${100 / BOARD_SIZE}%`, // セルの高さに合わせる
-          }}
-        >
-          +{score}
-        </div>
-      ))}
+      {floatingScores.map(({ row, col, score, id }) => {
+        // スコアに基づいてフォントサイズを計算
+        // スコアの対数を取り、最小値と最大値の間で線形補間
+        const minScore = 100; // 調整可能な最小スコア
+        const maxScore = 100000; // 調整可能な最大スコア
+        const minFontSize = 1; // 最小フォントサイズ (rem)
+        const maxFontSize = 3; // 最大フォントサイズ (rem)
+
+        const clampedScore = Math.max(minScore, Math.min(maxScore, score));
+        const logScore = Math.log(clampedScore);
+        const logMinScore = Math.log(minScore);
+        const logMaxScore = Math.log(maxScore);
+
+        // 対数スケールでの線形補間
+        const fontSize = minFontSize +
+          (maxFontSize - minFontSize) *
+            (logScore - logMinScore) /
+            (logMaxScore - logMinScore);
+
+        return (
+          <div
+            key={id}
+            className="floating-score"
+            style={{
+              position: "absolute", // 絶対配置にする
+              top: `${row * (100 / BOARD_SIZE)}%`, // セルの高さに基づいて位置を計算
+              left: `${col * (100 / BOARD_SIZE)}%`, // セルの幅に基づいて位置を計算
+              width: `${100 / BOARD_SIZE}%`, // セルの幅に合わせる
+              height: `${100 / BOARD_SIZE}%`, // セルの高さに合わせる
+              display: "flex", // 中央寄せのために flexbox を使用
+              justifyContent: "center", // 水平方向の中央寄せ
+              alignItems: "center", // 垂直方向の中央寄せ
+              fontSize: `${fontSize}rem`, // 計算したフォントサイズを適用
+              fontWeight: "bold", // 太字にする
+              color: "white", // 文字色を白に
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)", // 影をつける
+              pointerEvents: "none", // クリックイベントを無効化
+              zIndex: 10, // 他の要素より前面に表示
+              // アニメーションは CSS で定義することを想定
+            }}
+          >
+            +{score}
+          </div>
+        );
+      })}
     </div> // Closing tag for the relative div
   );
 };
