@@ -413,8 +413,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     while (matches.length > 0) {
       chainCount++; // 連鎖カウントを増やす
 
-      // スコア計算 (例: 基本点10点 * 消した数 * 連鎖ボーナス)
-      const basePoints = 10;
+      // スコア計算 (例: 基本点 * 消した数 * 連鎖ボーナス)
+      // ステージに応じて基本点を増加させる
+      const basePoints = 10 + (stage - 1) * 5; // ステージ1: 10, ステージ2: 15, ステージ3: 20...
       const chainBonus = Math.pow(3, chainCount - 1); // 1連鎖: 1倍, 2連鎖: 3倍, 3連鎖: 9倍...
       const blockTypeBonus = 1; // 固定値にするか、削除しても良い
       const currentMultiplier = chainBonus * blockTypeBonus; // 現在の連鎖での倍率
