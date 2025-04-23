@@ -86,8 +86,6 @@ const calculateStageGoals = (
 };
 
 const useGameBoard = (initialDifficulty: Difficulty) => {
-  // ★ 現在の難易度を管理する state を追加
-  const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
@@ -274,9 +272,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
 
     const nextStage = stage + 1;
 
-    // ★ 選択された難易度で state を更新
-    setDifficulty(selectedDifficulty);
-
     console.log(
       `Advancing to Stage ${nextStage} with difficulty: ${selectedDifficulty}`,
     );
@@ -394,8 +389,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setMoves(0);
     setBoard(initialBoard);
 
-    // ★ 難易度も初期化
-    setDifficulty(initialDifficulty);
     // ステージと目標を初期化 (Stage 1)
     setStage(1);
     // ★ Stage 1 の初期手数と目標スコアを設定
