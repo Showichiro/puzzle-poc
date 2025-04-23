@@ -19,6 +19,7 @@ interface StageClearModalProps {
   score: number; // スコアを追加
   targetScore: number; // 目標スコアを追加
   onProceed: () => void;
+  bonusMoves: number; // ★ ボーナス手数を追加
 }
 // ★ StageClearModal の実装を修正して追加情報を表示
 const StageClearModal: React.FC<StageClearModalProps> = ({
@@ -26,6 +27,7 @@ const StageClearModal: React.FC<StageClearModalProps> = ({
   score,
   targetScore,
   onProceed,
+  bonusMoves, // ★ bonusMoves を受け取る
 }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
@@ -45,6 +47,9 @@ const StageClearModal: React.FC<StageClearModalProps> = ({
         <span>{score.toLocaleString()}</span>
         <span className="font-semibold text-gray-600">目標スコア:</span>
         <span>{targetScore.toLocaleString()}</span>
+        {/* ★ ボーナス手数を表示 */}
+        <span className="font-semibold text-gray-600">ボーナス手数:</span>
+        <span>{bonusMoves}</span>
       </div>
       <p className="text-lg mb-8">おめでとうございます！</p>{" "}
       {/* 少しマージン調整 */}
@@ -86,6 +91,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     handleDifficultySelected, // 難易度選択ハンドラを追加
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
     // ★ 現在の難易度を取得
+    bonusMoves, // ★ bonusMoves を取得
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -160,6 +166,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
             score={score} // スコアを渡す
             targetScore={currentTargetScore} // 目標スコアを渡す
             onProceed={handleProceedToNextStage} // 次へ進む関数を渡す
+            bonusMoves={bonusMoves} // ★ bonusMoves を渡す
           />
         )}
         {/* ★ 難易度選択モーダルを表示 */}

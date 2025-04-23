@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
+import html2canvasPro from "html2canvas-pro";
 
 interface GameOverModalProps {
   // highScore: number; // 削除
@@ -12,6 +13,8 @@ interface GameOverModalProps {
 const GameOverModal: React.FC<GameOverModalProps> = (
   { highestStageCleared, resetBoard, stage, score }, // highScore を highestStageCleared に変更
 ) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   return (
     <motion.div
       className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10"
@@ -21,6 +24,7 @@ const GameOverModal: React.FC<GameOverModalProps> = (
       transition={{ duration: 0.3 }}
     >
       <motion.div
+        ref={modalRef}
         className="bg-white p-8 rounded shadow-lg text-center"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -41,6 +45,55 @@ const GameOverModal: React.FC<GameOverModalProps> = (
         >
           盤面をリセット
         </button>
+        {navigator.share && (
+          <button
+            type="button"
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-2"
+            onClick={async () => {
+              if (!modalRef.current) return;
+
+              try {
+                const canvas = await html2canvasPro(modalRef.current);
+                canvas.toBlob(async (blob) => {
+                  if (!blob) return;
+
+                  const file = new File([blob], "gameover.png", {
+                    type: "image/png",
+                  });
+
+                  if (
+                    navigator.canShare && navigator.canShare({ files: [file] })
+                  ) {
+                    await navigator.share({
+                      files: [file],
+                      title: "パズルゲーム スコア",
+                      text:
+                        `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
+                      url: globalThis.location.href,
+                    });
+                    console.log("シェアしました");
+                  } else {
+                    // Web Share API Files がサポートされていない場合のフォールバック
+                    // ここではシンプルにテキストとURLのみをシェアします
+                    await navigator.share({
+                      title: "パズルゲーム スコア",
+                      text:
+                        `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
+                      url: globalThis.location.href,
+                    });
+                    console.log(
+                      "テキストとURLをシェアしました (ファイルシェアは未対応)",
+                    );
+                  }
+                }, "image/png");
+              } catch (error) {
+                console.error("シェアに失敗しました", error);
+              }
+            }}
+          >
+            結果をシェア
+          </button>
+        )}
       </motion.div>
     </motion.div>
   );
