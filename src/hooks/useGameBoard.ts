@@ -57,9 +57,9 @@ const calculateStageGoals = (
   const baseTargetScore = 100000;
   // 難易度に応じた目標スコア倍率
   const scoreMultiplierMap: Record<Difficulty, number> = {
-    easy: 0.8,
-    medium: 1.5,
-    hard: 3,
+    easy: 0.9,
+    medium: 1.7,
+    hard: 3.1,
   };
 
   // ★ 難易度に応じたスコア倍率を取得
@@ -89,7 +89,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
-    let initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
+    const initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
       .fill(null)
       .map(
         () =>
@@ -243,12 +243,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         : 0;
       let calculatedBonusMoves = 0;
       if (scoreRatio > 1.0) {
-        calculatedBonusMoves = Math.floor(((scoreRatio - 1.0) * 100) / 200);
+        calculatedBonusMoves = Math.floor(((scoreRatio - 1.0) * 100) / 500);
       }
       setBonusMoves(
         calculatedBonusMoves > 0
-          ? Math.min(calculatedBonusMoves, 5)
-          : calculatedBonusMoves, // 5手より大きなボーナスなし
+          ? Math.min(calculatedBonusMoves, 3)
+          : calculatedBonusMoves, // 3手より大きなボーナスなし
       );
     }
   };
