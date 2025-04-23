@@ -91,7 +91,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
-    return Array(BOARD_SIZE)
+    let initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
       .fill(null)
       .map(
         () =>
@@ -99,6 +99,31 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
             .fill(null)
             .map(() => getRandomBlock()), // 選択された色で盤面生成
       );
+
+    // 初期盤面でマッチがないように調整
+    let matches = findMatches(initialBoard);
+    while (matches.length > 0) {
+      matches.forEach(({ row, col }) => {
+        initialBoard[row][col] = getRandomBlock();
+      });
+      matches = findMatches(initialBoard);
+    }
+
+    // 詰み状態チェック
+    const hasPossibleMoves = checkForPossibleMoves(initialBoard);
+    if (!hasPossibleMoves) {
+      console.log("Initial board has no possible moves, regenerating...");
+      // 詰みの場合は再帰的に初期化関数を呼び出す
+      return Array(BOARD_SIZE)
+        .fill(null)
+        .map(() =>
+          Array(BOARD_SIZE)
+            .fill(null)
+            .map(() => getRandomBlock())
+        );
+    }
+
+    return initialBoard;
   });
   // 手数を管理
   const [moves, setMoves] = useState(0);
@@ -144,6 +169,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       { addedMoves: number; targetScore: number }
     > | null
   >(null);
+  // ★ ボーナス手数
+  const [bonusMoves, setBonusMoves] = useState(0);
   // スコア倍率
   const [scoreMultiplier, setScoreMultiplier] = useState(1); // 初期値は1倍
   // 加算スコア表示用 state
@@ -211,6 +238,20 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       // ステージクリア！
       setIsStageClear(true);
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
+
+      // ★ ボーナス手数を計算
+      const scoreRatio = currentTargetScore > 0
+        ? currentScore / currentTargetScore
+        : 0;
+      let calculatedBonusMoves = 0;
+      if (scoreRatio > 1.0) {
+        calculatedBonusMoves = Math.floor(((scoreRatio - 1.0) * 100) / 200);
+      }
+      setBonusMoves(
+        calculatedBonusMoves > 0
+          ? Math.min(calculatedBonusMoves, 5)
+          : calculatedBonusMoves, // 5手より大きなボーナスなし
+      );
     }
   };
 
@@ -241,48 +282,21 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     );
     setStage(nextStage);
 
-    // ★ 次のステージの難易度ごとの目標を計算
-    const easyGoal = calculateStageGoals(nextStage, "easy");
-    const mediumGoal = calculateStageGoals(nextStage, "medium");
-    const hardGoal = calculateStageGoals(nextStage, "hard");
+    // ★ 次のステージの目標はステージクリア時に計算済みのため、nextStageGoals から取得
+    if (!nextStageGoals) {
+      // エラーハンドリング: nextStageGoals が null の場合はリセット
+      console.error("nextStageGoals is null. Resetting board.");
+      resetBoard();
+      return;
+    }
 
-    // 難易度順序が逆転しないように調整
-    const adjustedMediumMoves = Math.max(
-      easyGoal.addedMoves,
-      mediumGoal.addedMoves,
-    );
-    const adjustedHardMoves = Math.max(
-      adjustedMediumMoves,
-      hardGoal.addedMoves,
-    );
-
-    const adjustedMediumScore = Math.max(
-      easyGoal.targetScore,
-      mediumGoal.targetScore,
-    );
-    const adjustedHardScore = Math.max(
-      adjustedMediumScore,
-      hardGoal.targetScore,
-    );
-
-    const nextGoals = {
-      easy: {
-        addedMoves: easyGoal.addedMoves,
-        targetScore: easyGoal.targetScore,
-      },
-      medium: {
-        addedMoves: adjustedMediumMoves,
-        targetScore: adjustedMediumScore,
-      },
-      hard: { addedMoves: adjustedHardMoves, targetScore: adjustedHardScore },
-    };
-
-    // 選択された難易度に応じて目標を設定
-    const nextGoal = nextGoals[selectedDifficulty];
+    // 選択された難易度に応じて目標を取得
+    const nextGoal = nextStageGoals[selectedDifficulty];
 
     // ★ 残り手数に加算手数を足して、次のステージの最大手数を設定
+    // ★ ボーナス手数も加算する
     const remainingMoves = currentMaxMoves - moves; // 現在の残り手数
-    const newMaxMoves = remainingMoves + nextGoal.addedMoves;
+    const newMaxMoves = remainingMoves + nextGoal.addedMoves + bonusMoves;
     setCurrentMaxMoves(newMaxMoves);
 
     // ★ 目標スコアを設定
@@ -292,6 +306,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // ★ スコアはリセットしない (引き継ぐ場合) か、リセットするかは要件次第。今回はリセットする。
     setScore(0);
     setIsStageClear(false); // ステージクリアフラグをリセット
+    // ★ ボーナス手数もリセット
+    setBonusMoves(0);
 
     // ★★★ 盤面全体を新しいステージの色で再生成 ★★★
     const newBoard = Array(BOARD_SIZE)
@@ -328,6 +344,13 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     setBoard(adjustedBoard); // 調整後の新しい盤面を設定
+
+    // 詰み状態チェック
+    const hasPossibleMoves = checkForPossibleMoves(adjustedBoard);
+    if (!hasPossibleMoves) {
+      console.log("New stage board has no possible moves, resetting board...");
+      resetBoard(); // 詰みならリセット
+    }
   };
 
   // 盤面リセット関数 (ゲーム開始時、リトライ時)
@@ -359,6 +382,15 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     initialBoard = applyGravity(initialBoard);
     initialBoard = refillBoard(initialBoard);
 
+    // 詰み状態チェック
+    const hasPossibleMoves = checkForPossibleMoves(initialBoard);
+    if (!hasPossibleMoves) {
+      console.log("Reset board has no possible moves, resetting again...");
+      // 詰みの場合は再帰的にリセット関数を呼び出す
+      resetBoard();
+      return; // 再帰呼び出しのためここで終了
+    }
+
     setMoves(0);
     setBoard(initialBoard);
 
@@ -382,6 +414,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setShowStageClearModal(false);
     setShowDifficultySelector(false); // 難易度選択フラグもリセット
     setNextStageGoals(null); // 目標情報もリセット
+    // ★ ボーナス手数もリセット
+    setBonusMoves(0);
     setScoreMultiplier(1);
     setFloatingScores([]);
     scoreIdCounter.current = 0;
@@ -493,41 +527,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 連鎖が終わったら倍率をリセットするのは継続
     setScoreMultiplier(1);
 
+    // 詰み状態チェック
+    const hasPossibleMoves = checkForPossibleMoves(boardAfterProcessing);
+    if (!hasPossibleMoves) {
+      console.log("No possible moves, resetting board...");
+      resetBoard(); // 詰みならリセット
+    }
+
     setIsProcessing(false); // 処理完了
   };
 
-  // 初期盤面でマッチがないように調整し、詰み状態もチェックする
-  useEffect(() => {
-    let initialBoard = board.map((r) => [...r]);
-    let matches = findMatches(initialBoard);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        initialBoard[row][col] = getRandomBlock();
-      });
-      matches = findMatches(initialBoard);
-    }
-    // 重力と補充も初回に適用しておく
-    initialBoard = applyGravity(initialBoard);
-    initialBoard = refillBoard(initialBoard);
-    // 再度マッチがないか最終確認
-    matches = findMatches(initialBoard);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        initialBoard[row][col] = getRandomBlock();
-      });
-      matches = findMatches(initialBoard);
-    }
-    setBoard(initialBoard);
-
-    // 初期盤面の詰みチェックはログ出力程度に留める
-    if (!checkForPossibleMoves(initialBoard)) {
-      console.warn(
-        "Initial board has no possible moves! Consider reshuffling.",
-      );
-      // 必要であればここで盤面再生成やシャッフル処理を呼ぶ
-    }
-  }, []);
-
+  // useGameBoard フックの戻り値
   return {
     board,
     setBoard,
@@ -538,7 +548,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     isProcessing,
     isGameOver,
     score,
-    highestStageCleared,
+    highestStageCleared, // 追加
     scoreMultiplier,
     resetBoard,
     processMatchesAndGravity,
@@ -547,14 +557,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     currentMaxMoves,
     currentTargetScore,
     isStageClear,
-    // ★ ステージクリアモーダル関連を追加
-    showStageClearModal,
-    handleProceedToNextStage,
-    showDifficultySelector, // 難易度選択フラグを外部に公開
-    handleDifficultySelected, // 難易度選択ハンドラを外部に公開
-    nextStageGoals, // 次のステージの難易度ごとの目標を外部に公開
-    // ★ 現在の難易度を公開
-    difficulty,
+    showStageClearModal, // 追加
+    handleProceedToNextStage, // 追加
+    showDifficultySelector, // 難易度選択フラグを追加
+    handleDifficultySelected, // 難易度選択ハンドラを追加
+    nextStageGoals, // 次のステージの難易度ごとの目標を追加
+    bonusMoves, // ★ ボーナス手数を追加
   };
 };
 
