@@ -5,7 +5,7 @@
   "identifier": "com.puzzle-app.app",
   "build": {
     "beforeDevCommand": "deno task dev",
-    "devUrl": "http://localhost:1420/puzzle-poc",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "deno task build",
     "frontendDist": "../dist"
   },
