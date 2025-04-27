@@ -6,7 +6,6 @@ import {
   findMatches,
   getRandomBlock,
   refillBoard,
-  resetBlockTypes,
   selectStageColors,
 } from "../utils/gameLogic";
 
@@ -86,10 +85,9 @@ const calculateStageGoals = (
 };
 
 const useGameBoard = (initialDifficulty: Difficulty) => {
-  // ★ useState の初期化関数内で色選択と盤面生成を行う
-  const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
-    selectStageColors(); // まず色を選択
-    const initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
+  // 盤面を生成し、マッチがないように調整し、詰みチェックを行うヘルパー関数
+  const createAndInitializeBoard = (): Array<Array<number | null>> => {
+    let board: Array<Array<number | null>> = Array(BOARD_SIZE)
       .fill(null)
       .map(
         () =>
@@ -99,29 +97,33 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       );
 
     // 初期盤面でマッチがないように調整
-    let matches = findMatches(initialBoard);
+    let matches = findMatches(board);
     while (matches.length > 0) {
       matches.forEach(({ row, col }) => {
-        initialBoard[row][col] = getRandomBlock();
+        board[row][col] = getRandomBlock();
       });
-      matches = findMatches(initialBoard);
+      matches = findMatches(board);
     }
+
+    // 重力と補充も適用
+    board = applyGravity(board);
+    board = refillBoard(board);
 
     // 詰み状態チェック
-    const hasPossibleMoves = checkForPossibleMoves(initialBoard);
+    const hasPossibleMoves = checkForPossibleMoves(board);
     if (!hasPossibleMoves) {
-      console.log("Initial board has no possible moves, regenerating...");
-      // 詰みの場合は再帰的に初期化関数を呼び出す
-      return Array(BOARD_SIZE)
-        .fill(null)
-        .map(() =>
-          Array(BOARD_SIZE)
-            .fill(null)
-            .map(() => getRandomBlock())
-        );
+      console.log("Generated board has no possible moves, regenerating...");
+      // 詰みの場合は再帰的に呼び出す
+      return createAndInitializeBoard();
     }
 
-    return initialBoard;
+    return board;
+  };
+
+  // ★ useState の初期化関数内で色選択と盤面生成を行う
+  const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
+    selectStageColors(); // まず色を選択
+    return createAndInitializeBoard(); // 共通関数で盤面を生成・初期化
   });
   // 手数を管理
   const [moves, setMoves] = useState(0);
@@ -227,13 +229,11 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
   }, [isStageClear, stage]);
 
-  // ゲームステータス（ゲームオーバー or ステージクリア）をチェックする関数
-  const checkGameStatus = (currentScore: number) => {
-    // ★ showStageClearModal もチェック条件に追加
+  // ステージクリアをチェックする関数
+  const checkStageClear = (currentScore: number) => {
+    // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
     if (
-      isStageClear ||
-      isGameOver ||
-      showDifficultySelector ||
+      isStageClear || isGameOver || showDifficultySelector ||
       showStageClearModal
     ) {
       return;
@@ -244,7 +244,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       setIsStageClear(true);
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
 
-      // ★ ボーナス手数を計算
+      // ボーナス手数を計算
       const scoreRatio = currentTargetScore > 0
         ? currentScore / currentTargetScore
         : 0;
@@ -255,8 +255,27 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       setBonusMoves(
         calculatedBonusMoves > 0
           ? Math.min(calculatedBonusMoves, 3)
-          : calculatedBonusMoves, // 3手より大きなボーナスなし
+          : calculatedBonusMoves,
+      ); // 3手より大きなボーナスなし
+    }
+  };
+
+  // ゲームオーバーをチェックする関数
+  const checkGameOver = (currentMoves: number, currentScore: number) => {
+    // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
+    if (
+      isStageClear || isGameOver || showDifficultySelector ||
+      showStageClearModal
+    ) {
+      return;
+    }
+
+    // ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
+    if (!isStageClear && currentMoves >= currentMaxMoves) {
+      console.log(
+        `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
+      setIsGameOver(true); // ゲームオーバーフラグを立てる
     }
   };
 
@@ -268,157 +287,140 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
 
   // 難易度選択後に次のステージに進む関数
   const handleDifficultySelected = (selectedDifficulty: Difficulty) => {
-    // 引数名を変更
-    // ★ 念のためステージクリアモーダルも非表示にする
+    // モーダル非表示と目標情報のリセット
     setShowStageClearModal(false);
-    setShowDifficultySelector(false); // 難易度選択モーダルを非表示
-    setNextStageGoals(null); // 目標情報をリセット
+    setShowDifficultySelector(false);
+    setNextStageGoals(null);
 
-    // ★ 次のステージの色を選択
+    // 次のステージの色を選択し、ステージ番号を更新
     selectStageColors();
-
     const nextStage = stage + 1;
-
     console.log(
       `Advancing to Stage ${nextStage} with difficulty: ${selectedDifficulty}`,
     );
     setStage(nextStage);
 
-    // ★ 次のステージの目標はステージクリア時に計算済みのため、nextStageGoals から取得
+    // 次のステージの目標を設定
     if (!nextStageGoals) {
-      // エラーハンドリング: nextStageGoals が null の場合はリセット
       console.error("nextStageGoals is null. Resetting board.");
       resetBoard();
       return;
     }
-
-    // 選択された難易度に応じて目標を取得
     const nextGoal = nextStageGoals[selectedDifficulty];
-
-    // ★ 残り手数に加算手数を足して、次のステージの最大手数を設定
-    // ★ ボーナス手数も加算する
-    const remainingMoves = currentMaxMoves - moves; // 現在の残り手数
+    const remainingMoves = currentMaxMoves - moves;
     const newMaxMoves = remainingMoves + nextGoal.addedMoves + bonusMoves;
     setCurrentMaxMoves(newMaxMoves);
-
-    // ★ 目標スコアを設定
     setCurrentTargetScore(nextGoal.targetScore);
 
-    setMoves(0); // 次のステージは0手から開始
-    // ★ スコアはリセットしない (引き継ぐ場合) か、リセットするかは要件次第。今回はリセットする。
-    setScore(0);
-    setIsStageClear(false); // ステージクリアフラグをリセット
-    // ★ ボーナス手数もリセット
+    // 各種stateのリセット
+    setMoves(0);
+    setScore(0); // スコアはリセット
+    setIsStageClear(false);
     setBonusMoves(0);
 
-    // ★★★ 盤面全体を新しいステージの色で再生成 ★★★
-    const newBoard = Array(BOARD_SIZE)
-      .fill(null)
-      .map(
-        () =>
-          Array(BOARD_SIZE)
-            .fill(null)
-            .map(() => getRandomBlock()), // 新しい色で盤面を生成
-      );
-
-    // ★ 新しい盤面でマッチがないかチェックし、調整する (resetBoard と同様の処理)
-    // adjustedBoard の型を明示的に指定
-    let adjustedBoard: Array<Array<number | null>> = newBoard.map((r) => [
-      ...r,
-    ]);
-    let matches = findMatches(adjustedBoard);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        adjustedBoard[row][col] = getRandomBlock();
-      });
-      matches = findMatches(adjustedBoard);
-    }
-    // 重力と補充も適用しておく
-    adjustedBoard = applyGravity(adjustedBoard);
-    adjustedBoard = refillBoard(adjustedBoard);
-    // 再度マッチがないか最終確認
-    matches = findMatches(adjustedBoard);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        adjustedBoard[row][col] = getRandomBlock();
-      });
-      matches = findMatches(adjustedBoard);
-    }
-
-    setBoard(adjustedBoard); // 調整後の新しい盤面を設定
-
-    // 詰み状態チェック
-    const hasPossibleMoves = checkForPossibleMoves(adjustedBoard);
-    if (!hasPossibleMoves) {
-      console.log("New stage board has no possible moves, resetting board...");
-      resetBoard(); // 詰みならリセット
-    }
+    // 新しい盤面の生成と設定
+    const newBoard = createAndInitializeBoard();
+    setBoard(newBoard);
   };
 
   // 盤面リセット関数 (ゲーム開始時、リトライ時)
   const resetBoard = () => {
-    // ★ リセット時に新しい色を選択
+    // ステージ色の選択とブロックタイプのリセット
     selectStageColors();
-    resetBlockTypes(); // 空だが念のため呼ぶ
+    // resetBlockTypes(); // 空だが念のため呼ぶ - 削除
 
-    // ★ 新しい色で初期盤面を生成
-    let initialBoard: Array<Array<number | null>> = Array(BOARD_SIZE)
-      .fill(null)
-      .map(
-        () =>
-          Array(BOARD_SIZE)
-            .fill(null)
-            .map(() => getRandomBlock()), // getRandomBlock を使用
-      );
-
-    // 初期盤面でマッチがないように調整 (新しい色で)
-    let matches = findMatches(initialBoard);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        initialBoard[row][col] = getRandomBlock(); // マッチした箇所を新しいブロックに置き換え
-      });
-      matches = findMatches(initialBoard); // 再度チェック
-    }
-
-    // 重力と補充も適用
-    initialBoard = applyGravity(initialBoard);
-    initialBoard = refillBoard(initialBoard);
-
-    // 詰み状態チェック
-    const hasPossibleMoves = checkForPossibleMoves(initialBoard);
-    if (!hasPossibleMoves) {
-      console.log("Reset board has no possible moves, resetting again...");
-      // 詰みの場合は再帰的にリセット関数を呼び出す
-      resetBoard();
-      return; // 再帰呼び出しのためここで終了
-    }
-
-    setMoves(0);
+    // 初期盤面の生成と設定
+    const initialBoard = createAndInitializeBoard();
     setBoard(initialBoard);
 
-    // ステージと目標を初期化 (Stage 1)
+    // 各種stateの初期化 (Stage 1)
     setStage(1);
-    // ★ Stage 1 の初期手数と目標スコアを設定
-    const initialResetTargetScore = calculateStageGoals(
-      1,
-      initialDifficulty,
-    ).targetScore;
+    const initialResetTargetScore =
+      calculateStageGoals(1, initialDifficulty).targetScore;
     setCurrentMaxMoves(initialMovesMap[initialDifficulty]);
     setCurrentTargetScore(initialResetTargetScore);
 
     setMoves(0);
     setScore(0);
     setIsGameOver(false);
-    setIsStageClear(false); // クリアフラグもリセット
-    // ★ ステージクリアモーダルもリセット
+    setIsStageClear(false);
     setShowStageClearModal(false);
-    setShowDifficultySelector(false); // 難易度選択フラグもリセット
-    setNextStageGoals(null); // 目標情報もリセット
-    // ★ ボーナス手数もリセット
+    setShowDifficultySelector(false);
+    setNextStageGoals(null);
     setBonusMoves(0);
     setScoreMultiplier(1);
     setFloatingScores([]);
     scoreIdCounter.current = 0;
+  };
+
+  // 連鎖の各ステップ（マッチ消去、落下、補充）を処理するヘルパー関数
+  const processChainStep = async (board: Array<Array<number | null>>) => {
+    let boardAfterStep = board.map((r) => [...r]);
+    let matches = findMatches(boardAfterStep);
+
+    // 1. マッチしたブロックを消す
+    matches.forEach(({ row, col }) => {
+      boardAfterStep[row][col] = null;
+    });
+    setBoard(boardAfterStep.map((r) => [...r])); // 消去状態を表示
+    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ (アニメーションのため)
+
+    // 2. ブロックを落下させる
+    boardAfterStep = applyGravity(boardAfterStep);
+    setBoard(boardAfterStep.map((r) => [...r])); // 落下状態を表示
+    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
+
+    // 3. 新しいブロックを補充する
+    boardAfterStep = refillBoard(boardAfterStep);
+    setBoard(boardAfterStep.map((r) => [...r])); // 補充状態を表示
+    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
+
+    return boardAfterStep;
+  };
+
+  // スコア計算とFloating Score表示を処理するヘルパー関数
+  const updateScoreAndFloatingScores = (
+    matches: { row: number; col: number }[],
+    chainCount: number,
+    currentChainScore: number,
+  ) => {
+    // スコア計算: 基本点 * 消した数^1.5 * 連鎖ボーナス
+    // 基本点はステージに応じて増加
+    const basePoints = 10 + (stage - 1) * 5; // Stage 1: 10, Stage 2: 15, ...
+    // 連鎖ボーナス: 3^(連鎖数-1)
+    const chainBonus = Math.pow(3, chainCount - 1); // 1連鎖: 1倍, 2連鎖: 3倍, 3連鎖: 9倍...
+    // 消したブロック数ボーナス: 消した数^1.5
+    const clearedBlocksBonus = Math.pow(matches.length, 1.5);
+
+    const pointsEarned = Math.floor(
+      basePoints * clearedBlocksBonus * chainBonus, // blockTypeBonus は常に1なので省略
+    ); // 整数にする
+
+    // スコアの state を更新
+    const newChainScore = currentChainScore + pointsEarned;
+    setScore(newChainScore);
+
+    // スコア倍率の state を更新 (表示用)
+    setScoreMultiplier(chainBonus); // 表示用には連鎖ボーナスのみを使用
+
+    // 加算スコア表示用の情報を生成
+    const currentFloatingScores = matches.map(({ row, col }) => ({
+      row,
+      col,
+      score: Math.floor(pointsEarned / matches.length), // 各ブロックごとのスコア（均等割り）
+      id: scoreIdCounter.current++,
+      chainCount: chainCount, // 現在の連鎖数を追加
+    }));
+    setFloatingScores((prev) => [...prev, ...currentFloatingScores]);
+
+    // 一定時間後に表示を消す (1秒後)
+    currentFloatingScores.forEach((fs) => {
+      setTimeout(() => {
+        setFloatingScores((prev) => prev.filter((pfs) => pfs.id !== fs.id));
+      }, 1000);
+    });
+
+    return newChainScore;
   };
 
   // マッチ処理、落下、補充、連鎖処理を行う関数
@@ -427,7 +429,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     currentMoves: number,
   ) => {
     if (isProcessing) return;
-    // ★ showStageClearModal もチェック条件に追加
     // ゲームオーバー or ステージクリア or 難易度選択中 or ステージクリアモーダル表示中なら処理しない
     if (
       isGameOver ||
@@ -447,60 +448,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     while (matches.length > 0) {
       chainCount++; // 連鎖カウントを増やす
 
-      // スコア計算 (例: 基本点 * 消した数 * 連鎖ボーナス)
-      // ステージに応じて基本点を増加させる
-      const basePoints = 10 + (stage - 1) * 5; // ステージ1: 10, ステージ2: 15, ステージ3: 20...
-      const chainBonus = Math.pow(3, chainCount - 1); // 1連鎖: 1倍, 2連鎖: 3倍, 3連鎖: 9倍...
-      const blockTypeBonus = 1; // 固定値にするか、削除しても良い
-      const currentMultiplier = chainBonus * blockTypeBonus; // 現在の連鎖での倍率
-      setScoreMultiplier(currentMultiplier); // スコア倍率の状態を更新
+      // スコア計算とFloating Score表示を処理
+      currentChainScore = updateScoreAndFloatingScores(
+        matches,
+        chainCount,
+        currentChainScore,
+      );
 
-      // 消したブロック数が多いほどスコアが大きく増えるように、matches.lengthに累乗を適用
-      const clearedBlocksBonus = Math.pow(matches.length, 1.5);
-      const pointsEarned = Math.floor(
-        basePoints * clearedBlocksBonus * currentMultiplier,
-      ); // 整数にする
+      // マッチ消去、落下、補充を処理
+      boardAfterProcessing = await processChainStep(boardAfterProcessing);
 
-      // ループ内で計算したスコアを一時変数に加算
-      currentChainScore += pointsEarned;
-      // スコアの state を更新
-      setScore(currentChainScore);
-
-      // 加算スコア表示用の情報を生成
-      const currentFloatingScores = matches.map(({ row, col }) => ({
-        row,
-        col,
-        score: Math.floor(pointsEarned / matches.length), // 各ブロックごとのスコア（均等割り）
-        id: scoreIdCounter.current++,
-        chainCount: chainCount, // 現在の連鎖数を追加
-      }));
-      setFloatingScores((prev) => [...prev, ...currentFloatingScores]);
-
-      // 一定時間後に表示を消す
-      currentFloatingScores.forEach((fs) => {
-        setTimeout(() => {
-          setFloatingScores((prev) => prev.filter((pfs) => pfs.id !== fs.id));
-        }, 1000); // 1秒後に消える
-      });
-
-      // 1. マッチしたブロックを消す
-      matches.forEach(({ row, col }) => {
-        boardAfterProcessing[row][col] = null;
-      });
-      setBoard(boardAfterProcessing.map((r) => [...r])); // 消去状態を表示
-      await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ (アニメーションのため)
-
-      // 2. ブロックを落下させる
-      boardAfterProcessing = applyGravity(boardAfterProcessing);
-      setBoard(boardAfterProcessing.map((r) => [...r])); // 落下状態を表示
-      await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
-
-      // 3. 新しいブロックを補充する
-      boardAfterProcessing = refillBoard(boardAfterProcessing);
-      setBoard(boardAfterProcessing.map((r) => [...r])); // 補充状態を表示
-      await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
-
-      // 4. 再度マッチをチェック (連鎖)
+      // 再度マッチをチェック (連鎖)
       matches = findMatches(boardAfterProcessing);
 
       // ループの最後にステージクリア状態をチェック (連鎖中にクリアした場合にループを抜ける)
@@ -511,22 +469,15 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
-    // ★ showStageClearModal もチェック条件に追加
     if (!isStageClear && !showDifficultySelector && !showStageClearModal) {
       // ステージクリアしていなければ判定
-      // 1. ステージクリア判定
-      checkGameStatus(currentChainScore);
-
-      // 2. ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
-      if (!isStageClear && currentMoves >= currentMaxMoves) {
-        console.log(
-          `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentChainScore}, Target: ${currentTargetScore}`,
-        );
-        setIsGameOver(true); // ゲームオーバーフラグを立てる
-      }
+      checkStageClear(currentChainScore);
     }
     // 連鎖が終わったら倍率をリセットするのは継続
     setScoreMultiplier(1);
+
+    // 連鎖処理完了後に最終的なスコアと手数でゲームオーバーをチェック
+    checkGameOver(currentMoves, currentChainScore);
 
     // 詰み状態チェック
     const hasPossibleMoves = checkForPossibleMoves(boardAfterProcessing);
