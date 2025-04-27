@@ -213,6 +213,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           </span>
         </div>
       </div>
+
       {/* --- ゲーム盤エリア --- */}
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
       {!showDifficultySelector && !showStageClearModal && (
