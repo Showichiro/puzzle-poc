@@ -35,7 +35,9 @@ const GameOverModal: React.FC<GameOverModalProps> = (
           ゲームオーバー！
         </h2>
         <p>スコア: {score}</p>
-        <p className="text-xl font-semibold mb-4">{highestStageCleared} ステージまでクリアしました！</p>
+        <p className="text-xl font-semibold mb-4">
+          {highestStageCleared} ステージまでクリアしました！
+        </p>
         {/* highScore を highestStageCleared に変更 */}
         <button
           type="button"

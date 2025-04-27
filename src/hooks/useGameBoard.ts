@@ -172,8 +172,15 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // スコア倍率
   const [scoreMultiplier, setScoreMultiplier] = useState(1); // 初期値は1倍
   // 加算スコア表示用 state
+  // 加算スコア表示用 state
   const [floatingScores, setFloatingScores] = useState<
-    { row: number; col: number; score: number; id: number }[]
+    {
+      row: number;
+      col: number;
+      score: number;
+      id: number;
+      chainCount: number;
+    }[] // chainCount を追加
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
 
@@ -465,6 +472,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         col,
         score: Math.floor(pointsEarned / matches.length), // 各ブロックごとのスコア（均等割り）
         id: scoreIdCounter.current++,
+        chainCount: chainCount, // 現在の連鎖数を追加
       }));
       setFloatingScores((prev) => [...prev, ...currentFloatingScores]);
 

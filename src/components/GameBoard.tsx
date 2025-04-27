@@ -240,7 +240,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         </div>
       )}
       {/* 加算スコア表示 */}
-      {floatingScores.map(({ row, col, score, id }) => {
+      {floatingScores.map(({ row, col, score, id, chainCount }) => { // chainCount を取得
         // スコアに基づいてフォントサイズを計算
         // スコアの対数を取り、最小値と最大値の間で線形補間
         const minScore = 100; // 調整可能な最小スコア
@@ -259,10 +259,33 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
             (logScore - logMinScore) /
             (logMaxScore - logMinScore);
 
+        // スコアに基づいて明度 (Lightness) を計算
+        // スコアの対数を取り、最小値と最大値の間で線形補間
+        // スコアが低いほど明度が高く（白く）、高いほど明度が低く（濃く）なるようにする
+        const minLightness = 40; // 最大スコア時の明度 (濃い色)
+        const maxLightness = 90; // 最小スコア時の明度 (白に近い色)
+        const lightness = minLightness +
+          (maxLightness - minLightness) *
+            (logMaxScore - logScore) / // スコアが増えるほど (logScoreが増えるほど) 明度が下がるように計算
+            (logMaxScore - logMinScore);
+
+        // 連鎖数に基づいて色相 (Hue) と彩度 (Saturation) を計算
+        // 連鎖数が多いほど赤に近づける (色相: 50(黄) -> 0(赤), 彩度: 100%)
+        const maxChainForColor = 10; // 色の変化の最大連鎖数 (10連鎖で赤)
+        const clampedChain = Math.min(chainCount, maxChainForColor);
+        // 連鎖1で黄(50)、連鎖10で赤(0) になるように補間
+        const hue = 50 - (50 - 0) * (clampedChain - 1) / (maxChainForColor - 1);
+        const saturation = 100; // 彩度は最大に固定
+
+        // 連鎖数に基づいてアニメーションクラスを生成
+        const shakeClass = chainCount > 1
+          ? `chain-shake-${Math.min(chainCount, 10)}`
+          : ""; // 連鎖数に応じてクラス名を変更 (最大6まで)
+
         return (
           <div
             key={id}
-            className="floating-score"
+            className={`floating-score ${shakeClass}`} // クラス名を追加
             style={{
               position: "absolute", // 絶対配置にする
               top: `${row * (100 / BOARD_SIZE)}%`, // セルの高さに基づいて位置を計算
@@ -274,7 +297,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
               alignItems: "center", // 垂直方向の中央寄せ
               fontSize: `${fontSize}rem`, // 計算したフォントサイズを適用
               fontWeight: "bold", // 太字にする
-              color: "white", // 文字色を白に
+              color: `hsl(${hue}, ${saturation}%, ${lightness}%)`, // HSL形式で色を設定
               textShadow: "2px 2px 4px rgba(0,0,0,0.5)", // 影をつける
               pointerEvents: "none", // クリックイベントを無効化
               zIndex: 10, // 他の要素より前面に表示
