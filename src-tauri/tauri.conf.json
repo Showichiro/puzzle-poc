@@ -2,10 +2,10 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "puzzle-app",
   "version": "0.1.0",
-  "identifier": "com.puzzle-app.app",
+  "identifier": "com.puzzle.app",
   "build": {
     "beforeDevCommand": "deno task dev",
-    "devUrl": "http://localhost:1420/puzzle-poc",
+    "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "deno task build",
     "frontendDist": "../dist"
   },
