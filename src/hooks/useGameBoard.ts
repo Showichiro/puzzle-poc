@@ -361,7 +361,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     board: Array<Array<number | null>>,
     speed: number,
   ) => {
-    const delay = 300 / speed; // 速度に基づいて遅延時間を計算
+    // Prevent division by zero or negative waits by enforcing a minimum speed
+    const safeSpeed = Math.max(speed, 0.1);
+    const delay = 300 / safeSpeed; // 速度に基づいて遅延時間を計算
 
     let boardAfterStep = board.map((r) => [...r]);
     let matches = findMatches(boardAfterStep);
