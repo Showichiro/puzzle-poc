@@ -5,6 +5,7 @@ import GameOverModal from "./GameOverModal";
 import DifficultySelector from "./DifficultySelector"; // DifficultySelector をインポート
 import useGameBoard from "../hooks/useGameBoard";
 import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTypes を削除
+import { useAnimationSpeed } from "../contexts/AnimationSpeedContext"; // AnimationSpeedContext をインポート
 
 // Difficulty 型を App.tsx からインポートするか、ここで定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -213,6 +214,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           </span>
         </div>
       </div>
+
       {/* --- ゲーム盤エリア --- */}
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
       {!showDifficultySelector && !showStageClearModal && (

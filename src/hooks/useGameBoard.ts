@@ -8,6 +8,7 @@ import {
   refillBoard,
   selectStageColors,
 } from "../utils/gameLogic";
+import { useAnimationSpeed } from "../contexts/AnimationSpeedContext"; // AnimationSpeedContext をインポート
 
 // Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -85,6 +86,8 @@ const calculateStageGoals = (
 };
 
 const useGameBoard = (initialDifficulty: Difficulty) => {
+  const { speed } = useAnimationSpeed(); // アニメーション速度を取得
+
   // 盤面を生成し、マッチがないように調整し、詰みチェックを行うヘルパー関数
   const createAndInitializeBoard = (): Array<Array<number | null>> => {
     let board: Array<Array<number | null>> = Array(BOARD_SIZE)
@@ -354,7 +357,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   };
 
   // 連鎖の各ステップ（マッチ消去、落下、補充）を処理するヘルパー関数
-  const processChainStep = async (board: Array<Array<number | null>>) => {
+  const processChainStep = async (
+    board: Array<Array<number | null>>,
+    speed: number,
+  ) => {
+    const delay = 300 / speed; // 速度に基づいて遅延時間を計算
+
     let boardAfterStep = board.map((r) => [...r]);
     let matches = findMatches(boardAfterStep);
 
@@ -363,17 +371,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       boardAfterStep[row][col] = null;
     });
     setBoard(boardAfterStep.map((r) => [...r])); // 消去状態を表示
-    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ (アニメーションのため)
+    await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ (アニメーションのため)
 
     // 2. ブロックを落下させる
     boardAfterStep = applyGravity(boardAfterStep);
     setBoard(boardAfterStep.map((r) => [...r])); // 落下状態を表示
-    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
+    await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ
 
     // 3. 新しいブロックを補充する
     boardAfterStep = refillBoard(boardAfterStep);
     setBoard(boardAfterStep.map((r) => [...r])); // 補充状態を表示
-    await new Promise((resolve) => setTimeout(resolve, 300)); // 少し待つ
+    await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ
 
     return boardAfterStep;
   };
@@ -456,7 +464,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       );
 
       // マッチ消去、落下、補充を処理
-      boardAfterProcessing = await processChainStep(boardAfterProcessing);
+      boardAfterProcessing = await processChainStep(
+        boardAfterProcessing,
+        speed,
+      ); // speed を渡す
 
       // 再度マッチをチェック (連鎖)
       matches = findMatches(boardAfterProcessing);
