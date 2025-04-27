@@ -8,6 +8,14 @@ function App() {
       <h1 className="text-2xl font-bold mb-4">パズルゲーム</h1>
       {/* GameBoard に初期難易度を渡す (例: "medium") */}
       <GameBoard initialDifficulty="medium" />
+      <a
+        href="https://www.buymeacoffee.com/maro01231"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 text-blue-600 hover:underline"
+      >
+        Buy me a coffee!
+      </a>
     </main>
   );
 }
