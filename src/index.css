@@ -26,3 +26,41 @@
     transform: translateY(-30px); /* 上に30px移動 */
   }
 }
+
+/* 左右に揺れるアニメーション */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px); /* 左に揺れる */
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px); /* 右に揺れる */
+  }
+}
+
+/* 連鎖数に応じた揺れアニメーション */
+.chain-shake-5 {
+  animation: shake 3s ease-in-out infinite; /* 揺れを適用 */
+}
+
+.chain-shake-6 {
+  animation: shake 2s ease-in-out infinite; /* 揺れを適用 */
+}
+
+.chain-shake-7 {
+  animation: shake 1s ease-in-out infinite; /* 少し速く揺れる */
+}
+
+.chain-shake-8 {
+  animation: shake 0.7s ease-in-out infinite; /* さらに速く揺れる */
+}
+
+.chain-shake-9 {
+  animation: shake 0.5s ease-in-out infinite; /* さらに速く揺れる */
+}
+
+.chain-shake-10 {
+  animation: shake 0.3s ease-in-out infinite; /* さらに速く揺れる */
+}
