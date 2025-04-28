@@ -197,10 +197,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
   }, []);
 
-  // ゲームオーバー時に最高クリアステージを更新
+  // ゲームオーバー時に最高クリアステージと過去10回の到達ステージ履歴を更新
   useEffect(() => {
     if (isGameOver) {
-      const lastClearedStage = stage - 1; // 現在のステージの1つ前が最後にクリアしたステージ
+      const lastClearedStage = Math.max(0, stage - 1); // 現在のステージの1つ前が最後にクリアしたステージ (最低0)
+
+      // 最高クリアステージの更新
       if (lastClearedStage > highestStageCleared) {
         setHighestStageCleared(lastClearedStage);
         localStorage.setItem(
@@ -209,8 +211,24 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         );
         console.log(`New highest stage cleared: ${lastClearedStage}`);
       }
+
+      // 過去10回の到達ステージ履歴の更新
+      const storedHistory = localStorage.getItem("stageHistory");
+      let history: number[] = storedHistory ? JSON.parse(storedHistory) : [];
+
+      // 新しいステージを追加
+      history.push(lastClearedStage);
+
+      // 履歴が10件を超えたら古いものから削除
+      if (history.length > 10) {
+        history = history.slice(history.length - 10);
+      }
+
+      // 更新した履歴をlocalStorageに保存
+      localStorage.setItem("stageHistory", JSON.stringify(history));
+      console.log("Updated stage history:", history);
     }
-  }, [isGameOver, stage, highestStageCleared]);
+  }, [isGameOver, stage, highestStageCleared]); // highestStageCleared も依存配列に残す
 
   // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
   useEffect(() => {
@@ -366,7 +384,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     const delay = 300 / safeSpeed; // 速度に基づいて遅延時間を計算
 
     let boardAfterStep = board.map((r) => [...r]);
-    let matches = findMatches(boardAfterStep);
+    const matches = findMatches(boardAfterStep);
 
     // 1. マッチしたブロックを消す
     matches.forEach(({ row, col }) => {

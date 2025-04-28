@@ -1,16 +1,30 @@
+import { useState } from "react"; // useState をインポート
 import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
 import Header from "./components/Header"; // Header コンポーネントをインポート
+import StageHistoryModal from "./components/StageHistoryModal"; // StageHistoryModal をインポート
 
 function App() {
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // モーダルの表示状態
+
+  const handleOpenHistoryModal = () => {
+    setIsHistoryModalOpen(true);
+  };
+
+  const handleCloseHistoryModal = () => {
+    setIsHistoryModalOpen(false);
+  };
+
   // App.tsx では難易度選択の状態を持たず、常に GameBoard をレンダリングする
   // GameBoard 内部で難易度選択モーダルの表示を制御する
   return (
     <AnimationSpeedProvider>
       <main className="container mx-auto max-w-lg p-4 flex flex-col items-center">
-        <Header /> {/* Header コンポーネントを配置 */}
+        {/* Header にモーダルを開く関数を渡す */}
+        <Header onOpenHistoryModal={handleOpenHistoryModal} />
         {/* GameBoard に初期難易度を渡す (例: "medium") */}
         <GameBoard initialDifficulty="medium" />
+        {/* StageHistoryChart の直接表示を削除 */}
         <a
           href="https://www.buymeacoffee.com/maro01231"
           target="_blank"
@@ -20,6 +34,11 @@ function App() {
           Buy me a coffee!
         </a>
       </main>
+      {/* モーダルコンポーネントに state と関数を渡す */}
+      <StageHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={handleCloseHistoryModal}
+      />
     </AnimationSpeedProvider>
   );
 }
