@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // useState をインポート
+import { useState } from "react"; // useState をインポート
 import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
 import Header from "./components/Header"; // Header コンポーネントをインポート

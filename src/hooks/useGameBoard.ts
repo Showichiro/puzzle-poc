@@ -384,7 +384,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     const delay = 300 / safeSpeed; // 速度に基づいて遅延時間を計算
 
     let boardAfterStep = board.map((r) => [...r]);
-    let matches = findMatches(boardAfterStep);
+    const matches = findMatches(boardAfterStep);
 
     // 1. マッチしたブロックを消す
     matches.forEach(({ row, col }) => {

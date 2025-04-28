@@ -25,6 +25,7 @@ const StageHistoryModal: React.FC<StageHistoryModalProps> = (
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">過去の到達ステージ数</h2>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl" // ボタンサイズ調整
             aria-label="Close modal"

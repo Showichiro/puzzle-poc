@@ -18,12 +18,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => { // props を
       <div className="flex items-center space-x-2">
         {/* ボタンを横並びにする */}
         <button
+          type="button"
           onClick={handleSpeedChange}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         >
           速度: x{speed === 0.5 ? "0.5" : speed}
         </button>
         <button
+          type="button"
           onClick={onOpenHistoryModal} // インフォボタンのクリックハンドラ
           className="px-3 py-2 rounded"
           aria-label="Show stage history"
