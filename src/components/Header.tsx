@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
                 消した数<sup>1.5</sup>: 消したブロック数の1.5乗
               </li>
               <li>
-                連鎖ボーナス: 2<sup>(連鎖数 - 1)</sup>
+                連鎖ボーナス: 2.5<sup>(連鎖数 - 1)</sup>
               </li>
             </ul>
             <p>特殊消し:</p>
