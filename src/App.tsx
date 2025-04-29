@@ -2,7 +2,7 @@ import { lazy, Suspense, useState } from "react"; // useState をインポート
 import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
 import Header from "./components/Header";
-const StageHistoryModal = lazy(() => import('./components/StageHistoryModal'));
+const StageHistoryModal = lazy(() => import("./components/StageHistoryModal"));
 
 function App() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // モーダルの表示状態

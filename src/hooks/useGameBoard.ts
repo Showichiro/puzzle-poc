@@ -416,7 +416,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 基本点はステージに応じて増加
     const basePoints = 10 + (stage - 1) * 5; // Stage 1: 10, Stage 2: 15, ...
     // 連鎖ボーナス
-    const chainBonus = Math.pow(2, chainCount - 1);
+    const chainBonus = Math.pow(2.5, chainCount - 1);
     // 消したブロック数ボーナス: 消した数^1.5
     const clearedBlocksBonus = Math.pow(matches.length, 1.5);
 
