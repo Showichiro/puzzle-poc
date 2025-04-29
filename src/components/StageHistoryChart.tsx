@@ -23,7 +23,7 @@ const StageHistoryChart: React.FC = () => {
         // rechartsで表示するためにデータを整形
         const formattedData = history.map((stage, index) => ({
           name: `${index + 1}`, // X軸のラベル
-          stage: stage,         // Y軸の値 (到達ステージ)
+          stage: stage, // Y軸の値 (到達ステージ)
         }));
         setHistoryData(formattedData);
       } catch (error) {

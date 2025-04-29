@@ -91,77 +91,137 @@ export const generatePatternSymbols = (): { [key: number]: string } => {
   return patternSymbols;
 };
 
-// 水平方向のマッチを見つけるヘルパー関数
+// 水平方向のマッチグループを見つけるヘルパー関数
+// 戻り値は Set<Set<string>> で、各内部Setが一つの連続したマッチを表す
 const findHorizontalMatches = (
   currentBoard: Array<Array<number | null>>,
-): Set<string> => {
-  const matches = new Set<string>();
+): Set<Set<string>> => {
+  const matchGroups = new Set<Set<string>>();
   // 各行を走査
   for (let r = 0; r < BOARD_SIZE; r++) {
-    // 各列を走査し、3つ以上の連続する同じブロックを探す
-    for (let c = 0; c < BOARD_SIZE - 2; c++) {
+    let c = 0;
+    while (c < BOARD_SIZE - 2) {
       const cell1 = currentBoard[r][c];
-      // null でなく、右隣2つと同じブロックであればマッチ
-      if (
-        cell1 !== null && cell1 === currentBoard[r][c + 1] &&
-        cell1 === currentBoard[r][c + 2]
+      if (cell1 === null) {
+        c++;
+        continue;
+      }
+
+      // 連続する同じブロックを探す
+      let matchLength = 1;
+      while (
+        c + matchLength < BOARD_SIZE &&
+        currentBoard[r][c + matchLength] === cell1
       ) {
-        // マッチしたブロックの座標をSetに追加
-        matches.add(`${r}-${c}`);
-        matches.add(`${r}-${c + 1}`);
-        matches.add(`${r}-${c + 2}`);
-        // 3つ以上のマッチの場合、それ以降の連続するブロックも追加
-        for (let k = c + 3; k < BOARD_SIZE; k++) {
-          if (cell1 === currentBoard[r][k]) matches.add(`${r}-${k}`);
-          else break;
+        matchLength++;
+      }
+
+      // 3つ以上連続していればマッチグループとして追加
+      if (matchLength >= 3) {
+        const currentMatch = new Set<string>();
+        for (let k = 0; k < matchLength; k++) {
+          currentMatch.add(`${r}-${c + k}`);
         }
+        matchGroups.add(currentMatch);
+        c += matchLength; // マッチした分だけインデックスを進める
+      } else {
+        c++; // マッチしなかったので次のセルへ
       }
     }
   }
-  return matches;
+  return matchGroups;
 };
 
-// 垂直方向のマッチを見つけるヘルパー関数
+// 垂直方向のマッチグループを見つけるヘルパー関数
+// 戻り値は Set<Set<string>> で、各内部Setが一つの連続したマッチを表す
 const findVerticalMatches = (
   currentBoard: Array<Array<number | null>>,
-): Set<string> => {
-  const matches = new Set<string>();
+): Set<Set<string>> => {
+  const matchGroups = new Set<Set<string>>();
   // 各列を走査
   for (let c = 0; c < BOARD_SIZE; c++) {
-    // 各行を走査し、3つ以上の連続する同じブロックを探す
-    for (let r = 0; r < BOARD_SIZE - 2; r++) {
+    let r = 0;
+    while (r < BOARD_SIZE - 2) {
       const cell1 = currentBoard[r][c];
-      // null でなく、下隣2つと同じブロックであればマッチ
-      if (
-        cell1 !== null && cell1 === currentBoard[r + 1][c] &&
-        cell1 === currentBoard[r + 2][c]
+      if (cell1 === null) {
+        r++;
+        continue;
+      }
+
+      // 連続する同じブロックを探す
+      let matchLength = 1;
+      while (
+        r + matchLength < BOARD_SIZE &&
+        currentBoard[r + matchLength][c] === cell1
       ) {
-        // マッチしたブロックの座標をSetに追加
-        matches.add(`${r}-${c}`);
-        matches.add(`${r + 1}-${c}`);
-        matches.add(`${r + 2}-${c}`);
-        // 3つ以上のマッチの場合、それ以降の連続するブロックも追加
-        for (let k = r + 3; k < BOARD_SIZE; k++) {
-          if (cell1 === currentBoard[k][c]) matches.add(`${k}-${c}`);
-          else break;
+        matchLength++;
+      }
+
+      // 3つ以上連続していればマッチグループとして追加
+      if (matchLength >= 3) {
+        const currentMatch = new Set<string>();
+        for (let k = 0; k < matchLength; k++) {
+          currentMatch.add(`${r + k}-${c}`);
         }
+        matchGroups.add(currentMatch);
+        r += matchLength; // マッチした分だけインデックスを進める
+      } else {
+        r++; // マッチしなかったので次のセルへ
       }
     }
   }
-  return matches;
+  return matchGroups;
 };
 
-// ゲーム盤上の全てのマッチを見つける関数
+// ゲーム盤上の全てのマッチを見つける関数（特殊消去ロジックを含む）
 export const findMatches = (
   currentBoard: Array<Array<number | null>>,
 ): Array<{ row: number; col: number }> => {
-  // 水平方向と垂直方向のマッチをそれぞれ検出し、結合
-  const horizontalMatches = findHorizontalMatches(currentBoard);
-  const verticalMatches = findVerticalMatches(currentBoard);
-  const allMatches = new Set([...horizontalMatches, ...verticalMatches]);
+  // 水平方向と垂直方向のマッチグループをそれぞれ検出
+  const horizontalMatchGroups = findHorizontalMatches(currentBoard);
+  const verticalMatchGroups = findVerticalMatches(currentBoard);
 
-  // マッチした座標のSetを { row, col } オブジェクトの配列に変換して返す
-  return Array.from(allMatches).map((key) => {
+  // 消去対象となる全てのブロックの座標を保持するSet
+  const blocksToClear = new Set<string>();
+  // 特殊効果（同色全消し）が発動した色を記録するSet
+  const specialClearColors = new Set<number>();
+
+  // 各マッチグループを処理
+  const processMatchGroup = (matchGroup: Set<string>) => {
+    // まず、通常のマッチとして消去対象に追加
+    matchGroup.forEach((key) => blocksToClear.add(key));
+
+    // 5つ以上の連続マッチの場合、特殊効果を準備
+    if (matchGroup.size >= 5) {
+      // グループ内の最初のブロックから色を取得
+      const firstKey = matchGroup.values().next().value;
+      if (firstKey) {
+        const [r, c] = firstKey.split("-").map(Number);
+        const color = currentBoard[r][c];
+        if (color !== null) {
+          specialClearColors.add(color); // 特殊効果対象の色として記録
+        }
+      }
+    }
+  };
+
+  horizontalMatchGroups.forEach(processMatchGroup);
+  verticalMatchGroups.forEach(processMatchGroup);
+
+  // 特殊効果が発動した色があれば、盤面全体からその色のブロックを追加
+  if (specialClearColors.size > 0) {
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        const color = currentBoard[r][c];
+        if (color !== null && specialClearColors.has(color)) {
+          blocksToClear.add(`${r}-${c}`);
+        }
+      }
+    }
+  }
+
+  // 消去対象の座標Setを { row, col } オブジェクトの配列に変換して返す
+  return Array.from(blocksToClear).map((key) => {
     const [row, col] = key.split("-").map(Number);
     return { row, col };
   });
