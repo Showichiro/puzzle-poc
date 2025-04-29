@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 
 interface HeaderProps {
-  onOpenHistoryModal: () => void; // モーダルを開く関数の型定義を追加
+  onOpenHistoryModal: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => { // props を受け取る
+const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const { speed, setSpeed } = useAnimationSpeed();
 
   const handleSpeedChange = () => {
     setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : speed === 3 ? 0.5 : 1);
+  };
+
+  const openInfoModal = () => {
+    setIsInfoModalOpen(true);
+  };
+
+  const closeInfoModal = () => {
+    setIsInfoModalOpen(false);
   };
 
   return (
@@ -22,11 +31,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => { // props を
           onClick={handleSpeedChange}
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         >
-          速度: x{speed === 0.5 ? "0.5" : speed}
+          x{speed === 0.5 ? "0.5" : speed}
         </button>
         <button
           type="button"
-          onClick={onOpenHistoryModal} // インフォボタンのクリックハンドラ
+          onClick={onOpenHistoryModal}
           className="px-3 py-2 rounded"
           aria-label="Show stage history"
         >
@@ -45,7 +54,66 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => { // props を
             />
           </svg>
         </button>
+        <button
+          className="font-bold py-2 px-4 rounded"
+          onClick={openInfoModal}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+            />
+          </svg>
+        </button>
       </div>
+
+      {isInfoModalOpen && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center z-100">
+          <div className="bg-white p-8 rounded">
+            <h2 className="text-xl font-bold mb-4">ゲーム情報</h2>
+            <p>スコア計算:</p>
+            <p>
+              基本点 * 消した数<sup>1.5</sup> * 連鎖ボーナス
+            </p>
+            <ul>
+              <li>基本点: 10 + (ステージ - 1) * 5</li>
+              <li>
+                消した数<sup>1.5</sup>: 消したブロック数の1.5乗
+              </li>
+              <li>
+                連鎖ボーナス: 2<sup>(連鎖数 - 1)</sup>
+              </li>
+            </ul>
+            <p>特殊消し:</p>
+            <p>
+              一列に5つ消すと、同じ色のブロックが全て消えます。
+            </p>
+            <p>ボーナス手数:</p>
+            <p>
+              目標スコアを上回ると、ボーナス手数が加算されます。 (最大3手)
+            </p>
+            <ul>
+              <li>
+                計算式: ((スコア / 目標スコア - 1.0) * 100) / 500 (最大3手)
+              </li>
+            </ul>
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
+              onClick={closeInfoModal}
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

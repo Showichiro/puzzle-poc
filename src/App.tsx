@@ -1,8 +1,8 @@
-import { useState } from "react"; // useState をインポート
+import { lazy, Suspense, useState } from "react"; // useState をインポート
 import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
-import Header from "./components/Header"; // Header コンポーネントをインポート
-import StageHistoryModal from "./components/StageHistoryModal"; // StageHistoryModal をインポート
+import Header from "./components/Header";
+const StageHistoryModal = lazy(() => import('./components/StageHistoryModal'));
 
 function App() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // モーダルの表示状態
@@ -35,10 +35,12 @@ function App() {
         </a>
       </main>
       {/* モーダルコンポーネントに state と関数を渡す */}
-      <StageHistoryModal
-        isOpen={isHistoryModalOpen}
-        onClose={handleCloseHistoryModal}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <StageHistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={handleCloseHistoryModal}
+        />
+      </Suspense>
     </AnimationSpeedProvider>
   );
 }
