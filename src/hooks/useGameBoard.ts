@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import {
   applyGravity,
-  BOARD_SIZE,
   checkForPossibleMoves,
+  createAndInitializeBoard,
   findMatches,
-  getRandomBlock,
   refillBoard,
   selectStageColors,
 } from "../utils/gameLogic";
@@ -88,41 +87,6 @@ const calculateStageGoals = (
 const useGameBoard = (initialDifficulty: Difficulty) => {
   const { speed } = useAnimationSpeed(); // アニメーション速度を取得
 
-  // 盤面を生成し、マッチがないように調整し、詰みチェックを行うヘルパー関数
-  const createAndInitializeBoard = (): Array<Array<number | null>> => {
-    let board: Array<Array<number | null>> = Array(BOARD_SIZE)
-      .fill(null)
-      .map(
-        () =>
-          Array(BOARD_SIZE)
-            .fill(null)
-            .map(() => getRandomBlock()), // 選択された色で盤面生成
-      );
-
-    // 初期盤面でマッチがないように調整
-    let matches = findMatches(board);
-    while (matches.length > 0) {
-      matches.forEach(({ row, col }) => {
-        board[row][col] = getRandomBlock();
-      });
-      matches = findMatches(board);
-    }
-
-    // 重力と補充も適用
-    board = applyGravity(board);
-    board = refillBoard(board);
-
-    // 詰み状態チェック
-    const hasPossibleMoves = checkForPossibleMoves(board);
-    if (!hasPossibleMoves) {
-      console.log("Generated board has no possible moves, regenerating...");
-      // 詰みの場合は再帰的に呼び出す
-      return createAndInitializeBoard();
-    }
-
-    return board;
-  };
-
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     selectStageColors(); // まず色を選択
@@ -176,7 +140,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const [bonusMoves, setBonusMoves] = useState(0);
   // スコア倍率
   const [scoreMultiplier, setScoreMultiplier] = useState(1); // 初期値は1倍
-  // 加算スコア表示用 state
   // 加算スコア表示用 state
   const [floatingScores, setFloatingScores] = useState<
     {
