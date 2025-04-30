@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from "react"; // useState をインポート
 import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
 import Header from "./components/Header";
+import { BuyMeACoffeeLink } from "./components/BuyMeACoffeeLink";
 const StageHistoryModal = lazy(() => import("./components/StageHistoryModal"));
 
 function App() {
@@ -25,14 +26,7 @@ function App() {
         {/* GameBoard に初期難易度を渡す (例: "medium") */}
         <GameBoard initialDifficulty="medium" />
         {/* StageHistoryChart の直接表示を削除 */}
-        <a
-          href="https://www.buymeacoffee.com/maro01231"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 text-blue-600 hover:underline"
-        >
-          Buy me a coffee!
-        </a>
+        <BuyMeACoffeeLink />
       </main>
       {/* モーダルコンポーネントに state と関数を渡す */}
       <Suspense fallback={<div>Loading...</div>}>
