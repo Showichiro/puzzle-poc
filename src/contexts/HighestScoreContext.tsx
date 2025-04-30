@@ -38,7 +38,7 @@ export const useHighestScore = () => {
   const context = useContext(HighestScoreContext);
   if (context === undefined) {
     throw new Error(
-      "useHighestSpeed must be used within an HighestScoreProvider",
+      "useHighestSpeed must be used within a HighestScoreProvider",
     );
   }
   return context;
