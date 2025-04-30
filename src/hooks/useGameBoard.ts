@@ -151,13 +151,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
 
-  // ゲームオーバー時に最高クリアステージと過去10回の到達ステージ履歴を更新
-  useEffect(() => {
-    if (isGameOver) {
-      saveGameHistory(stage);
-    }
-  }, [isGameOver, stage]); // highestStageCleared も依存配列に残す
-
   // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
   useEffect(() => {
     if (isStageClear) {
@@ -224,7 +217,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       console.log(
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
-      setIsGameOver(true); // ゲームオーバーフラグを立てる
+      saveGameHistory(stage);
     }
   };
 
