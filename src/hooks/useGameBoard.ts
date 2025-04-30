@@ -107,8 +107,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const [isGameOver, setIsGameOver] = useState(false);
   // スコア
   const [score, setScore] = useState(0);
-  // 最高クリアステージ
-  const [highestStageCleared, setHighestStageCleared] = useState(0);
   // ステージレベル
   const [stage, setStage] = useState(1); // 現在のステージレベル
   // ★ 現在の目標 (初期値は stage 1 の初期手数と目標スコア)
@@ -152,28 +150,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
 
-  useEffect(() => {
-    // 最高クリアステージを読み込む
-    const storedHighestStage = localStorage.getItem("highestStageCleared");
-    if (storedHighestStage) {
-      setHighestStageCleared(parseInt(storedHighestStage, 10));
-    }
-  }, []);
-
   // ゲームオーバー時に最高クリアステージと過去10回の到達ステージ履歴を更新
   useEffect(() => {
     if (isGameOver) {
       const lastClearedStage = Math.max(0, stage - 1); // 現在のステージの1つ前が最後にクリアしたステージ (最低0)
-
-      // 最高クリアステージの更新
-      if (lastClearedStage > highestStageCleared) {
-        setHighestStageCleared(lastClearedStage);
-        localStorage.setItem(
-          "highestStageCleared",
-          lastClearedStage.toString(),
-        );
-        console.log(`New highest stage cleared: ${lastClearedStage}`);
-      }
 
       // 過去10回の到達ステージ履歴の更新
       const storedHistory = localStorage.getItem("stageHistory");
@@ -191,7 +171,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       localStorage.setItem("stageHistory", JSON.stringify(history));
       console.log("Updated stage history:", history);
     }
-  }, [isGameOver, stage, highestStageCleared]); // highestStageCleared も依存配列に残す
+  }, [isGameOver, stage]); // highestStageCleared も依存配列に残す
 
   // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
   useEffect(() => {
@@ -494,7 +474,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     isProcessing,
     isGameOver,
     score,
-    highestStageCleared, // 追加
     scoreMultiplier,
     resetBoard,
     processMatchesAndGravity,

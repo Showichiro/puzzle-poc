@@ -5,6 +5,7 @@ import GameOverModal from "./GameOverModal";
 import DifficultySelector from "./DifficultySelector"; // DifficultySelector をインポート
 import useGameBoard from "../hooks/useGameBoard";
 import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTypes を削除
+import { InfoArea } from "./InfoArea";
 
 // Difficulty 型を App.tsx からインポートするか、ここで定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -75,7 +76,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     isProcessing,
     isGameOver,
     score,
-    highestStageCleared, // 追加
     scoreMultiplier,
     resetBoard,
     processMatchesAndGravity,
@@ -153,7 +153,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
       <AnimatePresence>
         {isGameOver && (
           <GameOverModal
-            highestStageCleared={highestStageCleared}
             resetBoard={resetBoard}
             stage={stage}
             score={score}
@@ -180,39 +179,14 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
       </AnimatePresence>
 
       {/* --- 情報表示エリア --- */}
-      <div className="grid grid-cols-3 gap-x-4 gap-y-1 mb-4 p-2 bg-gray-100 rounded">
-        {/* Row 1 */}
-        <div className="text-center">
-          <span className="text-xs text-gray-600 block">Stage</span>
-          <span className="text-lg font-semibold">{stage}</span>
-        </div>
-        <div className="text-center">
-          <span className="text-xs text-gray-600 block">残り手数</span>
-          <span className="text-lg font-semibold">
-            {currentMaxMoves - moves}
-          </span>
-        </div>
-        <div className="text-center">
-          <span className="text-xs text-gray-600 block">最高記録</span>
-          <span className="text-lg font-semibold">
-            Stage {highestStageCleared}
-          </span>
-        </div>
-        {/* Row 2 */}
-        <div className="text-center col-span-2">
-          {/* スコアは2列分使う */}
-          <span className="text-xs text-gray-600 block">スコア / 目標</span>
-          <span className="text-lg font-semibold">
-            {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
-          </span>
-        </div>
-        <div className="text-center">
-          <span className="text-xs text-gray-600 block">倍率</span>
-          <span className="text-lg font-semibold">
-            x{scoreMultiplier.toFixed(1)}
-          </span>
-        </div>
-      </div>
+      <InfoArea
+        currentMaxMoves={currentMaxMoves}
+        currentTargetScore={currentTargetScore}
+        score={score}
+        scoreMultiplier={scoreMultiplier}
+        stage={stage}
+        moves={moves}
+      />
 
       {/* --- ゲーム盤エリア --- */}
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
