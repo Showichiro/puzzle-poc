@@ -3,8 +3,17 @@ export const saveGameHistory = (stage: number) => {
 
   // 過去10回の到達ステージ履歴の更新
   const storedHistory = localStorage.getItem("stageHistory");
-  let history: number[] = storedHistory ? JSON.parse(storedHistory) : [];
-
+  let history: number[] = [];
+  try {
+    if (storedHistory) {
+      history = JSON.parse(storedHistory);
+      if (!Array.isArray(history)) {
+        history = [];
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing stage history:", error);
+  }
   // 新しいステージを追加
   history.push(lastClearedStage);
 
