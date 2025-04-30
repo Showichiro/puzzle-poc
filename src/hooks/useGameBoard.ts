@@ -9,6 +9,7 @@ import {
 } from "../utils/gameLogic";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext"; // AnimationSpeedContext をインポート
 import { saveGameHistory } from "../utils/saveGameHistory";
+import { useHighestScore } from "../contexts/HighestScoreContext";
 
 // Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -150,6 +151,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }[] // chainCount を追加
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
+  const { setHighestStage } = useHighestScore();
 
   // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
   useEffect(() => {
@@ -164,6 +166,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         medium: calculateStageGoals(nextStage, "medium"),
         hard: calculateStageGoals(nextStage, "hard"),
       });
+      setHighestStage(stage);
     } else {
       // ★ ステージクリアモーダルも非表示にする
       setShowStageClearModal(false);
@@ -218,6 +221,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
       saveGameHistory(stage);
+      setIsGameOver(true);
     }
   };
 
