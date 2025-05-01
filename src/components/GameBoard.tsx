@@ -73,19 +73,18 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         setMoves(nextMoves);
 
         // ★ カード効果のターン経過処理
-        if (cardTurnsLeft > 0) {
-          const newTurnsLeft = cardTurnsLeft - 1;
-          setCardTurnsLeft(newTurnsLeft);
-          if (newTurnsLeft === 0) {
+        setCardTurnsLeft(prev => {
+          if (prev <= 0) return prev;        // nothing to do
+          const next = prev - 1;
+          if (next === 0) {
             setCardMultiplier(1); // 効果終了
             setScoreMultiplier(1);
             console.log("Card effect ended.");
           } else {
-            console.log(
-              `Card effect: ${cardMultiplier}x, Turns left: ${newTurnsLeft}`,
-            );
+            console.log(`Card effect: ${cardMultiplier}x, Turns left: ${next}`);
           }
-        }
+          return next;
+        });
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
         const initialMatches = findMatches(newBoard);
