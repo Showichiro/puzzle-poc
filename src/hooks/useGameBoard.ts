@@ -40,9 +40,9 @@ const calculateStageGoals = (
 
   // 難易度に応じたステージクリア時の加算手数
   const addedMovesMap: Record<Difficulty, number> = {
-    easy: 1, // 簡単なら多く加算
-    medium: 3,
-    hard: 5, // 難しいなら少なく加算
+    easy: 1,
+    medium: 2,
+    hard: 4,
   };
 
   // ★ 加算手数はステージや難易度で固定とする (シンプル化のため)
@@ -152,6 +152,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
   const { setHighestStage } = useHighestScore();
+  // カード効果の状態
+  const [cardMultiplier, setCardMultiplier] = useState(1); // カードによるスコア倍率 (初期値1)
+  const [cardTurnsLeft, setCardTurnsLeft] = useState(0); // カード効果の残りターン数 (初期値0)
 
   // ステージクリアをチェックする関数
   const checkStageClear = (currentScore: number) => {
@@ -176,13 +179,13 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         : 0;
       let calculatedBonusMoves = 0;
       if (scoreRatio > 1.0) {
-        calculatedBonusMoves = Math.floor(((scoreRatio - 1.0) * 100) / 500);
+        // ★ 超過スコアの割合に応じて逓減する計算式に変更 (例: 平方根に比例)
+        const excessRatio = scoreRatio - 1.0; // 超過した割合 (例: スコアが目標の1.5倍なら 0.5)
+        // 計算式例: (超過割合)^0.5 * 10
+        calculatedBonusMoves = Math.floor(Math.pow(excessRatio, 0.1) * 3);
       }
-      setBonusMoves(
-        calculatedBonusMoves > 0
-          ? Math.min(calculatedBonusMoves, 3)
-          : calculatedBonusMoves,
-      ); // 3手より大きなボーナスなし
+      // ★ 上限を撤廃
+      setBonusMoves(calculatedBonusMoves);
       // ★ 難易度選択ではなく、ステージクリアモーダルを表示
       setShowStageClearModal(true);
       // 次のステージの目標計算はここで行う
@@ -295,6 +298,61 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setScoreMultiplier(1);
     setFloatingScores([]);
     scoreIdCounter.current = 0;
+    // カード効果もリセット
+    setCardMultiplier(1);
+    setCardTurnsLeft(0);
+    setScoreMultiplier(1);
+  };
+
+  // ★ カードを引く関数
+  const drawCard = () => {
+    console.log("drawCard function called."); // ★ デバッグログ追加
+    // 手数が3未満、処理中、ゲームオーバー、ステージクリア中などは引けない
+    const remainingMoves = currentMaxMoves - moves; // ★ 残り手数を計算
+    console.log(
+      `Checking conditions: remainingMoves=${remainingMoves}, isProcessing=${isProcessing}, isGameOver=${isGameOver}, isStageClear=${isStageClear}, showDifficultySelector=${showDifficultySelector}, showStageClearModal=${showStageClearModal}`,
+    ); // ★ デバッグログ追加
+    if (
+      remainingMoves < 3 ||
+      isProcessing ||
+      isGameOver ||
+      isStageClear ||
+      showDifficultySelector ||
+      showStageClearModal
+    ) {
+      console.log("Cannot draw card now. Condition not met."); // ★ デバッグログ追加
+      return;
+    }
+
+    // 手数を3消費
+    const newMoves = moves + 3; // 手数は加算されるので注意
+    console.log(
+      `Drawing card: Consuming 3 moves. Old moves: ${moves}, New moves: ${newMoves}`,
+    ); // ★ 既存ログ (前の適用で入っていた)
+    setMoves(newMoves);
+
+    // ランダムな倍率を生成 (0.01 ~ 1000)
+    // 対数スケールでランダム性を出すと極端な値が出やすくなる
+    // Math.random() は 0以上1未満の値を返す
+    // ★ 最小値を 0.1 に変更
+    const randomLog = Math.random() * (Math.log(1000) - Math.log(0.1)) +
+      Math.log(0.1);
+    const randomMultiplier = Math.exp(randomLog);
+    const newMultiplier = parseFloat(randomMultiplier.toFixed(2)); // 小数点以下2桁に丸める
+
+    // カード効果を設定
+    setCardMultiplier(newMultiplier);
+    setCardTurnsLeft(3); // 効果は3ターン
+    setScoreMultiplier(newMultiplier);
+
+    console.log(
+      `Card drawn! Multiplier: ${newMultiplier}x for 3 turns. Moves left: ${
+        currentMaxMoves - newMoves
+      }`,
+    ); // ★ 既存ログ
+
+    // 手数消費によるゲームオーバーチェック
+    checkGameOver(newMoves, score);
   };
 
   // 連鎖の各ステップ（マッチ消去、落下、補充）を処理するヘルパー関数
@@ -344,7 +402,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     const clearedBlocksBonus = Math.pow(matches.length, 1.5);
 
     const pointsEarned = Math.floor(
-      basePoints * clearedBlocksBonus * chainBonus, // blockTypeBonus は常に1なので省略
+      basePoints * clearedBlocksBonus * chainBonus * cardMultiplier, // ★ カード倍率を適用
     ); // 整数にする
 
     // スコアの state を更新
@@ -352,7 +410,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setScore(newChainScore);
 
     // スコア倍率の state を更新 (表示用)
-    setScoreMultiplier(chainBonus); // 表示用には連鎖ボーナスのみを使用
+    // ★ 連鎖ボーナスとカード倍率を掛け合わせた値を設定
+    setScoreMultiplier(chainBonus * cardMultiplier);
 
     // 加算スコア表示用の情報を生成
     const currentFloatingScores = matches.map(({ row, col }) => ({
@@ -422,13 +481,15 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       }
     }
 
+    // 連鎖が終わったら倍率をリセットする
+    // ★ カード効果が残っている場合はカード倍率に、なければ1にリセット
+    setScoreMultiplier(cardTurnsLeft > 0 ? cardMultiplier : 1);
+
     // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
     if (!isStageClear && !showDifficultySelector && !showStageClearModal) {
       // ステージクリアしていなければ判定
       checkStageClear(currentChainScore);
     }
-    // 連鎖が終わったら倍率をリセットするのは継続
-    setScoreMultiplier(1);
 
     // 連鎖処理完了後に最終的なスコアと手数でゲームオーバーをチェック
     checkGameOver(currentMoves, currentChainScore);
@@ -468,6 +529,13 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     handleDifficultySelected, // 難易度選択ハンドラを追加
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
     bonusMoves, // ★ ボーナス手数を追加
+    drawCard, // ★ カードを引く関数を追加
+    cardMultiplier, // ★ カード倍率を追加
+    cardTurnsLeft, // ★ カード残りターン数を追加
+    setCardMultiplier, // ★ カード倍率セッターを追加
+    setCardTurnsLeft, // ★ カード残りターン数セッターを追加
+    setScoreMultiplier,
+    // handleMoveAction, // ★ ターン経過処理を含む関数 (UI側で呼び出す想定)
   };
 };
 

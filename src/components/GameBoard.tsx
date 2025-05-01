@@ -43,6 +43,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
     // ★ 現在の難易度を取得
     bonusMoves, // ★ bonusMoves を取得
+    // ★ カード関連の state と関数を取得
+    drawCard,
+    cardMultiplier,
+    cardTurnsLeft,
+    setCardMultiplier, // ターン経過で使用
+    setCardTurnsLeft, // ターン経過で使用
+    setScoreMultiplier,
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -68,6 +75,21 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         // 手数を増やし、ゲームステータスチェックは processMatchesAndGravity 内で行われる
         const nextMoves = moves + 1;
         setMoves(nextMoves);
+
+        // ★ カード効果のターン経過処理
+        if (cardTurnsLeft > 0) {
+          const newTurnsLeft = cardTurnsLeft - 1;
+          setCardTurnsLeft(newTurnsLeft);
+          if (newTurnsLeft === 0) {
+            setCardMultiplier(1); // 効果終了
+            setScoreMultiplier(1);
+            console.log("Card effect ended.");
+          } else {
+            console.log(
+              `Card effect: ${cardMultiplier}x, Turns left: ${newTurnsLeft}`,
+            );
+          }
+        }
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
         const initialMatches = findMatches(newBoard);
@@ -137,6 +159,10 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         scoreMultiplier={scoreMultiplier}
         stage={stage}
         moves={moves}
+        // ★ カード関連の props を渡す
+        cardMultiplier={cardMultiplier}
+        cardTurnsLeft={cardTurnsLeft}
+        drawCard={drawCard}
       />
 
       {/* --- ゲーム盤エリア --- */}
