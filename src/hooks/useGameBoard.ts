@@ -192,7 +192,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         medium: calculateStageGoals(nextStage, "medium"),
         hard: calculateStageGoals(nextStage, "hard"),
       });
-      setHighestStage(stage);
     }
   };
 
@@ -207,6 +206,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       console.log(
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
+      setHighestStage(stage);
       saveGameHistory(stage);
       setGameState("gameOver");
     }
