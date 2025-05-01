@@ -73,8 +73,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         setMoves(nextMoves);
 
         // ★ カード効果のターン経過処理
-        setCardTurnsLeft(prev => {
-          if (prev <= 0) return prev;        // nothing to do
+        setCardTurnsLeft((prev) => {
+          if (prev <= 0) return prev; // nothing to do
           const next = prev - 1;
           if (next === 0) {
             setCardMultiplier(1); // 効果終了

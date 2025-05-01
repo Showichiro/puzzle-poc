@@ -283,8 +283,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // カード効果もリセット
     setCardMultiplier(1);
     setCardTurnsLeft(0);
-    setScoreMultiplier(1);
-    setGameState("playing");
   };
 
   // ★ カードを引く関数
