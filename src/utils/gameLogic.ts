@@ -306,3 +306,37 @@ export const checkForPossibleMoves = (
   // 全ての組み合わせをチェックしても有効な手が見つからなかった
   return false;
 };
+
+export const createAndInitializeBoard = (): Array<Array<number | null>> => {
+  let board: Array<Array<number | null>> = Array(BOARD_SIZE)
+    .fill(null)
+    .map(
+      () =>
+        Array(BOARD_SIZE)
+          .fill(null)
+          .map(() => getRandomBlock()), // 選択された色で盤面生成
+    );
+
+  // 初期盤面でマッチがないように調整
+  let matches = findMatches(board);
+  while (matches.length > 0) {
+    matches.forEach(({ row, col }) => {
+      board[row][col] = getRandomBlock();
+    });
+    matches = findMatches(board);
+  }
+
+  // 重力と補充も適用
+  board = applyGravity(board);
+  board = refillBoard(board);
+
+  // 詰み状態チェック
+  const hasPossibleMoves = checkForPossibleMoves(board);
+  if (!hasPossibleMoves) {
+    console.log("Generated board has no possible moves, regenerating...");
+    // 詰みの場合は再帰的に呼び出す
+    return createAndInitializeBoard();
+  }
+
+  return board;
+};

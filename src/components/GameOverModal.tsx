@@ -1,19 +1,19 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import html2canvasPro from "html2canvas-pro";
+import { useHighestScore } from "../contexts/HighestScoreContext";
 
 interface GameOverModalProps {
-  // highScore: number; // 削除
-  highestStageCleared: number; // highScore から変更
   resetBoard: () => void;
   stage: number;
   score: number;
 }
 
 const GameOverModal: React.FC<GameOverModalProps> = (
-  { highestStageCleared, resetBoard, stage, score }, // highScore を highestStageCleared に変更
+  { resetBoard, stage, score }, // highScore を highestStageCleared に変更
 ) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { highestStage } = useHighestScore();
 
   return (
     <motion.div
@@ -36,7 +36,7 @@ const GameOverModal: React.FC<GameOverModalProps> = (
         </h2>
         <p>スコア: {score}</p>
         <p className="text-xl font-semibold mb-4">
-          {highestStageCleared} ステージまでクリアしました！
+          {highestStage} ステージまでクリアしました！
         </p>
         {/* highScore を highestStageCleared に変更 */}
         <button
