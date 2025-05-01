@@ -14,6 +14,12 @@ import { useHighestScore } from "../contexts/HighestScoreContext";
 // Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
 
+// ゲームの状態を定義
+type GameState =
+  | "playing"
+  | "stageClear"
+  | "difficultySelect"
+  | "gameOver";
 // ★ ステージ1の初期手数を定義
 const initialMovesMap: Record<Difficulty, number> = {
   easy: 5,
@@ -105,8 +111,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   >(null);
   // 操作中フラグ(連鎖中の誤操作防止)
   const [isProcessing, setIsProcessing] = useState(false);
-  // ゲームオーバーフラグ
-  const [isGameOver, setIsGameOver] = useState(false);
   // スコア
   const [score, setScore] = useState(0);
   // ステージレベル
@@ -122,12 +126,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const [currentTargetScore, setCurrentTargetScore] = useState(
     initialTargetScore,
   ); // ★ Stage 1 の目標スコア
-  // ステージクリアフラグ
-  const [isStageClear, setIsStageClear] = useState(false);
-  // ★ ステージクリアモーダル表示フラグを追加
-  const [showStageClearModal, setShowStageClearModal] = useState(false);
-  // 難易度選択モーダル表示フラグ
-  const [showDifficultySelector, setShowDifficultySelector] = useState(false);
+  // ゲームの状態を管理する state
+  const [gameState, setGameState] = useState<GameState>("playing");
+
   // ★ 次のステージの難易度ごとの目標 (加算手数と目標スコア)
   const [nextStageGoals, setNextStageGoals] = useState<
     Record<
@@ -159,18 +160,13 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // ステージクリアをチェックする関数
   const checkStageClear = (currentScore: number) => {
     // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
-    if (
-      isStageClear ||
-      isGameOver ||
-      showDifficultySelector ||
-      showStageClearModal
-    ) {
+    if (gameState !== "playing") {
       return;
     }
 
     if (currentScore >= currentTargetScore) {
       // ステージクリア！
-      setIsStageClear(true);
+      setGameState("stageClear");
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
 
       // ボーナス手数を計算
@@ -187,7 +183,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       // ★ 上限を撤廃
       setBonusMoves(calculatedBonusMoves);
       // ★ 難易度選択ではなく、ステージクリアモーダルを表示
-      setShowStageClearModal(true);
+      setGameState("stageClear");
       // 次のステージの目標計算はここで行う
       const nextStage = stage + 1;
       // ★ 次のステージの目標計算 (calculateStageGoals は difficulty が必須になった)
@@ -203,36 +199,28 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // ゲームオーバーをチェックする関数
   const checkGameOver = (currentMoves: number, currentScore: number) => {
     // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
-    if (
-      isStageClear ||
-      isGameOver ||
-      showDifficultySelector ||
-      showStageClearModal
-    ) {
+    if (gameState !== "playing") {
       return;
     }
-
     // ステージクリアしておらず、かつ手数が上限に達していたらゲームオーバー判定
-    if (!isStageClear && currentMoves >= currentMaxMoves) {
+    if (currentMoves >= currentMaxMoves) {
       console.log(
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
       saveGameHistory(stage);
-      setIsGameOver(true);
+      setGameState("gameOver");
     }
   };
 
   // ★ ステージクリアモーダルから難易度選択へ進む関数
   const handleProceedToNextStage = () => {
-    setShowStageClearModal(false); // ステージクリアモーダルを非表示
-    setShowDifficultySelector(true); // 難易度選択モーダルを表示
+    setGameState("difficultySelect"); // 難易度選択モーダルを表示
   };
 
   // 難易度選択後に次のステージに進む関数
   const handleDifficultySelected = (selectedDifficulty: Difficulty) => {
     // モーダル非表示と目標情報のリセット
-    setShowStageClearModal(false);
-    setShowDifficultySelector(false);
+    setGameState("playing");
     setNextStageGoals(null);
 
     // 次のステージの色を選択し、ステージ番号を更新
@@ -258,11 +246,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 各種stateのリセット
     setMoves(0);
     setScore(0); // スコアはリセット
-    setIsStageClear(false);
     setBonusMoves(0);
-    setShowStageClearModal(false);
     setNextStageGoals(null); // 目標情報もリセット
-
     // 新しい盤面の生成と設定
     const newBoard = createAndInitializeBoard();
     setBoard(newBoard);
@@ -289,10 +274,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
 
     setMoves(0);
     setScore(0);
-    setIsGameOver(false);
-    setIsStageClear(false);
-    setShowStageClearModal(false);
-    setShowDifficultySelector(false);
+    setGameState("playing");
     setNextStageGoals(null);
     setBonusMoves(0);
     setScoreMultiplier(1);
@@ -302,6 +284,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setCardMultiplier(1);
     setCardTurnsLeft(0);
     setScoreMultiplier(1);
+    setGameState("playing");
   };
 
   // ★ カードを引く関数
@@ -310,15 +293,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 手数が3未満、処理中、ゲームオーバー、ステージクリア中などは引けない
     const remainingMoves = currentMaxMoves - moves; // ★ 残り手数を計算
     console.log(
-      `Checking conditions: remainingMoves=${remainingMoves}, isProcessing=${isProcessing}, isGameOver=${isGameOver}, isStageClear=${isStageClear}, showDifficultySelector=${showDifficultySelector}, showStageClearModal=${showStageClearModal}`,
+      `Checking conditions: remainingMoves=${remainingMoves}, isProcessing=${isProcessing}, gameState=${gameState}`,
     ); // ★ デバッグログ追加
     if (
       remainingMoves < 3 ||
       isProcessing ||
-      isGameOver ||
-      isStageClear ||
-      showDifficultySelector ||
-      showStageClearModal
+      gameState !== "playing"
     ) {
       console.log("Cannot draw card now. Condition not met."); // ★ デバッグログ追加
       return;
@@ -440,12 +420,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   ) => {
     if (isProcessing) return;
     // ゲームオーバー or ステージクリア or 難易度選択中 or ステージクリアモーダル表示中なら処理しない
-    if (
-      isGameOver ||
-      isStageClear ||
-      showDifficultySelector ||
-      showStageClearModal
-    ) {
+    if (gameState !== "playing") {
       setIsProcessing(false);
       return;
     }
@@ -475,7 +450,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       matches = findMatches(boardAfterProcessing);
 
       // ループの最後にステージクリア状態をチェック (連鎖中にクリアした場合にループを抜ける)
-      if (isStageClear) {
+      if (gameState !== "playing") {
         console.log("Stage cleared during chain, exiting process loop.");
         break; // 連鎖処理を中断
       }
@@ -486,11 +461,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setScoreMultiplier(cardTurnsLeft > 0 ? cardMultiplier : 1);
 
     // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
-    if (!isStageClear && !showDifficultySelector && !showStageClearModal) {
+    if (gameState === "playing") {
       // ステージクリアしていなければ判定
       checkStageClear(currentChainScore);
     }
-
     // 連鎖処理完了後に最終的なスコアと手数でゲームオーバーをチェック
     checkGameOver(currentMoves, currentChainScore);
 
@@ -513,7 +487,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     selectedCell,
     setSelectedCell,
     isProcessing,
-    isGameOver,
     score,
     scoreMultiplier,
     resetBoard,
@@ -522,10 +495,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     stage,
     currentMaxMoves,
     currentTargetScore,
-    isStageClear,
-    showStageClearModal, // 追加
     handleProceedToNextStage, // 追加
-    showDifficultySelector, // 難易度選択フラグを追加
     handleDifficultySelected, // 難易度選択ハンドラを追加
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
     bonusMoves, // ★ ボーナス手数を追加
@@ -535,6 +505,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setCardMultiplier, // ★ カード倍率セッターを追加
     setCardTurnsLeft, // ★ カード残りターン数セッターを追加
     setScoreMultiplier,
+    gameState, // ゲームの状態を追加
     // handleMoveAction, // ★ ターン経過処理を含む関数 (UI側で呼び出す想定)
   };
 };

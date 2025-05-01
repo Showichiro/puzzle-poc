@@ -25,7 +25,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     selectedCell,
     setSelectedCell,
     isProcessing,
-    isGameOver,
     score,
     scoreMultiplier,
     resetBoard,
@@ -34,12 +33,9 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     stage,
     currentMaxMoves,
     currentTargetScore,
-    isStageClear,
-    // ★ ステージクリアモーダル関連の state と関数を取得
-    showStageClearModal,
     handleProceedToNextStage,
-    showDifficultySelector, // 難易度選択フラグを追加
     handleDifficultySelected, // 難易度選択ハンドラを追加
+    gameState,
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
     // ★ 現在の難易度を取得
     bonusMoves, // ★ bonusMoves を取得
@@ -54,7 +50,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
 
   // セルクリック時のハンドラ
   const handleClick = (row: number, col: number) => {
-    if (isProcessing || isGameOver) return; // 処理中またはゲームオーバー時は操作不可
+    if (isProcessing || gameState === "gameOver") return; // 処理中またはゲームオーバー時は操作不可
 
     if (selectedCell) {
       const { row: selectedRow, col: selectedCol } = selectedCell;
@@ -124,7 +120,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     <div className="relative w-full">
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
-        {!showStageClearModal && isGameOver && (
+        {gameState === "gameOver" && (
           <GameOverModal
             resetBoard={resetBoard}
             stage={stage}
@@ -132,7 +128,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           />
         )}
         {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
-        {showStageClearModal && (
+        {gameState === "stageClear" && (
           <StageClearModal
             stage={stage}
             score={score} // スコアを渡す
@@ -142,7 +138,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           />
         )}
         {/* ★ 難易度選択モーダルを表示 */}
-        {showDifficultySelector && nextStageGoals && (
+        {gameState === "difficultySelect" && nextStageGoals && (
           <DifficultySelector
             onSelectDifficulty={handleDifficultySelected}
             // ★ nextStageGoals の型を修正
@@ -167,13 +163,11 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
 
       {/* --- ゲーム盤エリア --- */}
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
-      {!showDifficultySelector && !showStageClearModal && (
+      {gameState === "playing" && (
         <div
           className={`grid gap-0 ${
             // ★ ステージクリアモーダル表示中も opacity を適用
-            isGameOver || isStageClear || showStageClearModal
-              ? "opacity-50"
-              : ""}`}
+            gameState !== "playing" ? "opacity-50" : ""}`}
           style={{
             gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
           }}
