@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   applyGravity,
   checkForPossibleMoves,
@@ -153,32 +153,13 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
   const { setHighestStage } = useHighestScore();
 
-  // ステージクリア時にステージクリアモーダルを表示し、次のステージの目標を計算
-  useEffect(() => {
-    if (isStageClear) {
-      // ★ 難易度選択ではなく、ステージクリアモーダルを表示
-      setShowStageClearModal(true);
-      // 次のステージの目標計算はここで行う
-      const nextStage = stage + 1;
-      // ★ 次のステージの目標計算 (calculateStageGoals は difficulty が必須になった)
-      setNextStageGoals({
-        easy: calculateStageGoals(nextStage, "easy"),
-        medium: calculateStageGoals(nextStage, "medium"),
-        hard: calculateStageGoals(nextStage, "hard"),
-      });
-      setHighestStage(stage);
-    } else {
-      // ★ ステージクリアモーダルも非表示にする
-      setShowStageClearModal(false);
-      setNextStageGoals(null); // 目標情報もリセット
-    }
-  }, [isStageClear, stage]);
-
   // ステージクリアをチェックする関数
   const checkStageClear = (currentScore: number) => {
     // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
     if (
-      isStageClear || isGameOver || showDifficultySelector ||
+      isStageClear ||
+      isGameOver ||
+      showDifficultySelector ||
       showStageClearModal
     ) {
       return;
@@ -202,6 +183,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
           ? Math.min(calculatedBonusMoves, 3)
           : calculatedBonusMoves,
       ); // 3手より大きなボーナスなし
+      // ★ 難易度選択ではなく、ステージクリアモーダルを表示
+      setShowStageClearModal(true);
+      // 次のステージの目標計算はここで行う
+      const nextStage = stage + 1;
+      // ★ 次のステージの目標計算 (calculateStageGoals は difficulty が必須になった)
+      setNextStageGoals({
+        easy: calculateStageGoals(nextStage, "easy"),
+        medium: calculateStageGoals(nextStage, "medium"),
+        hard: calculateStageGoals(nextStage, "hard"),
+      });
+      setHighestStage(stage);
     }
   };
 
@@ -209,7 +201,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const checkGameOver = (currentMoves: number, currentScore: number) => {
     // ステージクリア済み、ゲームオーバー、難易度選択中、ステージクリアモーダル表示中はチェックしない
     if (
-      isStageClear || isGameOver || showDifficultySelector ||
+      isStageClear ||
+      isGameOver ||
+      showDifficultySelector ||
       showStageClearModal
     ) {
       return;
@@ -263,6 +257,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setScore(0); // スコアはリセット
     setIsStageClear(false);
     setBonusMoves(0);
+    setShowStageClearModal(false);
+    setNextStageGoals(null); // 目標情報もリセット
 
     // 新しい盤面の生成と設定
     const newBoard = createAndInitializeBoard();
@@ -281,8 +277,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
 
     // 各種stateの初期化 (Stage 1)
     setStage(1);
-    const initialResetTargetScore =
-      calculateStageGoals(1, initialDifficulty).targetScore;
+    const initialResetTargetScore = calculateStageGoals(
+      1,
+      initialDifficulty,
+    ).targetScore;
     setCurrentMaxMoves(initialMovesMap[initialDifficulty]);
     setCurrentTargetScore(initialResetTargetScore);
 

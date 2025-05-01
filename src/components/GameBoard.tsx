@@ -102,7 +102,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
     <div className="relative w-full">
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
-        {isGameOver && (
+        {!showStageClearModal && isGameOver && (
           <GameOverModal
             resetBoard={resetBoard}
             stage={stage}
@@ -110,7 +110,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           />
         )}
         {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
-        {showStageClearModal && !isGameOver && (
+        {showStageClearModal && (
           <StageClearModal
             stage={stage}
             score={score} // スコアを渡す
@@ -120,7 +120,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           />
         )}
         {/* ★ 難易度選択モーダルを表示 */}
-        {showDifficultySelector && !isGameOver && nextStageGoals && (
+        {showDifficultySelector && nextStageGoals && (
           <DifficultySelector
             onSelectDifficulty={handleDifficultySelected}
             // ★ nextStageGoals の型を修正
