@@ -308,8 +308,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setMoves(newMoves);
 
     // ランダムな倍率を生成 (1 ~ 1000)
-    const randomLog = Math.random() * (Math.log(1000) - Math.log(1)) +
-      Math.log(1);
+    const randomLog = Math.random() * Math.log(1000);
     const randomMultiplier = Math.exp(randomLog);
     const newMultiplier = parseFloat(randomMultiplier.toFixed(2)); // 小数点以下2桁に丸める
 
