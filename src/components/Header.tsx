@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             <p className="mt-4 font-semibold">倍率変更機能:</p>
             <ul className="list-disc list-inside ml-4">
               <li>
-                「倍率変更」ボタンで3手数を消費して、特殊なカードを引けます。
+                「倍率変更」ボタンで3手数を消費して、倍率を変更できます。
               </li>
               <li>
                 3ターンの間、スコア計算時の倍率をランダムに変化させます
