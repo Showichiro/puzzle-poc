@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
+import { version } from "../constants";
 
 interface HeaderProps {
   onOpenHistoryModal: () => void;
@@ -23,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
 
   return (
     <header className="w-full flex justify-between items-center mb-4 p-4 bg-gray-100 rounded">
-      <h1 className="text-2xl font-bold">パズルゲーム</h1>
+      <h1 className="text-2xl font-bold">パズルゲーム v{version}</h1>
       <div className="flex items-center space-x-2">
         {/* ボタンを横並びにする */}
         <button
@@ -89,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
                 消した数<sup>1.5</sup>: 消したブロック数の1.5乗
               </li>
               <li>
-                連鎖ボーナス: 2.5<sup>(連鎖数 - 1)</sup>
+                連鎖ボーナス: 2<sup>(連鎖数 - 1)</sup>
               </li>
             </ul>
             <p>特殊消し:</p>
@@ -103,14 +104,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             <p className="mt-4 font-semibold">倍率変更機能:</p>
             <ul className="list-disc list-inside ml-4">
               <li>
-                「倍率変更」ボタンで3手数を消費して、特殊なカードを引けます。
+                「倍率変更」ボタンで3手数を消費して、倍率を変更できます。
               </li>
               <li>
                 3ターンの間、スコア計算時の倍率をランダムに変化させます
-                (0.1倍から1000倍)。
+                (1倍から1000倍)。
               </li>
               <li>
-                現在のカード効果（倍率と残りターン数）は、ゲーム画面上部の情報エリアで確認できます。
+                現在の効果（倍率と残りターン数）は、ゲーム画面上部の情報エリアで確認できます。
               </li>
             </ul>
             <button

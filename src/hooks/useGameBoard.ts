@@ -34,9 +34,9 @@ const calculateStageGoals = (
 ): { addedMoves: number; targetScore: number } => {
   // 難易度ごとのランダム変動幅を定義
   const addedMovesRange: Record<Difficulty, [number, number]> = {
-    easy: [-1, 2], // -1から+1の範囲で変動
-    medium: [-3, 4],
-    hard: [-3, 6],
+    easy: [0, 0],
+    medium: [-1, 1],
+    hard: [-1, 2],
   };
   const targetScoreRange: Record<Difficulty, [number, number]> = {
     easy: [-1000, 5000], // -5000から+5000の範囲で変動
@@ -47,8 +47,8 @@ const calculateStageGoals = (
   // 難易度に応じたステージクリア時の加算手数
   const addedMovesMap: Record<Difficulty, number> = {
     easy: 1,
-    medium: 2,
-    hard: 4,
+    medium: 3,
+    hard: 5,
   };
 
   // ★ 加算手数はステージや難易度で固定とする (シンプル化のため)
@@ -64,9 +64,9 @@ const calculateStageGoals = (
   const baseTargetScore = 100000;
   // 難易度に応じた目標スコア倍率
   const scoreMultiplierMap: Record<Difficulty, number> = {
-    easy: 0.9,
+    easy: 0.8,
     medium: 1.7,
-    hard: 3.1,
+    hard: 10,
   };
 
   // ★ 難易度に応じたスコア倍率を取得
@@ -175,9 +175,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
         : 0;
       let calculatedBonusMoves = 0;
       if (scoreRatio > 1.0) {
-        // ★ 超過スコアの割合に応じて逓減する計算式に変更 (例: 平方根に比例)
-        const excessRatio = scoreRatio - 1.0; // 超過した割合 (例: スコアが目標の1.5倍なら 0.5)
-        // 計算式例: (超過割合)^0.5 * 10
+        const excessRatio = scoreRatio - 1.0;
         calculatedBonusMoves = Math.floor(Math.pow(excessRatio, 0.1) * 3);
       }
       // ★ 上限を撤廃
@@ -309,12 +307,8 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     ); // ★ 既存ログ (前の適用で入っていた)
     setMoves(newMoves);
 
-    // ランダムな倍率を生成 (0.01 ~ 1000)
-    // 対数スケールでランダム性を出すと極端な値が出やすくなる
-    // Math.random() は 0以上1未満の値を返す
-    // ★ 最小値を 0.1 に変更
-    const randomLog = Math.random() * (Math.log(1000) - Math.log(0.1)) +
-      Math.log(0.1);
+    // ランダムな倍率を生成 (1 ~ 1000)
+    const randomLog = Math.random() * Math.log(1000);
     const randomMultiplier = Math.exp(randomLog);
     const newMultiplier = parseFloat(randomMultiplier.toFixed(2)); // 小数点以下2桁に丸める
 
@@ -375,7 +369,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 基本点はステージに応じて増加
     const basePoints = 10 + (stage - 1) * 5; // Stage 1: 10, Stage 2: 15, ...
     // 連鎖ボーナス
-    const chainBonus = Math.pow(2.5, chainCount - 1);
+    const chainBonus = Math.pow(2, chainCount - 1);
     // 消したブロック数ボーナス: 消した数^1.5
     const clearedBlocksBonus = Math.pow(matches.length, 1.5);
 
