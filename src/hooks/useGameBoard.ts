@@ -46,8 +46,8 @@ const calculateStageGoals = (
 
   // 難易度に応じたステージクリア時の加算手数
   const addedMovesMap: Record<Difficulty, number> = {
-    easy: 0,
-    medium: 2,
+    easy: 1,
+    medium: 3,
     hard: 5,
   };
 
