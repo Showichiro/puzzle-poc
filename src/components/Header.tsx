@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
+import { version } from "../constants";
 
 interface HeaderProps {
   onOpenHistoryModal: () => void;
@@ -23,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
 
   return (
     <header className="w-full flex justify-between items-center mb-4 p-4 bg-gray-100 rounded">
-      <h1 className="text-2xl font-bold">パズルゲーム</h1>
+      <h1 className="text-2xl font-bold">パズルゲーム v{version}</h1>
       <div className="flex items-center space-x-2">
         {/* ボタンを横並びにする */}
         <button
