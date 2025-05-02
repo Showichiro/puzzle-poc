@@ -17,16 +17,14 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = (
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-8 rounded shadow-lg text-center">
-        <h2 className="text-2xl mb-4">難易度を選択してください</h2>
+        <h2 className="text-2xl mb-4">次のステージを選択してください</h2>
         <div className="flex flex-col items-center space-y-4">
-          {/* ボタンを縦に並べるために flex-col を使用 */}
-          {/* かんたん */}
           <button
             type="button"
             onClick={() => onSelectDifficulty("easy")}
             className="px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 w-64 text-lg" // 幅を固定
           >
-            かんたん
+            ステージA
             {nextStageGoals?.easy
               ? ( // 目標情報があれば表示
                 <div className="text-sm mt-1">
@@ -36,13 +34,12 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = (
               )
               : null}
           </button>
-          {/* ふつう */}
           <button
             type="button"
             onClick={() => onSelectDifficulty("medium")}
             className="px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600 w-64 text-lg" // 幅を固定
           >
-            ふつう
+            ステージB
             {nextStageGoals?.medium
               ? ( // 目標情報があれば表示
                 <div className="text-sm mt-1">
@@ -59,7 +56,7 @@ const DifficultySelector: React.FC<DifficultySelectorProps> = (
             onClick={() => onSelectDifficulty("hard")}
             className="px-6 py-3 bg-red-500 text-white rounded hover:bg-red-600 w-64 text-lg" // 幅を固定
           >
-            むずかしい
+            ステージC
             {nextStageGoals?.hard
               ? ( // 目標情報があれば表示
                 <div className="text-sm mt-1">

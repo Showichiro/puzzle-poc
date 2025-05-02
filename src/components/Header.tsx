@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
                 消した数<sup>1.5</sup>: 消したブロック数の1.5乗
               </li>
               <li>
-                連鎖ボーナス: 2.5<sup>(連鎖数 - 1)</sup>
+                連鎖ボーナス: 2<sup>(連鎖数 - 1)</sup>
               </li>
             </ul>
             <p>特殊消し:</p>
@@ -107,10 +107,10 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
               </li>
               <li>
                 3ターンの間、スコア計算時の倍率をランダムに変化させます
-                (0.1倍から1000倍)。
+                (1倍から1000倍)。
               </li>
               <li>
-                現在のカード効果（倍率と残りターン数）は、ゲーム画面上部の情報エリアで確認できます。
+                現在の効果（倍率と残りターン数）は、ゲーム画面上部の情報エリアで確認できます。
               </li>
             </ul>
             <button
