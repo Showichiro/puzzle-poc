@@ -1,33 +1,7 @@
 {
-  "name": "pazzle-app",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "TAURI_BUILD=true tauri"
-  },
-  "dependencies": {
-    "framer-motion": "^12.7.4",
-    "html2canvas-pro": "^1.5.8",
-    "react": "^18.3.1",
-    "react-aria": "^3.39.0",
-    "react-dom": "^18.3.1",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
-    "recharts": "^2.15.3"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.4",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.1.4",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.3",
-    "@tauri-apps/cli": "^2"
-  },
-  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af"
+    "name": "puzzle-poc",
+    "workspaces": [
+        "./frontend",
+        "./backend"
+    ]
 }
