@@ -37,14 +37,14 @@ jobs:
       - name: Install dependencies
         run: deno install
       - name: Build
-        run: deno task build
+        run: deno task --filter puzzle-app build
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload dist folder
-          path: "./dist"
+          path: "./frontend/dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
