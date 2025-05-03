@@ -1,7 +1,7 @@
 {
-    "name": "puzzle-poc",
-    "workspaces": [
-        "./frontend",
-        "./backend"
-    ]
+  "name": "puzzle-poc",
+  "workspaces": [
+    "./frontend",
+    "./backend"
+  ]
 }
