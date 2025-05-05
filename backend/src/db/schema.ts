@@ -22,7 +22,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const passkeysRelations = relations(passkeys, ({ one }) => ({
-  author: one(users, {
+  users: one(users, {
     fields: [passkeys.user_id],
     references: [users.id],
   }),

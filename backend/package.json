@@ -4,7 +4,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "wrangler": "wrangler d1 create puzzle-db"
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@simplewebauthn/server": "^13.1.1",
@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
+    "better-sqlite3": "^11.9.1",
     "drizzle-kit": "^0.31.1",
     "wrangler": "^4.4.0"
   }
