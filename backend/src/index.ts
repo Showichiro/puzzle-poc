@@ -26,7 +26,7 @@ const app = new Hono<{
   };
 }>();
 
-app
+const route = app
   .use(logger())
   .use(
     "*",
@@ -178,3 +178,5 @@ app
   });
 
 export default app;
+
+export type AppType = typeof route;
