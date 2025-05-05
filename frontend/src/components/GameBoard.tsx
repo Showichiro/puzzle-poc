@@ -47,6 +47,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
     setCardMultiplier, // ターン経過で使用
     setCardTurnsLeft, // ターン経過で使用
     setScoreMultiplier,
+    selectedColorIndexes,
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -176,6 +177,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
                   // biome-ignore lint/suspicious/noArrayIndexKey:
                   colIndex
                 }`}
+                selectedColorIndexes={selectedColorIndexes}
                 value={cellValue}
                 onClick={() => handleClick(rowIndex, colIndex)}
                 isSelected={

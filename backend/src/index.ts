@@ -18,6 +18,8 @@ import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import type { Db } from "./db/types";
 import { createUsers, findUserByName, getUserByName } from "./repository/users";
 import { logger } from "hono/logger";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 
 const app = new Hono<{
   Bindings: CloudflareBindings;
@@ -31,7 +33,7 @@ const route = app
   .use(
     "*",
     cors({
-      origin: "*",
+      origin: "http://localhost:1420",
       credentials: true,
     }),
   )
@@ -40,88 +42,94 @@ const route = app
     c.set("db", client);
     await next();
   })
-  .get("/", (c) => {
-    return c.text("Hello Hono!");
-  })
-  .get("/register-request", async (c) => {
-    const username = c.req.query("username");
+  .get(
+    "/register-request",
+    zValidator("query", z.object({ username: z.string() })),
+    async (c) => {
+      const { username } = c.req.valid("query");
+      const user = await findUserByName(c.var.db, username);
+      const passkeys = user?.passkeys ?? [];
+      const option = await generateRegistrationOptions({
+        rpID: "localhost",
+        rpName: "Example RP",
+        userName: username,
+        timeout: 60000,
+        excludeCredentials:
+          passkeys?.map((passkey) => ({
+            id: passkey.credential_id,
+            transports: passkey.transport.split(
+              ",",
+            ) as AuthenticatorTransportFuture[],
+          })) ?? [],
+        authenticatorSelection: {
+          userVerification: "preferred",
+        },
+      });
 
-    if (!username) {
-      return c.json({ error: "Username is required" }, 400);
-    }
+      await setSignedCookie(c, "challenge", option.challenge, c.env.SECRET);
 
-    const user = await findUserByName(c.var.db, username);
-    const passkeys = user?.passkeys ?? [];
-    const option = await generateRegistrationOptions({
-      rpID: "localhost",
-      rpName: "Example RP",
-      userName: username,
-      timeout: 60000,
-      excludeCredentials:
-        passkeys?.map((passkey) => ({
-          id: passkey.credential_id,
-          transports: passkey.transport.split(
-            ",",
-          ) as AuthenticatorTransportFuture[],
-        })) ?? [],
-      authenticatorSelection: {
-        userVerification: "preferred",
-      },
-    });
+      return c.json(option);
+    },
+  )
+  .post(
+    "/register-response",
+    zValidator(
+      "json",
+      z.object({
+        response: z.any(),
+        username: z.string(),
+        userId: z.string(),
+      }),
+    ),
+    async (c) => {
+      const { response, username, userId } = c.req.valid("json");
+      const { challenge } = await getSignedCookie(c, c.env.SECRET);
 
-    await setSignedCookie(c, "challenge", option.challenge, c.env.SECRET);
+      if (!challenge) {
+        return c.json({ error: "Challenge not found" }, 400);
+      }
 
-    return c.json(option);
-  })
-  .post("/register-response", async (c) => {
-    const body = await c.req.json();
-    const { response, username, userId } = body;
-    const { challenge } = await getSignedCookie(c, c.env.SECRET);
+      const verification = await verifyRegistrationResponse({
+        response,
+        expectedChallenge: challenge,
+        expectedOrigin: "http://localhost:1420",
+        expectedRPID: "localhost",
+        requireUserVerification: false,
+      });
 
-    if (!challenge) {
-      return c.json({ error: "Challenge not found" }, 400);
-    }
+      if (!verification.verified) {
+        return c.json({ error: "Verification failed" }, 400);
+      }
 
-    const verification = await verifyRegistrationResponse({
-      response,
-      expectedChallenge: challenge,
-      expectedOrigin: "http://localhost:3001",
-      expectedRPID: "localhost",
-      requireUserVerification: false,
-    });
+      const { registrationInfo } = verification;
 
-    if (!verification.verified) {
-      return c.json({ error: "Verification failed" }, 400);
-    }
+      if (!registrationInfo) {
+        return c.json(500);
+      }
 
-    const { registrationInfo } = verification;
+      let user = await getUserByName(c.var.db, username);
 
-    if (!registrationInfo) {
-      return c.json(500);
-    }
+      if (!user) {
+        const created = await createUsers(c.var.db, username);
+        user = created[0];
+      }
 
-    let user = await getUserByName(c.var.db, username);
+      await createPassKeys(c.var.db, {
+        user_id: user.id,
+        credential_id: registrationInfo.credential.id,
+        public_key: new TextDecoder().decode(
+          registrationInfo.credential.publicKey,
+        ),
+        webauthn_user_id: userId,
+        counter: registrationInfo.credential.counter,
+        deviceType: registrationInfo.credentialDeviceType,
+        backup: registrationInfo.credentialBackedUp ? 1 : 0,
+        transport: registrationInfo.credential.transports?.join(",") ?? "",
+      });
 
-    if (!user) {
-      const created = await createUsers(c.var.db, username);
-      user = created[0];
-    }
-
-    await createPassKeys(c.var.db, {
-      user_id: user.id,
-      credential_id: registrationInfo.credential.id,
-      public_key: new TextDecoder().decode(
-        registrationInfo.credential.publicKey,
-      ),
-      webauthn_user_id: userId,
-      counter: registrationInfo.credential.counter,
-      deviceType: registrationInfo.credentialDeviceType,
-      backup: registrationInfo.credentialBackedUp ? 1 : 0,
-      transport: registrationInfo.credential.transports?.join(",") ?? "",
-    });
-
-    return c.json({ success: true });
-  })
+      return c.json({ success: true });
+    },
+  )
   .get("/signin-request", async (c) => {
     const option = await generateAuthenticationOptions({
       rpID: "localhost",
