@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import type React from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import html2canvasPro from "html2canvas-pro";
 import { useHighestScore } from "../contexts/HighestScoreContext";
@@ -32,9 +33,7 @@ const GameOverModal: React.FC<GameOverModalProps> = (
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        <h2 className="text-2xl font-bold mb-4">
-          ゲームオーバー！
-        </h2>
+        <h2 className="text-2xl font-bold mb-4">ゲームオーバー！</h2>
         <p>スコア: {score}</p>
         <p className="text-xl font-semibold mb-4">
           {highestStage} ステージまでクリアしました！ v{version}
@@ -63,14 +62,11 @@ const GameOverModal: React.FC<GameOverModalProps> = (
                     type: "image/png",
                   });
 
-                  if (
-                    navigator.canShare && navigator.canShare({ files: [file] })
-                  ) {
+                  if (navigator.canShare?.({ files: [file] })) {
                     await navigator.share({
                       files: [file],
                       title: "パズルゲーム スコア",
-                      text:
-                        `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
+                      text: `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
                       url: globalThis.location.href,
                     });
                     console.log("シェアしました");
@@ -79,8 +75,7 @@ const GameOverModal: React.FC<GameOverModalProps> = (
                     // ここではシンプルにテキストとURLのみをシェアします
                     await navigator.share({
                       title: "パズルゲーム スコア",
-                      text:
-                        `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
+                      text: `ゲームオーバー！ステージ: ${stage}, スコア: ${score}`,
                       url: globalThis.location.href,
                     });
                     console.log(

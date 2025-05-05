@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { Db } from "../db/types";
+import type { Db } from "../db/types";
 import { passkeys, users } from "../db/schema";
 
 export const getUserPasskeys = (db: Db, username: string) => {

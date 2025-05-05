@@ -26,9 +26,7 @@
       "indexes": {
         "users_name_unique": {
           "name": "users_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         }
       },

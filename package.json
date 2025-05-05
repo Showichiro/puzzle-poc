@@ -1,7 +1,11 @@
 {
   "name": "puzzle-poc",
-  "workspaces": [
-    "./frontend",
-    "./backend"
-  ]
+  "workspaces": ["./frontend", "./backend"],
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4"
+  },
+  "scripts": {
+    "lint": "biome lint backend/ frontend/",
+    "format": "biome format --write backend/ frontend/"
+  }
 }

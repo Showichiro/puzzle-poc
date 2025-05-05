@@ -5,12 +5,14 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
-export const users = sqliteTable("users", {
-  id: integer().primaryKey({ autoIncrement: true }).notNull(),
-  name: text().notNull(),
-}, (table) => [
-  uniqueIndex("users_name_unique").on(table.name),
-]);
+export const users = sqliteTable(
+  "users",
+  {
+    id: integer().primaryKey({ autoIncrement: true }).notNull(),
+    name: text().notNull(),
+  },
+  (table) => [uniqueIndex("users_name_unique").on(table.name)],
+);
 
 export const passkeys = sqliteTable("passkeys", {
   credentialId: text("credential_id").primaryKey().notNull(),

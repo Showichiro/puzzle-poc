@@ -1,4 +1,5 @@
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import type React from "react";
+import { createContext, type ReactNode, useContext, useState } from "react";
 
 interface AnimationSpeedContextType {
   speed: number;
@@ -9,13 +10,13 @@ const AnimationSpeedContext = createContext<
   AnimationSpeedContextType | undefined
 >(undefined);
 
-export const AnimationSpeedProvider: React.FC<{ children: ReactNode }> = (
-  { children },
-) => {
+export const AnimationSpeedProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   // LocalStorageから速度を読み込む、なければデフォルトの1
   const [speed, setSpeedState] = useState<number>(() => {
     const savedSpeed = localStorage.getItem("animationSpeed");
-    return savedSpeed ? parseFloat(savedSpeed) : 1;
+    return savedSpeed ? Number.parseFloat(savedSpeed) : 1;
   });
 
   // 速度変更時にLocalStorageに保存する関数

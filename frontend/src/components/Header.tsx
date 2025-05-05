@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 import { version } from "../constants";
 
@@ -48,6 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             stroke="currentColor"
             className="size-6"
           >
+            <title>History Modal Open Button</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -56,6 +58,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
           </svg>
         </button>
         <button
+          type="button"
           className="font-bold py-2 px-4 rounded"
           onClick={openInfoModal}
         >
@@ -67,6 +70,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             stroke="currentColor"
             className="size-6"
           >
+            <title>infoIcon</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -94,18 +98,14 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
               </li>
             </ul>
             <p>特殊消し:</p>
-            <p>
-              一列に5つ消すと、同じ色のブロックが全て消えます。
-            </p>
+            <p>一列に5つ消すと、同じ色のブロックが全て消えます。</p>
             <p>ボーナス手数:</p>
             <p>
               目標スコアを上回ると、超過スコアに応じてボーナス手数が加算されます。超過スコアが大きいほど、ボーナス手数の増加率は緩やかになります。
             </p>
             <p className="mt-4 font-semibold">倍率変更機能:</p>
             <ul className="list-disc list-inside ml-4">
-              <li>
-                「倍率変更」ボタンで3手数を消費して、倍率を変更できます。
-              </li>
+              <li>「倍率変更」ボタンで3手数を消費して、倍率を変更できます。</li>
               <li>
                 3ターンの間、スコア計算時の倍率をランダムに変化させます
                 (1倍から1000倍)。
@@ -115,6 +115,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
               </li>
             </ul>
             <button
+              type="button"
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
               onClick={closeInfoModal}
             >

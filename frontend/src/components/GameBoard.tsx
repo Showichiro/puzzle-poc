@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { AnimatePresence } from "framer-motion"; // motion をインポート
 import Cell from "./Cell";
 import GameOverModal from "./GameOverModal";
@@ -16,7 +16,8 @@ interface GameBoardProps {
   initialDifficulty: Difficulty; // initialDifficulty プロパティに変更
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Props を受け取る
+const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
+  // Props を受け取る
   const {
     board,
     setBoard,
@@ -120,11 +121,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
         {gameState === "gameOver" && (
-          <GameOverModal
-            resetBoard={resetBoard}
-            stage={stage}
-            score={score}
-          />
+          <GameOverModal resetBoard={resetBoard} stage={stage} score={score} />
         )}
         {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
         {gameState === "stageClear" && (
@@ -166,7 +163,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
         <div
           className={`grid gap-0 ${
             // ★ ステージクリアモーダル表示中も opacity を適用
-            gameState !== "playing" ? "opacity-50" : ""}`}
+            gameState !== "playing" ? "opacity-50" : ""
+          }`}
           style={{
             gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
           }}
@@ -174,18 +172,24 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => { // Prop
           {board.map((rowArr, rowIndex) =>
             rowArr.map((cellValue, colIndex) => (
               <Cell
-                key={`${rowIndex}-${colIndex}`}
+                key={`${rowIndex}-${
+                  // biome-ignore lint/suspicious/noArrayIndexKey:
+                  colIndex
+                }`}
                 value={cellValue}
                 onClick={() => handleClick(rowIndex, colIndex)}
-                isSelected={selectedCell?.row === rowIndex &&
-                  selectedCell?.col === colIndex}
+                isSelected={
+                  selectedCell?.row === rowIndex &&
+                  selectedCell?.col === colIndex
+                }
               />
-            ))
+            )),
           )}
         </div>
       )}
       {/* 加算スコア表示 */}
-      {floatingScores.map(({ row, col, score, id, chainCount }) => { // chainCount を取得
+      {floatingScores.map(({ row, col, score, id, chainCount }) => {
+        // chainCount を取得
         return (
           <FloatingScores
             key={id}

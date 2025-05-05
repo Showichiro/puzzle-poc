@@ -1,5 +1,5 @@
 import {
-  AuthenticatorTransportFuture,
+  type AuthenticatorTransportFuture,
   generateAuthenticationOptions,
   generateRegistrationOptions,
   verifyAuthenticationResponse,
@@ -16,7 +16,7 @@ import {
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./db/schema";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
-import { Db } from "./db/types";
+import type { Db } from "./db/types";
 import { createUsers, getUserByName } from "./repository/users";
 import { env } from "hono/adapter";
 
