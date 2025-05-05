@@ -50,8 +50,8 @@ const route = app
       const user = await findUserByName(c.var.db, username);
       const passkeys = user?.passkeys ?? [];
       const option = await generateRegistrationOptions({
-        rpID: "localhost",
-        rpName: "Example RP",
+        rpID: c.env.RP_ID,
+        rpName: c.env.RP_NAME,
         userName: username,
         timeout: 60000,
         excludeCredentials:
@@ -92,8 +92,8 @@ const route = app
       const verification = await verifyRegistrationResponse({
         response,
         expectedChallenge: challenge,
-        expectedOrigin: "http://localhost:1420",
-        expectedRPID: "localhost",
+        expectedOrigin: c.env.ORIGIN,
+        expectedRPID: c.env.RP_ID,
         requireUserVerification: false,
       });
 
@@ -132,7 +132,7 @@ const route = app
   )
   .get("/signin-request", async (c) => {
     const option = await generateAuthenticationOptions({
-      rpID: "localhost",
+      rpID: c.env.RP_ID,
       timeout: 60000,
       allowCredentials: [],
       userVerification: "preferred",
@@ -159,8 +159,8 @@ const route = app
     const verification = await verifyAuthenticationResponse({
       response: body,
       expectedChallenge: challenge,
-      expectedOrigin: "http://localhost:3001",
-      expectedRPID: "localhost",
+      expectedOrigin: c.env.ORIGIN,
+      expectedRPID: c.env.RP_ID,
       credential: {
         counter: passkey.counter,
         id: passkey.credential_id,

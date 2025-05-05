@@ -7,7 +7,10 @@
   //   "nodejs_compat"
   // ],
   "vars": {
-    "SECRET": "d498e444-f296-4200-a3c3-7f27c08b0a43"
+    "SECRET": "d498e444-f296-4200-a3c3-7f27c08b0a43",
+    "ORIGIN": "http://localhost:1420",
+    "RP_ID": "localhost",
+    "RP_NAME": "Puzzle App"
   },
   // "kv_namespaces": [
   //   {
