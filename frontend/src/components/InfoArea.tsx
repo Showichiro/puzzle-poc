@@ -1,4 +1,4 @@
-import { FC } from "react";
+import type { FC } from "react";
 import { useHighestScore } from "../contexts/HighestScoreContext";
 
 interface InfoAreaProps {
@@ -14,20 +14,18 @@ interface InfoAreaProps {
   drawCard: () => void;
 }
 
-export const InfoArea: FC<InfoAreaProps> = (
-  {
-    stage,
-    currentMaxMoves,
-    currentTargetScore,
-    moves,
-    score,
-    scoreMultiplier,
-    // ★ カード関連の props を受け取る
-    cardMultiplier,
-    cardTurnsLeft,
-    drawCard,
-  },
-) => {
+export const InfoArea: FC<InfoAreaProps> = ({
+  stage,
+  currentMaxMoves,
+  currentTargetScore,
+  moves,
+  score,
+  scoreMultiplier,
+  // ★ カード関連の props を受け取る
+  cardMultiplier,
+  cardTurnsLeft,
+  drawCard,
+}) => {
   const { highestStage } = useHighestScore();
   const canDrawCard = currentMaxMoves - moves >= 3; // カードを引けるかどうかのフラグ
 
@@ -41,22 +39,16 @@ export const InfoArea: FC<InfoAreaProps> = (
       </div>
       <div className="text-center">
         <span className="text-xs text-gray-600 block">残り手数</span>
-        <span className="text-lg font-semibold">
-          {currentMaxMoves - moves}
-        </span>
+        <span className="text-lg font-semibold">{currentMaxMoves - moves}</span>
       </div>
       <div className="text-center">
         <span className="text-xs text-gray-600 block">最高記録</span>
-        <span className="text-lg font-semibold">
-          Stage {highestStage}
-        </span>
+        <span className="text-lg font-semibold">Stage {highestStage}</span>
       </div>
       {/* Row 2 */}
       <div className="text-center col-span-2">
         {/* スコアは2列分使う */}
-        <span className="text-xs text-gray-600 block">
-          スコア / 目標
-        </span>
+        <span className="text-xs text-gray-600 block">スコア / 目標</span>
         <span className="text-lg font-semibold">
           {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
         </span>
@@ -64,8 +56,7 @@ export const InfoArea: FC<InfoAreaProps> = (
       <div className="text-center">
         <span className="text-xs text-gray-600 block">倍率</span>
         <span className="text-lg font-semibold">
-          {/* ★ 小数点以下2桁まで表示 */}
-          x{scoreMultiplier.toFixed(2)}
+          {/* ★ 小数点以下2桁まで表示 */}x{scoreMultiplier.toFixed(2)}
         </span>
       </div>
       {/* Row 3: Card Info and Draw Button */}
@@ -81,6 +72,7 @@ export const InfoArea: FC<InfoAreaProps> = (
       </div>
       <div className="text-center">
         <button
+          type="button"
           onClick={drawCard}
           disabled={!canDrawCard} // 手数が足りない場合は無効化
           className={`px-2 py-1 text-sm rounded ${
