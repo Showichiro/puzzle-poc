@@ -159,8 +159,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     if (currentScore >= currentTargetScore) {
-      // ステージクリア！
-      setGameState("stageClear");
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
 
       // ボーナス手数を計算

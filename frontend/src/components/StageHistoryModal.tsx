@@ -16,10 +16,12 @@ const StageHistoryModal: React.FC<StageHistoryModalProps> = ({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" // z-index を追加して手前に表示
-      onKeyUp={onClose} // 背景クリックで閉じる
+      onClick={onClose} // 背景クリックで閉じる
+      onKeyDown={onClose}
     >
       <div
         className="bg-white p-6 rounded-lg shadow-xl max-w-xl w-full" // サイズ調整
+        onClick={(e) => e.stopPropagation()}
         onKeyUp={(e) => e.stopPropagation()} // モーダル内部のクリックは伝播させない
       >
         <div className="flex justify-between items-center mb-4">

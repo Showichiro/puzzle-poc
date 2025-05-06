@@ -161,10 +161,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
       {gameState === "playing" && (
         <div
-          className={`grid gap-0 ${
-            // ★ ステージクリアモーダル表示中も opacity を適用
-            gameState !== "playing" ? "opacity-50" : ""
-          }`}
+          className={"grid gap-0 opacity-50"}
           style={{
             gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
           }}
