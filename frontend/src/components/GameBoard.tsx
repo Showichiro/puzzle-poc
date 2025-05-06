@@ -45,6 +45,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
     cardMultiplier,
     cardTurnsLeft,
     setCardTurnsLeft, // ターン経過で使用
+    selectedColors,
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -169,6 +170,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
                   selectedCell?.row === rowIndex &&
                   selectedCell?.col === colIndex
                 }
+                selectedColors={selectedColors}
               />
             )),
           )}
