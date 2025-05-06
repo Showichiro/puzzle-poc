@@ -1,5 +1,3 @@
-import type React from "react";
-
 // Difficulty 型を定義 (useGameBoard.ts と共有する場合は utils などに移動)
 type Difficulty = "easy" | "medium" | "hard";
 

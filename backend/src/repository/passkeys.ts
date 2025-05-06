@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { Db } from "../db/types";
-import { passkeys, users } from "../db/schema";
+import { passkeys } from "../db/schema";
 
 export const findPasskeyByCredentialId = (db: Db, credentialId: string) => {
   return db.query.passkeys.findFirst({

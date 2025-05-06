@@ -1,5 +1,10 @@
-import type React from "react";
-import { createContext, type ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  type FC,
+  type ReactNode,
+  useContext,
+  useState,
+} from "react";
 
 interface AnimationSpeedContextType {
   speed: number;
@@ -10,7 +15,7 @@ const AnimationSpeedContext = createContext<
   AnimationSpeedContextType | undefined
 >(undefined);
 
-export const AnimationSpeedProvider: React.FC<{ children: ReactNode }> = ({
+export const AnimationSpeedProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   // LocalStorageから速度を読み込む、なければデフォルトの1

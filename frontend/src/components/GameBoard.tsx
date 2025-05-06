@@ -1,4 +1,3 @@
-import type React from "react";
 import { AnimatePresence } from "framer-motion"; // motion をインポート
 import Cell from "./Cell";
 import GameOverModal from "./GameOverModal";
@@ -8,6 +7,7 @@ import { BOARD_SIZE, findMatches } from "../utils/gameLogic"; // increaseBlockTy
 import { InfoArea } from "./InfoArea";
 import { FloatingScores } from "./FloatingScore";
 import { StageClearModal } from "./StageClearModal";
+import type { FC } from "react";
 
 // Difficulty 型を App.tsx からインポートするか、ここで定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -16,7 +16,7 @@ interface GameBoardProps {
   initialDifficulty: Difficulty; // initialDifficulty プロパティに変更
 }
 
-const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
+const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
   // Props を受け取る
   const {
     board,
@@ -44,10 +44,8 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
     drawCard,
     cardMultiplier,
     cardTurnsLeft,
-    setCardMultiplier, // ターン経過で使用
     setCardTurnsLeft, // ターン経過で使用
-    setScoreMultiplier,
-    selectedColorIndexes,
+    selectedColors,
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -77,15 +75,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
         // ★ カード効果のターン経過処理
         setCardTurnsLeft((prev) => {
           if (prev <= 0) return prev; // nothing to do
-          const next = prev - 1;
-          if (next === 0) {
-            setCardMultiplier(1); // 効果終了
-            setScoreMultiplier(1);
-            console.log("Card effect ended.");
-          } else {
-            console.log(`Card effect: ${cardMultiplier}x, Turns left: ${next}`);
-          }
-          return next;
+          return prev - 1;
         });
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
@@ -162,10 +152,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
       {gameState === "playing" && (
         <div
-          className={`grid gap-0 ${
-            // ★ ステージクリアモーダル表示中も opacity を適用
-            gameState !== "playing" ? "opacity-50" : ""
-          }`}
+          className={"grid gap-0"}
           style={{
             gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
           }}
@@ -177,13 +164,13 @@ const GameBoard: React.FC<GameBoardProps> = ({ initialDifficulty }) => {
                   // biome-ignore lint/suspicious/noArrayIndexKey:
                   colIndex
                 }`}
-                selectedColorIndexes={selectedColorIndexes}
                 value={cellValue}
                 onClick={() => handleClick(rowIndex, colIndex)}
                 isSelected={
                   selectedCell?.row === rowIndex &&
                   selectedCell?.col === colIndex
                 }
+                selectedColors={selectedColors}
               />
             )),
           )}

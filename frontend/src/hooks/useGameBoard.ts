@@ -9,7 +9,6 @@ import {
 } from "../utils/gameLogic";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext"; // AnimationSpeedContext をインポート
 import { saveGameHistory } from "../utils/saveGameHistory";
-import { useHighestScore } from "../contexts/HighestScoreContext";
 
 // Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -96,7 +95,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const [selectedColorIndexes, setSelectedColorIndexes] = useState(
     selectStageColors(),
   );
-
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
     return createAndInitializeBoard(selectedColorIndexes); // 共通関数で盤面を生成・初期化
@@ -149,7 +147,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }[] // chainCount を追加
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
-  const { setHighestStage } = useHighestScore();
   // カード効果の状態
   const [cardMultiplier, setCardMultiplier] = useState(1); // カードによるスコア倍率 (初期値1)
   const [cardTurnsLeft, setCardTurnsLeft] = useState(0); // カード効果の残りターン数 (初期値0)
@@ -162,8 +159,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     if (currentScore >= currentTargetScore) {
-      // ステージクリア！
-      setGameState("stageClear");
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
 
       // ボーナス手数を計算
@@ -196,7 +191,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       console.log(
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
-      setHighestStage(stage);
       saveGameHistory(stage);
       setGameState("gameOver");
     }
@@ -213,9 +207,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setGameState("playing");
     setNextStageGoals(null);
 
-    const selectedColorIndexes = selectStageColors();
-    // 次のステージの色を選択し、ステージ番号を更新
-    setSelectedColorIndexes(selectedColorIndexes);
     const nextStage = stage + 1;
     console.log(
       `Advancing to Stage ${nextStage} with difficulty: ${selectedDifficulty}`,
@@ -240,18 +231,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setBonusMoves(0);
     setNextStageGoals(null); // 目標情報もリセット
     // 新しい盤面の生成と設定
+    const selectedColorIndexes = selectStageColors();
+    setSelectedColorIndexes(selectedColorIndexes);
     const newBoard = createAndInitializeBoard(selectedColorIndexes);
     setBoard(newBoard);
   };
 
   // 盤面リセット関数 (ゲーム開始時、リトライ時)
   const resetBoard = () => {
-    const selectedColorIndexes = selectStageColors();
-    // ステージ色の選択とブロックタイプのリセット
-    setSelectedColorIndexes(selectStageColors());
-    // resetBlockTypes(); // 空だが念のため呼ぶ - 削除
-
     // 初期盤面の生成と設定
+    const selectedColorIndexes = selectStageColors();
+    setSelectedColorIndexes(selectStageColors());
     const initialBoard = createAndInitializeBoard(selectedColorIndexes);
     setBoard(initialBoard);
 
@@ -439,8 +429,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     // 連鎖が終わったら倍率をリセットする
-    // ★ カード効果が残っている場合はカード倍率に、なければ1にリセット
-    setScoreMultiplier(cardTurnsLeft > 0 ? cardMultiplier : 1);
+    if (cardTurnsLeft - 1 === 0) {
+      setCardMultiplier(1);
+      setScoreMultiplier(1);
+    } else {
+      setScoreMultiplier(cardMultiplier);
+    }
 
     // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
     if (gameState === "playing") {
@@ -484,11 +478,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     drawCard, // ★ カードを引く関数を追加
     cardMultiplier, // ★ カード倍率を追加
     cardTurnsLeft, // ★ カード残りターン数を追加
-    setCardMultiplier, // ★ カード倍率セッターを追加
     setCardTurnsLeft, // ★ カード残りターン数セッターを追加
-    setScoreMultiplier,
     gameState, // ゲームの状態を追加
-    selectedColorIndexes,
+    // handleMoveAction, // ★ ターン経過処理を含む関数 (UI側で呼び出す想定)
+    selectedColors: selectedColorIndexes,
   };
 };
 

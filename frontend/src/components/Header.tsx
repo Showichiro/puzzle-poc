@@ -1,5 +1,4 @@
-import type React from "react";
-import { useState } from "react";
+import { type FC, useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 import { version } from "../constants";
 
@@ -7,7 +6,7 @@ interface HeaderProps {
   onOpenHistoryModal: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
+const Header: FC<HeaderProps> = ({ onOpenHistoryModal }) => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const { speed, setSpeed } = useAnimationSpeed();
 
@@ -49,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             stroke="currentColor"
             className="size-6"
           >
-            <title>History Modal Open Button</title>
+            <title>historyButton</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -70,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             stroke="currentColor"
             className="size-6"
           >
-            <title>infoIcon</title>
+            <title>infoButton</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

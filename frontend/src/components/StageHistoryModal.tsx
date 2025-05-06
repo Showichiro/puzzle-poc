@@ -1,4 +1,3 @@
-import type React from "react";
 import StageHistoryChart from "./StageHistoryChart"; // 作成済みのチャートコンポーネントをインポート
 
 interface StageHistoryModalProps {
@@ -17,12 +16,13 @@ const StageHistoryModal: React.FC<StageHistoryModalProps> = ({
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" // z-index を追加して手前に表示
-      onKeyDown={onClose} // 背景クリックで閉じる
+      onClick={onClose} // 背景クリックで閉じる
+      onKeyDown={onClose}
     >
       <div
         className="bg-white p-6 rounded-lg shadow-xl max-w-xl w-full" // サイズ調整
-        onKeyUp={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        onKeyUp={(e) => e.stopPropagation()} // モーダル内部のクリックは伝播させない
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">過去の到達ステージ数</h2>

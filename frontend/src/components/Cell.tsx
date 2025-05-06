@@ -1,4 +1,3 @@
-import type React from "react";
 import { motion } from "framer-motion";
 import {
   generateColorClasses,
@@ -7,17 +6,17 @@ import {
 } from "../utils/gameLogic";
 
 interface CellProps {
-  selectedColorIndexes: number[];
   value: number | null;
   onClick: () => void;
   isSelected: boolean;
+  selectedColors: number[];
 }
 
 const Cell: React.FC<CellProps> = ({
-  selectedColorIndexes,
   value,
   onClick,
   isSelected,
+  selectedColors,
 }) => {
   // セルのスタイルをTailwind CSSで定義
   const baseStyle = `h-16 border-2 ${
@@ -25,8 +24,8 @@ const Cell: React.FC<CellProps> = ({
     isSelected ? "border-red-500 border-4" : "border-gray-400"
   } flex items-center justify-center text-xl font-extrabold cursor-pointer select-none transition-colors duration-300`; // font-bold を font-extrabold に変更
   // 値に応じて背景色とパターンを取得
-  const colorClasses = generateColorClasses(selectedColorIndexes);
-  const patternSymbols = generatePatternSymbols(selectedColorIndexes);
+  const colorClasses = generateColorClasses(selectedColors);
+  const patternSymbols = generatePatternSymbols(selectedColors);
   const colorStyle =
     value !== null && colorClasses[value] ? colorClasses[value] : "bg-gray-200";
   const patternSymbol =
