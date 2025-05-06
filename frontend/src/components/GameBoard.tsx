@@ -44,9 +44,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
     drawCard,
     cardMultiplier,
     cardTurnsLeft,
-    setCardMultiplier, // ターン経過で使用
     setCardTurnsLeft, // ターン経過で使用
-    setScoreMultiplier,
   } = useGameBoard(initialDifficulty); // initialDifficulty をフックに渡す
 
   // セルクリック時のハンドラ
@@ -76,15 +74,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
         // ★ カード効果のターン経過処理
         setCardTurnsLeft((prev) => {
           if (prev <= 0) return prev; // nothing to do
-          const next = prev - 1;
-          if (next === 0) {
-            setCardMultiplier(1); // 効果終了
-            setScoreMultiplier(1);
-            console.log("Card effect ended.");
-          } else {
-            console.log(`Card effect: ${cardMultiplier}x, Turns left: ${next}`);
-          }
-          return next;
+          return prev - 1;
         });
 
         // 入れ替えによってマッチが発生するかチェックし、連鎖処理を開始
@@ -171,13 +161,16 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
               <Cell
                 key={`${rowIndex}-${
                   // biome-ignore lint/suspicious/noArrayIndexKey:
-                  colIndex}`}
+                  colIndex
+                }`}
                 value={cellValue}
                 onClick={() => handleClick(rowIndex, colIndex)}
-                isSelected={selectedCell?.row === rowIndex &&
-                  selectedCell?.col === colIndex}
+                isSelected={
+                  selectedCell?.row === rowIndex &&
+                  selectedCell?.col === colIndex
+                }
               />
-            ))
+            )),
           )}
         </div>
       )}
