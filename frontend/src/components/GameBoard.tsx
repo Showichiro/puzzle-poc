@@ -161,7 +161,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
       {/* ★ ステージクリアモーダル表示中もゲーム盤を非表示 */}
       {gameState === "playing" && (
         <div
-          className={"grid gap-0 opacity-50"}
+          className={"grid gap-0"}
           style={{
             gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
           }}
@@ -171,16 +171,13 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
               <Cell
                 key={`${rowIndex}-${
                   // biome-ignore lint/suspicious/noArrayIndexKey:
-                  colIndex
-                }`}
+                  colIndex}`}
                 value={cellValue}
                 onClick={() => handleClick(rowIndex, colIndex)}
-                isSelected={
-                  selectedCell?.row === rowIndex &&
-                  selectedCell?.col === colIndex
-                }
+                isSelected={selectedCell?.row === rowIndex &&
+                  selectedCell?.col === colIndex}
               />
-            )),
+            ))
           )}
         </div>
       )}
