@@ -11,10 +11,6 @@ const AVAILABLE_COLOR_INDICES = Array.from(
   (_, i) => i,
 );
 
-// 現在のステージで使用する色のインデックスを保持する配列
-// useGameBoard フックで管理されるべき状態だが、現状はこのファイルで管理
-let currentStageColorIndices: number[] = [];
-
 // ステージで使用する色をランダムに選択する関数
 export const selectStageColors = () => {
   // 利用可能な色インデックスをシャッフル
@@ -27,16 +23,11 @@ export const selectStageColors = () => {
     ];
   }
   // シャッフルされた配列からステージで使用する色の数だけ選択
-  currentStageColorIndices = shuffledIndices.slice(0, COLORS_PER_STAGE);
-  // console.log("Selected stage colors (indices):", currentStageColorIndices); // デバッグ用ログは削除
+  return shuffledIndices.slice(0, COLORS_PER_STAGE);
 };
 
 // 選択された色の中からランダムなブロック値（色のインデックス）を生成する関数
-export const getRandomBlock = (): number => {
-  // まだ色が選択されていない場合（初期化時など）はエラーを防ぐため選択
-  if (currentStageColorIndices.length === 0) {
-    selectStageColors();
-  }
+export const getRandomBlock = (currentStageColorIndices: number[]): number => {
   const randomIndex = Math.floor(
     Math.random() * currentStageColorIndices.length,
   );
@@ -61,7 +52,9 @@ const allColorClasses = [
 const allPatternSymbols = ["●", "■", "▲", "◆", "★", "+", "✿", "♥"];
 
 // 現在選択されている色に基づいて色のクラス名のマップを生成する関数
-export const generateColorClasses = (): { [key: number]: string } => {
+export const generateColorClasses = (
+  currentStageColorIndices: number[],
+): { [key: number]: string } => {
   const colorClasses: { [key: number]: string } = {};
   for (const index of currentStageColorIndices) {
     if (index >= 0 && index < allColorClasses.length) {
@@ -72,7 +65,9 @@ export const generateColorClasses = (): { [key: number]: string } => {
 };
 
 // 現在選択されている色に基づいてパターンのシンボルのマップを生成する関数
-export const generatePatternSymbols = (): { [key: number]: string } => {
+export const generatePatternSymbols = (
+  currentStageColorIndices: number[],
+): { [key: number]: string } => {
   const patternSymbols: { [key: number]: string } = {};
   for (const index of currentStageColorIndices) {
     if (index >= 0 && index < allPatternSymbols.length) {
@@ -247,6 +242,7 @@ export const applyGravity = (
 // 空いたセルを新しいブロックで補充する関数
 export const refillBoard = (
   currentBoard: Array<Array<number | null>>,
+  currentStageColorIndices: number[],
 ): Array<Array<number | null>> => {
   const newBoard = currentBoard.map((r) => [...r]);
   // 全てのセルを走査
@@ -254,7 +250,7 @@ export const refillBoard = (
     for (let c = 0; c < BOARD_SIZE; c++) {
       // セルが空の場合、新しいランダムなブロックで補充
       if (newBoard[r][c] === null) {
-        newBoard[r][c] = getRandomBlock();
+        newBoard[r][c] = getRandomBlock(currentStageColorIndices);
       }
     }
   }
@@ -300,35 +296,37 @@ export const checkForPossibleMoves = (
   return false;
 };
 
-export const createAndInitializeBoard = (): Array<Array<number | null>> => {
+export const createAndInitializeBoard = (
+  currentStageColorIndices: number[],
+): Array<Array<number | null>> => {
   let board: Array<Array<number | null>> = Array(BOARD_SIZE)
     .fill(null)
     .map(
       () =>
         Array(BOARD_SIZE)
           .fill(null)
-          .map(() => getRandomBlock()), // 選択された色で盤面生成
+          .map(() => getRandomBlock(currentStageColorIndices)), // 選択された色で盤面生成
     );
 
   // 初期盤面でマッチがないように調整
   let matches = findMatches(board);
   while (matches.length > 0) {
     for (const { row, col } of matches) {
-      board[row][col] = getRandomBlock();
+      board[row][col] = getRandomBlock(currentStageColorIndices);
     }
     matches = findMatches(board);
   }
 
   // 重力と補充も適用
   board = applyGravity(board);
-  board = refillBoard(board);
+  board = refillBoard(board, currentStageColorIndices);
 
   // 詰み状態チェック
   const hasPossibleMoves = checkForPossibleMoves(board);
   if (!hasPossibleMoves) {
     console.log("Generated board has no possible moves, regenerating...");
     // 詰みの場合は再帰的に呼び出す
-    return createAndInitializeBoard();
+    return createAndInitializeBoard(currentStageColorIndices);
   }
 
   return board;

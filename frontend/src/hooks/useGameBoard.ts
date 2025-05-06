@@ -92,11 +92,12 @@ const calculateStageGoals = (
 
 const useGameBoard = (initialDifficulty: Difficulty) => {
   const { speed } = useAnimationSpeed(); // アニメーション速度を取得
-
+  const [selectedColorIndexes, setSelectedColorIndexes] = useState(
+    selectStageColors(),
+  );
   // ★ useState の初期化関数内で色選択と盤面生成を行う
   const [board, setBoard] = useState<Array<Array<number | null>>>(() => {
-    selectStageColors(); // まず色を選択
-    return createAndInitializeBoard(); // 共通関数で盤面を生成・初期化
+    return createAndInitializeBoard(selectedColorIndexes); // 共通関数で盤面を生成・初期化
   });
   // 手数を管理
   const [moves, setMoves] = useState(0);
@@ -209,8 +210,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setGameState("playing");
     setNextStageGoals(null);
 
-    // 次のステージの色を選択し、ステージ番号を更新
-    selectStageColors();
     const nextStage = stage + 1;
     console.log(
       `Advancing to Stage ${nextStage} with difficulty: ${selectedDifficulty}`,
@@ -235,18 +234,18 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setBonusMoves(0);
     setNextStageGoals(null); // 目標情報もリセット
     // 新しい盤面の生成と設定
-    const newBoard = createAndInitializeBoard();
+    const selectedColorIndexes = selectStageColors();
+    setSelectedColorIndexes(selectedColorIndexes);
+    const newBoard = createAndInitializeBoard(selectedColorIndexes);
     setBoard(newBoard);
   };
 
   // 盤面リセット関数 (ゲーム開始時、リトライ時)
   const resetBoard = () => {
-    // ステージ色の選択とブロックタイプのリセット
-    selectStageColors();
-    // resetBlockTypes(); // 空だが念のため呼ぶ - 削除
-
     // 初期盤面の生成と設定
-    const initialBoard = createAndInitializeBoard();
+    const selectedColorIndexes = selectStageColors();
+    setSelectedColorIndexes(selectStageColors());
+    const initialBoard = createAndInitializeBoard(selectedColorIndexes);
     setBoard(initialBoard);
 
     // 各種stateの初期化 (Stage 1)
@@ -336,7 +335,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ
 
     // 3. 新しいブロックを補充する
-    boardAfterStep = refillBoard(boardAfterStep);
+    boardAfterStep = refillBoard(boardAfterStep, selectedColorIndexes);
     setBoard(boardAfterStep.map((r) => [...r])); // 補充状態を表示
     await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ
 
@@ -485,6 +484,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setCardTurnsLeft, // ★ カード残りターン数セッターを追加
     gameState, // ゲームの状態を追加
     // handleMoveAction, // ★ ターン経過処理を含む関数 (UI側で呼び出す想定)
+    selectedColors: selectedColorIndexes,
   };
 };
 
