@@ -9,7 +9,6 @@ import {
 } from "../utils/gameLogic";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext"; // AnimationSpeedContext をインポート
 import { saveGameHistory } from "../utils/saveGameHistory";
-import { useHighestScore } from "../contexts/HighestScoreContext";
 
 // Difficulty 型を定義
 type Difficulty = "easy" | "medium" | "hard";
@@ -146,7 +145,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }[] // chainCount を追加
   >([]);
   const scoreIdCounter = useRef(0); // floating score にユニークIDを付与するためのカウンター
-  const { setHighestStage } = useHighestScore();
   // カード効果の状態
   const [cardMultiplier, setCardMultiplier] = useState(1); // カードによるスコア倍率 (初期値1)
   const [cardTurnsLeft, setCardTurnsLeft] = useState(0); // カード効果の残りターン数 (初期値0)
@@ -195,7 +193,6 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
       console.log(
         `Game Over - Stage ${stage}. Moves: ${currentMoves}, Score: ${currentScore}, Target: ${currentTargetScore}`,
       );
-      setHighestStage(stage);
       saveGameHistory(stage);
       setGameState("gameOver");
     }
