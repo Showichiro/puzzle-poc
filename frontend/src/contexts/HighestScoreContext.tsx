@@ -1,4 +1,10 @@
-import { createContext, FC, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  type FC,
+  type ReactNode,
+  useContext,
+  useState,
+} from "react";
 
 interface HighestScoreContextType {
   highestStage: number;
@@ -9,20 +15,17 @@ const HighestScoreContext = createContext<HighestScoreContextType | undefined>(
   undefined,
 );
 
-export const HighestScoreProvider: FC<{ children: ReactNode }> = (
-  { children },
-) => {
+export const HighestScoreProvider: FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [highestStage, setHighestStage] = useState(() => {
     const storedHighestStage = localStorage.getItem("highestStageCleared");
-    return storedHighestStage ? parseInt(storedHighestStage, 10) : 0;
+    return storedHighestStage ? Number.parseInt(storedHighestStage, 10) : 0;
   });
 
   const setHighest = (stage: number) => {
     setHighestStage(stage);
-    localStorage.setItem(
-      "highestStageCleared",
-      stage.toString(),
-    );
+    localStorage.setItem("highestStageCleared", stage.toString());
   };
 
   return (

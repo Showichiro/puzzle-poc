@@ -1,4 +1,4 @@
-import { FC } from "react";
+import type { FC } from "react";
 import { BOARD_SIZE } from "../utils/gameLogic";
 
 interface FloatingScoresProps {
@@ -8,9 +8,12 @@ interface FloatingScoresProps {
   col: number;
 }
 
-export const FloatingScores: FC<FloatingScoresProps> = (
-  { score, chainCount, row, col },
-) => {
+export const FloatingScores: FC<FloatingScoresProps> = ({
+  score,
+  chainCount,
+  row,
+  col,
+}) => {
   // スコアに基づいてフォントサイズを計算
   // スコアの対数を取り、最小値と最大値の間で線形補間
   const minScore = 100; // 調整可能な最小スコア
@@ -24,9 +27,9 @@ export const FloatingScores: FC<FloatingScoresProps> = (
   const logMaxScore = Math.log(maxScore);
 
   // 対数スケールでの線形補間
-  const fontSize = minFontSize +
-    (maxFontSize - minFontSize) *
-      (logScore - logMinScore) /
+  const fontSize =
+    minFontSize +
+    ((maxFontSize - minFontSize) * (logScore - logMinScore)) /
       (logMaxScore - logMinScore);
 
   // スコアに基づいて明度 (Lightness) を計算
@@ -34,9 +37,9 @@ export const FloatingScores: FC<FloatingScoresProps> = (
   // スコアが低いほど明度が高く（白く）、高いほど明度が低く（濃く）なるようにする
   const minLightness = 40; // 最大スコア時の明度 (濃い色)
   const maxLightness = 90; // 最小スコア時の明度 (白に近い色)
-  const lightness = minLightness +
-    (maxLightness - minLightness) *
-      (logMaxScore - logScore) / // スコアが増えるほど (logScoreが増えるほど) 明度が下がるように計算
+  const lightness =
+    minLightness +
+    ((maxLightness - minLightness) * (logMaxScore - logScore)) / // スコアが増えるほど (logScoreが増えるほど) 明度が下がるように計算
       (logMaxScore - logMinScore);
 
   // 連鎖数に基づいて色相 (Hue) と彩度 (Saturation) を計算
@@ -44,13 +47,12 @@ export const FloatingScores: FC<FloatingScoresProps> = (
   const maxChainForColor = 10; // 色の変化の最大連鎖数 (10連鎖で赤)
   const clampedChain = Math.min(chainCount, maxChainForColor);
   // 連鎖1で黄(50)、連鎖10で赤(0) になるように補間
-  const hue = 50 - (50 - 0) * (clampedChain - 1) / (maxChainForColor - 1);
+  const hue = 50 - ((50 - 0) * (clampedChain - 1)) / (maxChainForColor - 1);
   const saturation = 100; // 彩度は最大に固定
 
   // 連鎖数に基づいてアニメーションクラスを生成
-  const shakeClass = chainCount > 1
-    ? `chain-shake-${Math.min(chainCount, 10)}`
-    : ""; // 連鎖数に応じてクラス名を変更 (最大6まで)
+  const shakeClass =
+    chainCount > 1 ? `chain-shake-${Math.min(chainCount, 10)}` : ""; // 連鎖数に応じてクラス名を変更 (最大6まで)
 
   return (
     <div
