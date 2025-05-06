@@ -3,7 +3,6 @@ import GameBoard from "./components/GameBoard";
 import { AnimationSpeedProvider } from "./contexts/AnimationSpeedContext";
 import Header from "./components/Header";
 import { BuyMeACoffeeLink } from "./components/BuyMeACoffeeLink";
-import { HighestScoreProvider } from "./contexts/HighestScoreContext";
 const StageHistoryModal = lazy(() => import("./components/StageHistoryModal"));
 
 function App() {
@@ -21,23 +20,21 @@ function App() {
   // GameBoard 内部で難易度選択モーダルの表示を制御する
   return (
     <AnimationSpeedProvider>
-      <HighestScoreProvider>
-        <main className="container mx-auto max-w-lg p-4 flex flex-col items-center">
-          {/* Header にモーダルを開く関数を渡す */}
-          <Header onOpenHistoryModal={handleOpenHistoryModal} />
-          {/* GameBoard に初期難易度を渡す (例: "medium") */}
-          <GameBoard initialDifficulty="medium" />
-          {/* StageHistoryChart の直接表示を削除 */}
-          <BuyMeACoffeeLink />
-        </main>
-        {/* モーダルコンポーネントに state と関数を渡す */}
-        <Suspense fallback={<div>Loading...</div>}>
-          <StageHistoryModal
-            isOpen={isHistoryModalOpen}
-            onClose={handleCloseHistoryModal}
-          />
-        </Suspense>
-      </HighestScoreProvider>
+      <main className="container mx-auto max-w-lg p-4 flex flex-col items-center">
+        {/* Header にモーダルを開く関数を渡す */}
+        <Header onOpenHistoryModal={handleOpenHistoryModal} />
+        {/* GameBoard に初期難易度を渡す (例: "medium") */}
+        <GameBoard initialDifficulty="medium" />
+        {/* StageHistoryChart の直接表示を削除 */}
+        <BuyMeACoffeeLink />
+      </main>
+      {/* モーダルコンポーネントに state と関数を渡す */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <StageHistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={handleCloseHistoryModal}
+        />
+      </Suspense>
     </AnimationSpeedProvider>
   );
 }

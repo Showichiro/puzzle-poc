@@ -1,5 +1,4 @@
 import type { FC } from "react";
-import { useHighestScore } from "../contexts/HighestScoreContext";
 
 interface InfoAreaProps {
   stage: number;
@@ -26,7 +25,6 @@ export const InfoArea: FC<InfoAreaProps> = ({
   cardTurnsLeft,
   drawCard,
 }) => {
-  const { highestStage } = useHighestScore();
   const canDrawCard = currentMaxMoves - moves >= 3; // カードを引けるかどうかのフラグ
 
   return (
@@ -42,8 +40,10 @@ export const InfoArea: FC<InfoAreaProps> = ({
         <span className="text-lg font-semibold">{currentMaxMoves - moves}</span>
       </div>
       <div className="text-center">
-        <span className="text-xs text-gray-600 block">最高記録</span>
-        <span className="text-lg font-semibold">Stage {highestStage}</span>
+        <span className="text-xs text-gray-600 block">倍率</span>
+        <span className="text-lg font-semibold">
+          {/* ★ 小数点以下2桁まで表示 */}x{scoreMultiplier.toFixed(2)}
+        </span>
       </div>
       {/* Row 2 */}
       <div className="text-center col-span-2">
@@ -52,23 +52,6 @@ export const InfoArea: FC<InfoAreaProps> = ({
         <span className="text-lg font-semibold">
           {score.toLocaleString()} / {currentTargetScore.toLocaleString()}
         </span>
-      </div>
-      <div className="text-center">
-        <span className="text-xs text-gray-600 block">倍率</span>
-        <span className="text-lg font-semibold">
-          {/* ★ 小数点以下2桁まで表示 */}x{scoreMultiplier.toFixed(2)}
-        </span>
-      </div>
-      {/* Row 3: Card Info and Draw Button */}
-      <div className="text-center col-span-2">
-        {cardTurnsLeft > 0 && ( // カード効果がある場合のみ表示
-          <>
-            <span className="text-xs text-gray-600 block">カード効果</span>
-            <span className="text-lg font-semibold text-blue-600">
-              スコア x{cardMultiplier.toFixed(2)} (あと{cardTurnsLeft}手)
-            </span>
-          </>
-        )}
       </div>
       <div className="text-center">
         <button
@@ -83,6 +66,18 @@ export const InfoArea: FC<InfoAreaProps> = ({
         >
           倍率変更
         </button>
+      </div>
+
+      {/* Row 3: Card Info and Draw Button */}
+      <div className="text-center col-span-2">
+        {cardTurnsLeft > 0 && ( // カード効果がある場合のみ表示
+          <>
+            <span className="text-xs text-gray-600 block">カード効果</span>
+            <span className="text-lg font-semibold text-blue-600">
+              スコア x{cardMultiplier.toFixed(2)} (あと{cardTurnsLeft}手)
+            </span>
+          </>
+        )}
       </div>
     </div>
   );
