@@ -436,8 +436,12 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     // 連鎖が終わったら倍率をリセットする
-    // ★ カード効果が残っている場合はカード倍率に、なければ1にリセット
-    setScoreMultiplier(cardTurnsLeft > 0 ? cardMultiplier : 1);
+    if (cardTurnsLeft - 1 === 0) {
+      setCardMultiplier(1);
+      setScoreMultiplier(1);
+    } else {
+      setScoreMultiplier(cardMultiplier);
+    }
 
     // 連鎖処理完了後に最終的なスコアでゲームステータスをチェック
     if (gameState === "playing") {
@@ -481,9 +485,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     drawCard, // ★ カードを引く関数を追加
     cardMultiplier, // ★ カード倍率を追加
     cardTurnsLeft, // ★ カード残りターン数を追加
-    setCardMultiplier, // ★ カード倍率セッターを追加
     setCardTurnsLeft, // ★ カード残りターン数セッターを追加
-    setScoreMultiplier,
     gameState, // ゲームの状態を追加
     // handleMoveAction, // ★ ターン経過処理を含む関数 (UI側で呼び出す想定)
   };
