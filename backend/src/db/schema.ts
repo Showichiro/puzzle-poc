@@ -19,11 +19,28 @@ export const passkeys = sqliteTable("passkeys", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   passkeys: many(passkeys),
+  scores: many(scores),
 }));
 
 export const passkeysRelations = relations(passkeys, ({ one }) => ({
-  users: one(users, {
+  user: one(users, {
     fields: [passkeys.user_id],
     references: [users.id],
   }),
 }));
+
+export const scores = sqliteTable("scores", {
+  id: int().primaryKey({ autoIncrement: true }),
+  user_id: int().notNull(),
+  version: text().notNull(),
+  order: int().notNull(),
+});
+
+export const scoresRelations = relations(scores, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [scores.user_id],
+      references: [users.id],
+    }),
+  };
+});
