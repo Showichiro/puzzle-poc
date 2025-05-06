@@ -58,36 +58,27 @@ const allColorClasses = [
 ];
 
 // 利用可能な全パターンのシンボルリスト
-const allPatternSymbols = [
-  "●",
-  "■",
-  "▲",
-  "◆",
-  "★",
-  "+",
-  "✿",
-  "♥",
-];
+const allPatternSymbols = ["●", "■", "▲", "◆", "★", "+", "✿", "♥"];
 
 // 現在選択されている色に基づいて色のクラス名のマップを生成する関数
 export const generateColorClasses = (): { [key: number]: string } => {
   const colorClasses: { [key: number]: string } = {};
-  currentStageColorIndices.forEach((index) => {
+  for (const index of currentStageColorIndices) {
     if (index >= 0 && index < allColorClasses.length) {
       colorClasses[index] = allColorClasses[index];
     }
-  });
+  }
   return colorClasses;
 };
 
 // 現在選択されている色に基づいてパターンのシンボルのマップを生成する関数
 export const generatePatternSymbols = (): { [key: number]: string } => {
   const patternSymbols: { [key: number]: string } = {};
-  currentStageColorIndices.forEach((index) => {
+  for (const index of currentStageColorIndices) {
     if (index >= 0 && index < allPatternSymbols.length) {
       patternSymbols[index] = allPatternSymbols[index];
     }
-  });
+  }
   return patternSymbols;
 };
 
@@ -189,7 +180,9 @@ export const findMatches = (
   // 各マッチグループを処理
   const processMatchGroup = (matchGroup: Set<string>) => {
     // まず、通常のマッチとして消去対象に追加
-    matchGroup.forEach((key) => blocksToClear.add(key));
+    for (const key of matchGroup) {
+      blocksToClear.add(key);
+    }
 
     // 5つ以上の連続マッチの場合、特殊効果を準備
     if (matchGroup.size >= 5) {
@@ -320,9 +313,9 @@ export const createAndInitializeBoard = (): Array<Array<number | null>> => {
   // 初期盤面でマッチがないように調整
   let matches = findMatches(board);
   while (matches.length > 0) {
-    matches.forEach(({ row, col }) => {
+    for (const { row, col } of matches) {
       board[row][col] = getRandomBlock();
-    });
+    }
     matches = findMatches(board);
   }
 

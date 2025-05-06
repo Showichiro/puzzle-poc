@@ -15,11 +15,7 @@ import { useHighestScore } from "../contexts/HighestScoreContext";
 type Difficulty = "easy" | "medium" | "hard";
 
 // ゲームの状態を定義
-type GameState =
-  | "playing"
-  | "stageClear"
-  | "difficultySelect"
-  | "gameOver";
+type GameState = "playing" | "stageClear" | "difficultySelect" | "gameOver";
 // ★ ステージ1の初期手数を定義
 const initialMovesMap: Record<Difficulty, number> = {
   easy: 5,
@@ -74,11 +70,14 @@ const calculateStageGoals = (
 
   // ★ 目標スコアの計算ロジックは維持 (ステージに応じて増加)
   const scoreMultiplierPerStage = 1.5;
-  let targetScore = stage === 1 ? 150000 : Math.floor(
-    baseTargetScore *
-      difficultyScoreMultiplier *
-      Math.pow(scoreMultiplierPerStage, stage - 1), // stage は次のステージ番号なのでそのまま使う
-  );
+  let targetScore =
+    stage === 1
+      ? 150000
+      : Math.floor(
+          baseTargetScore *
+            difficultyScoreMultiplier *
+            scoreMultiplierPerStage ** (stage - 1), // stage は次のステージ番号なのでそのまま使う
+        );
   // ランダムな変動を加える
   if (stage > 1) {
     const [minScore, maxScore] = targetScoreRange[difficulty];
@@ -103,12 +102,10 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   // 手数を管理
   const [moves, setMoves] = useState(0);
   // 選択中のセルを管理
-  const [selectedCell, setSelectedCell] = useState<
-    {
-      row: number;
-      col: number;
-    } | null
-  >(null);
+  const [selectedCell, setSelectedCell] = useState<{
+    row: number;
+    col: number;
+  } | null>(null);
   // 操作中フラグ(連鎖中の誤操作防止)
   const [isProcessing, setIsProcessing] = useState(false);
   // スコア
@@ -123,20 +120,17 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const [currentMaxMoves, setCurrentMaxMoves] = useState(
     initialMovesMap[initialDifficulty],
   ); // ★ Stage 1 の初期手数
-  const [currentTargetScore, setCurrentTargetScore] = useState(
-    initialTargetScore,
-  ); // ★ Stage 1 の目標スコア
+  const [currentTargetScore, setCurrentTargetScore] =
+    useState(initialTargetScore); // ★ Stage 1 の目標スコア
   // ゲームの状態を管理する state
   const [gameState, setGameState] = useState<GameState>("playing");
 
   // ★ 次のステージの難易度ごとの目標 (加算手数と目標スコア)
-  const [nextStageGoals, setNextStageGoals] = useState<
-    Record<
-      Difficulty,
-      // ★ 型定義を calculateStageGoals の戻り値に合わせる
-      { addedMoves: number; targetScore: number }
-    > | null
-  >(null);
+  const [nextStageGoals, setNextStageGoals] = useState<Record<
+    Difficulty,
+    // ★ 型定義を calculateStageGoals の戻り値に合わせる
+    { addedMoves: number; targetScore: number }
+  > | null>(null);
   // ★ ボーナス手数
   const [bonusMoves, setBonusMoves] = useState(0);
   // スコア倍率
@@ -165,18 +159,15 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     }
 
     if (currentScore >= currentTargetScore) {
-      // ステージクリア！
-      setGameState("stageClear");
       console.log(`Stage ${stage} Clear! Score: ${currentScore}`);
 
       // ボーナス手数を計算
-      const scoreRatio = currentTargetScore > 0
-        ? currentScore / currentTargetScore
-        : 0;
+      const scoreRatio =
+        currentTargetScore > 0 ? currentScore / currentTargetScore : 0;
       let calculatedBonusMoves = 0;
       if (scoreRatio > 1.0) {
         const excessRatio = scoreRatio - 1.0;
-        calculatedBonusMoves = Math.floor(Math.pow(excessRatio, 0.1) * 3);
+        calculatedBonusMoves = Math.floor(excessRatio ** 0.1 * 3);
       }
       // ★ 上限を撤廃
       setBonusMoves(calculatedBonusMoves);
@@ -291,11 +282,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     console.log(
       `Checking conditions: remainingMoves=${remainingMoves}, isProcessing=${isProcessing}, gameState=${gameState}`,
     ); // ★ デバッグログ追加
-    if (
-      remainingMoves < 3 ||
-      isProcessing ||
-      gameState !== "playing"
-    ) {
+    if (remainingMoves < 3 || isProcessing || gameState !== "playing") {
       console.log("Cannot draw card now. Condition not met."); // ★ デバッグログ追加
       return;
     }
@@ -310,7 +297,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // ランダムな倍率を生成 (1 ~ 1000)
     const randomLog = Math.random() * Math.log(1000);
     const randomMultiplier = Math.exp(randomLog);
-    const newMultiplier = parseFloat(randomMultiplier.toFixed(2)); // 小数点以下2桁に丸める
+    const newMultiplier = Number.parseFloat(randomMultiplier.toFixed(2)); // 小数点以下2桁に丸める
 
     // カード効果を設定
     setCardMultiplier(newMultiplier);
@@ -340,9 +327,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     const matches = findMatches(boardAfterStep);
 
     // 1. マッチしたブロックを消す
-    matches.forEach(({ row, col }) => {
+    for (const { row, col } of matches) {
       boardAfterStep[row][col] = null;
-    });
+    }
     setBoard(boardAfterStep.map((r) => [...r])); // 消去状態を表示
     await new Promise((resolve) => setTimeout(resolve, delay)); // 少し待つ (アニメーションのため)
 
@@ -369,9 +356,9 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // 基本点はステージに応じて増加
     const basePoints = 10 + (stage - 1) * 5; // Stage 1: 10, Stage 2: 15, ...
     // 連鎖ボーナス
-    const chainBonus = Math.pow(2, chainCount - 1);
+    const chainBonus = 2 ** (chainCount - 1);
     // 消したブロック数ボーナス: 消した数^1.5
-    const clearedBlocksBonus = Math.pow(matches.length, 1.5);
+    const clearedBlocksBonus = matches.length ** 1.5;
 
     const pointsEarned = Math.floor(
       basePoints * clearedBlocksBonus * chainBonus * cardMultiplier, // ★ カード倍率を適用
@@ -396,11 +383,11 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     setFloatingScores((prev) => [...prev, ...currentFloatingScores]);
 
     // 一定時間後に表示を消す (1秒後)
-    currentFloatingScores.forEach((fs) => {
+    for (const fs of currentFloatingScores) {
       setTimeout(() => {
         setFloatingScores((prev) => prev.filter((pfs) => pfs.id !== fs.id));
       }, 1000);
-    });
+    }
 
     return newChainScore;
   };
