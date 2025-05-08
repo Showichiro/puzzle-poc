@@ -244,7 +244,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
   const resetBoard = () => {
     // 初期盤面の生成と設定
     const selectedColorIndexes = selectStageColors();
-    setSelectedColorIndexes(selectStageColors());
+    setSelectedColorIndexes(selectedColorIndexes);
     const initialBoard = createAndInitializeBoard(selectedColorIndexes);
     setBoard(initialBoard);
 
