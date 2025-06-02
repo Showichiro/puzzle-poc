@@ -9,7 +9,7 @@
       "format": "biome format --write backend/ frontend/"
     },
     "dependencies": {
-      "turbo": "^2.5.3"
+      "turbo": "^2.5.4"
     },
     "packageManager": "bun@1.2.12"
 }
