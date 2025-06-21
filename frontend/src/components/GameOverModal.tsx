@@ -1,18 +1,48 @@
-import { type FC, useRef } from "react";
+import { type FC, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import html2canvasPro from "html2canvas-pro";
 import { version } from "../constants";
+import { useAuth } from "../contexts/AuthContext";
 
 interface GameOverModalProps {
   resetBoard: () => void;
   stage: number;
   score: number;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 
 const GameOverModal: FC<GameOverModalProps> = (
-  { resetBoard, stage, score }, // highScore を highestStageCleared に変更
+  { resetBoard, stage, score, difficulty },
 ) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { submitScore, user, isAuthenticated } = useAuth();
+  const [ranking, setRanking] = useState<number | null>(null);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+
+  // コンポーネントマウント時にスコア投稿
+  useEffect(() => {
+    const handleScoreSubmit = async () => {
+      if (!isAuthenticated || !user || scoreSubmitted) return;
+
+      const scoreData = {
+        score,
+        stage,
+        difficulty,
+        version,
+      };
+
+      const result = await submitScore(scoreData);
+      
+      if (result.success) {
+        setScoreSubmitted(true);
+        if (result.ranking) {
+          setRanking(result.ranking);
+        }
+      }
+    };
+
+    handleScoreSubmit();
+  }, [submitScore, user, isAuthenticated, score, stage, difficulty, scoreSubmitted]);
   return (
     <motion.div
       className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10"
@@ -31,9 +61,20 @@ const GameOverModal: FC<GameOverModalProps> = (
       >
         <h2 className="text-2xl font-bold mb-4">ゲームオーバー！ v{version}</h2>
         <p>スコア: {score}</p>
-        <p className="text-xl font-semibold mb-4">
-          {stage} ステージまでクリアしました！ v{version}
+        <p className="text-xl font-semibold mb-2">
+          {stage} ステージまでクリアしました！
         </p>
+        {isAuthenticated && user && (
+          <div className="mb-4 text-green-600">
+            <p>ユーザー: {user.name}</p>
+            {scoreSubmitted && ranking && (
+              <p className="font-bold">ランキング: {ranking}位</p>
+            )}
+            {scoreSubmitted && !ranking && (
+              <p>スコアを登録しました！</p>
+            )}
+          </div>
+        )}
         {/* highScore を highestStageCleared に変更 */}
         <button
           type="button"
