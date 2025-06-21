@@ -16,7 +16,7 @@ export class ScoreError extends Error {
 export const errorResponse = (
   c: Context, 
   error: ScoreError | Error, 
-  status = 400
+  status: number = 400
 ): Response => {
   const errorCode = error instanceof ScoreError ? error.code : 'UNKNOWN_ERROR';
   const errorMessage = error.message || 'An unexpected error occurred';
@@ -35,7 +35,7 @@ export const errorResponse = (
     console.error('Stack trace:', error.stack);
   }
 
-  return c.json(response, status);
+  return c.json(response, status as any);
 };
 
 // バリデーションエラー用のヘルパー

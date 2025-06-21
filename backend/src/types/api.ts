@@ -79,3 +79,18 @@ export const ERROR_CODES = {
 } as const;
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+
+export interface UserMeResponse {
+  success: boolean;
+  user: {
+    id: number;
+    name: string;
+    stats: {
+      total_games: number;
+      highest_score: number;
+      highest_stage: number;
+      average_score: number;
+      recent_game_count: number;
+    };
+  };
+}

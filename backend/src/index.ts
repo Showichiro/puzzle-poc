@@ -18,11 +18,11 @@ import { users } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import type { Db } from "./db/types";
-import { createUsers, findUserByName, getUserByName } from "./repository/users";
+import { createUsers, findUserByName, getUserByName, getUserStats } from "./repository/users";
 import { createScore, getRanking, getUserScores, getUserRanking } from "./repository/scores";
 import { requireAuth, optionalAuth, type AuthUser } from "./middleware/auth";
-import { errorResponse, validationError, authError, dbError } from "./types/errors";
-import type { ScoreCreateResponse, RankingResponse, UserScoreResponse } from "./types/api";
+import { validationError, authError, dbError } from "./types/errors";
+import type { ScoreCreateResponse, RankingResponse, UserScoreResponse, UserMeResponse } from "./types/api";
 import { logger } from "hono/logger";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -199,6 +199,31 @@ const route = app
     }
 
     return c.json({ success: true });
+  })
+  .get("/user/me", requireAuth, async (c) => {
+    try {
+      const user = c.var.user;
+      
+      if (!user) {
+        return authError(c);
+      }
+
+      const userStats = await getUserStats(c.var.db, user.id);
+
+      const response: UserMeResponse = {
+        success: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          stats: userStats,
+        },
+      };
+
+      return c.json(response);
+    } catch (error) {
+      console.error("User info fetch error:", error);
+      return dbError(c, "Failed to fetch user info");
+    }
   })
   .post(
     "/scores",
