@@ -28,20 +28,27 @@
 
 ## 実装計画
 
-### Phase 1: データベース・API基盤構築
+### Phase 1: データベース・API基盤構築 ✅ **完了 (2025-06-21)**
 
 #### 1.1 データベースマイグレーション
-- [ ] `scores` テーブルのマイグレーション実行
-- [ ] 必要に応じてスキーマ調整
+- [x] `scores` テーブルのマイグレーション実行
+- [x] 必要に応じてスキーマ調整
 
 #### 1.2 スコア関連Repository実装
-- [ ] `backend/src/repository/scores.ts` の作成
-- [ ] スコア登録・取得・ランキング取得の関数実装
+- [x] `backend/src/repository/scores.ts` の作成
+- [x] スコア登録・取得・ランキング取得の関数実装
 
 #### 1.3 スコア関連API実装
-- [ ] `POST /scores` - スコア登録
-- [ ] `GET /scores/ranking` - ランキング取得
-- [ ] `GET /scores/user/:userId` - ユーザー個人スコア履歴取得
+- [x] `POST /scores` - スコア登録
+- [x] `GET /scores/ranking` - ランキング取得
+- [x] `GET /scores/user/:userId` - ユーザー個人スコア履歴取得
+
+**実装詳細:**
+- データベーススキーマに `score`, `stage`, `difficulty`, `created_at` 列を追加
+- 認証ミドルウェア (`requireAuth`, `optionalAuth`) を実装
+- エラーハンドリングとAPI型定義を整備
+- サインイン時のユーザーセッション管理を追加
+- 全コードのLint・型チェック対応済み
 
 ### Phase 2: 認証状態管理
 
