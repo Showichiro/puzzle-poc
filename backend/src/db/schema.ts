@@ -34,6 +34,10 @@ export const scores = sqliteTable("scores", {
   user_id: int().notNull(),
   version: text().notNull(),
   order: int().notNull(),
+  score: int().notNull().default(0),
+  stage: int().notNull().default(1),
+  difficulty: text().notNull().default('medium'), // 'easy' | 'medium' | 'hard'
+  created_at: text().notNull().default("CURRENT_TIMESTAMP"),
 });
 
 export const scoresRelations = relations(scores, ({ one }) => {

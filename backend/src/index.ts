@@ -14,9 +14,15 @@ import {
 } from "./repository/passkeys";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./db/schema";
+import { users } from "./db/schema";
+import { eq } from "drizzle-orm";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import type { Db } from "./db/types";
 import { createUsers, findUserByName, getUserByName } from "./repository/users";
+import { createScore, getRanking, getUserScores, getUserRanking } from "./repository/scores";
+import { requireAuth, optionalAuth, type AuthUser } from "./middleware/auth";
+import { errorResponse, validationError, authError, dbError } from "./types/errors";
+import type { ScoreCreateResponse, RankingResponse, UserScoreResponse } from "./types/api";
 import { logger } from "hono/logger";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -25,6 +31,7 @@ const app = new Hono<{
   Bindings: CloudflareBindings;
   Variables: {
     db: Db;
+    user?: AuthUser;
   };
 }>();
 
@@ -182,8 +189,123 @@ const route = app
       verification.authenticationInfo.newCounter,
     );
 
+    // ユーザー情報を取得してセッションクッキーを設定
+    const user = await c.var.db.query.users.findFirst({
+      where: eq(users.id, passkey.user_id),
+    });
+
+    if (user) {
+      await setSignedCookie(c, "user_session", user.name, c.env.SECRET);
+    }
+
     return c.json({ success: true });
-  });
+  })
+  .post(
+    "/scores",
+    zValidator("json", z.object({
+      score: z.number().int().min(0).max(1000000),
+      stage: z.number().int().min(1).max(1000),
+      difficulty: z.enum(['easy', 'medium', 'hard']),
+      version: z.string().min(1),
+    })),
+    requireAuth,
+    async (c) => {
+      try {
+        const { score, stage, difficulty, version } = c.req.valid("json");
+        const user = c.var.user;
+
+        if (!user) {
+          return authError(c);
+        }
+
+        // orderを生成（簡単な実装としてタイムスタンプを使用）
+        const order = Date.now();
+
+        const result = await createScore(c.var.db, {
+          userId: user.id,
+          score,
+          stage,
+          difficulty,
+          version,
+          order,
+        });
+
+        const response: ScoreCreateResponse = {
+          success: true,
+          id: result.id,
+          ranking: result.ranking,
+        };
+
+        return c.json(response);
+      } catch (error) {
+        console.error("Score creation error:", error);
+        return dbError(c, "Failed to create score");
+      }
+    }
+  )
+  .get(
+    "/scores/ranking",
+    zValidator("query", z.object({
+      limit: z.string().transform(Number).optional(),
+      offset: z.string().transform(Number).optional(),
+      difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+      period: z.enum(['daily', 'weekly', 'monthly', 'all']).optional(),
+    })),
+    optionalAuth,
+    async (c) => {
+      try {
+        const query = c.req.valid("query");
+        const user = c.var.user;
+
+        const result = await getRanking(c.var.db, query);
+
+        let user_rank: number | undefined;
+        if (user) {
+          user_rank = await getUserRanking(c.var.db, user.id, query.difficulty) ?? undefined;
+        }
+
+        const response: RankingResponse = {
+          rankings: result.rankings,
+          total: result.total,
+          user_rank,
+        };
+
+        return c.json(response);
+      } catch (error) {
+        console.error("Ranking fetch error:", error);
+        return dbError(c, "Failed to fetch ranking");
+      }
+    }
+  )
+  .get(
+    "/scores/user/:userId",
+    zValidator("query", z.object({
+      limit: z.string().transform(Number).optional(),
+      offset: z.string().transform(Number).optional(),
+    })),
+    async (c) => {
+      try {
+        const userId = Number(c.req.param('userId'));
+        const query = c.req.valid("query");
+
+        if (Number.isNaN(userId)) {
+          return validationError(c, "Invalid user ID");
+        }
+
+        const scores = await getUserScores(c.var.db, userId, query);
+
+        const response: UserScoreResponse = {
+          scores,
+          total: scores.length,
+        };
+
+        return c.json(response);
+      } catch (error) {
+        console.error("User scores fetch error:", error);
+        return dbError(c, "Failed to fetch user scores");
+      }
+    }
+  );
 
 export default app;
 
