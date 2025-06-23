@@ -25,6 +25,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  showLoginScreen: boolean;
+  setShowLoginScreen: (show: boolean) => void;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   submitScore: (scoreData: {
@@ -40,6 +42,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLoginScreen, setShowLoginScreen] = useState(false);
 
   // ユーザー情報取得
   const fetchUser = useCallback(async (): Promise<boolean> => {
@@ -159,6 +162,8 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     user,
     isLoading,
     isAuthenticated: !!user,
+    showLoginScreen,
+    setShowLoginScreen,
     signOut,
     refreshUser,
     submitScore,

@@ -16,7 +16,7 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
   onOpenInfoModal,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, signOut } = useAuth();
+  const { isAuthenticated, signOut, setShowLoginScreen } = useAuth();
   const { speed, setSpeed } = useAnimationSpeed();
 
   const toggleMenu = () => {
@@ -45,6 +45,11 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
   const handleSignOut = () => {
     setIsOpen(false);
     signOut();
+  };
+
+  const handleLogin = () => {
+    setIsOpen(false);
+    setShowLoginScreen(true);
   };
 
   return (
@@ -217,35 +222,55 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
               ゲーム情報
             </button>
 
-            {/* サインアウト（認証済みユーザーのみ） */}
-            {isAuthenticated && (
-              <>
-                {/* 区切り線 */}
-                <hr className="my-2 border-gray-200" />
+            {/* 認証関連ボタン */}
+            <hr className="my-2 border-gray-200" />
 
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors flex items-center"
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors flex items-center"
+              >
+                <svg
+                  className="w-4 h-4 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  aria-label="サインアウトアイコン"
                 >
-                  <svg
-                    className="w-4 h-4 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    role="img"
-                    aria-label="サインアウトアイコン"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
-                  サインアウト
-                </button>
-              </>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                サインアウト
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleLogin}
+                className="w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 transition-colors flex items-center"
+              >
+                <svg
+                  className="w-4 h-4 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  aria-label="ログインアイコン"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                  />
+                </svg>
+                ログイン
+              </button>
             )}
           </motion.div>
         </>

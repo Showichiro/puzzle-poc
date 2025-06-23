@@ -13,9 +13,14 @@ export const AuthGuard: FC<AuthGuardProps> = ({
   children,
   allowGuest = false,
 }) => {
-  const { isAuthenticated, isLoading, refreshUser } = useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    refreshUser,
+    showLoginScreen,
+    setShowLoginScreen,
+  } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
-  const [guestMode, setGuestMode] = useState(false);
 
   if (isLoading) {
     return (
@@ -28,7 +33,8 @@ export const AuthGuard: FC<AuthGuardProps> = ({
     );
   }
 
-  if (!isAuthenticated && !guestMode) {
+  // 未認証かつログイン画面表示フラグがtrueの場合のみログイン画面を表示
+  if (!isAuthenticated && showLoginScreen) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
@@ -52,7 +58,12 @@ export const AuthGuard: FC<AuthGuardProps> = ({
             </div>
           ) : (
             <div>
-              <SignIn onSuccess={refreshUser} />
+              <SignIn
+                onSuccess={() => {
+                  refreshUser();
+                  setShowLoginScreen(false);
+                }}
+              />
               <button
                 type="button"
                 onClick={() => setShowRegister(true)}
@@ -63,20 +74,15 @@ export const AuthGuard: FC<AuthGuardProps> = ({
             </div>
           )}
 
-          {allowGuest && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-500 text-center mb-4">
-                ※ゲストプレイも可能ですが、スコアは保存されません
-              </p>
-              <button
-                type="button"
-                onClick={() => setGuestMode(true)}
-                className="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
-              >
-                ゲストでプレイ
-              </button>
-            </div>
-          )}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={() => setShowLoginScreen(false)}
+              className="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 font-medium"
+            >
+              ゲストでプレイに戻る
+            </button>
+          </div>
         </div>
       </div>
     );
