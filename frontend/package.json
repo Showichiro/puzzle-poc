@@ -10,7 +10,7 @@
     "tauri": "TAURI_BUILD=true tauri"
   },
   "dependencies": {
-    "framer-motion": "^12.18.1",
+    "framer-motion": "^12.19.1",
     "html2canvas-pro": "^1.5.11",
     "react": "^19.1.0",
     "react-aria": "^3.41.1",
@@ -23,7 +23,7 @@
     "@tailwindcss/vite": "^4.1.10",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.5.2",
+    "@vitejs/plugin-react": "^4.6.0",
     "tailwindcss": "^4.1.4",
     "typescript": "~5.8.3",
     "vite": "^6.0.3",
