@@ -36,7 +36,7 @@ export const scores = sqliteTable("scores", {
   order: int().notNull(),
   score: int().notNull().default(0),
   stage: int().notNull().default(1),
-  difficulty: text().notNull().default('medium'), // 'easy' | 'medium' | 'hard'
+  difficulty: text().notNull().default("medium"), // 'easy' | 'medium' | 'hard'
   created_at: text().notNull().default("CURRENT_TIMESTAMP"),
 });
 

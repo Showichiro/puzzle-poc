@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import type { FC } from "react";
+import { startRegistration } from "@simplewebauthn/browser";
 import { honoClient } from "../utils/hono-client";
 
 export const Register: FC = () => {
@@ -23,8 +24,8 @@ export const Register: FC = () => {
           throw new Error(`response: ${res.status} ${res.statusText}`);
         }
         const options = await res.json();
-        const webauthnResponse = await navigator.credentials.create({
-          publicKey: PublicKeyCredential.parseCreationOptionsFromJSON(options),
+        const webauthnResponse = await startRegistration({
+          optionsJSON: options,
         });
         console.log(webauthnResponse);
 

@@ -112,7 +112,12 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
         {gameState === "gameOver" && (
-          <GameOverModal resetBoard={resetBoard} stage={stage} score={score} difficulty={currentDifficulty} />
+          <GameOverModal
+            resetBoard={resetBoard}
+            stage={stage}
+            score={score}
+            difficulty={currentDifficulty}
+          />
         )}
         {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
         {gameState === "stageClear" && (

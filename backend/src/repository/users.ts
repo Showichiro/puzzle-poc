@@ -21,7 +21,7 @@ export const findUserByName = (db: Db, username: string) => {
 
 export async function getUserStats(
   db: Db,
-  userId: number
+  userId: number,
 ): Promise<{
   total_games: number;
   highest_score: number;
@@ -46,8 +46,8 @@ export async function getUserStats(
     .where(
       and(
         eq(scores.user_id, userId),
-        sql`date(created_at) >= date('now', '-7 days')`
-      )
+        sql`date(created_at) >= date('now', '-7 days')`,
+      ),
     )
     .get();
 

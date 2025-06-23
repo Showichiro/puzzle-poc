@@ -8,12 +8,15 @@ interface GameOverModalProps {
   resetBoard: () => void;
   stage: number;
   score: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
 }
 
-const GameOverModal: FC<GameOverModalProps> = (
-  { resetBoard, stage, score, difficulty },
-) => {
+const GameOverModal: FC<GameOverModalProps> = ({
+  resetBoard,
+  stage,
+  score,
+  difficulty,
+}) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const { submitScore, user, isAuthenticated } = useAuth();
   const [ranking, setRanking] = useState<number | null>(null);
@@ -32,7 +35,7 @@ const GameOverModal: FC<GameOverModalProps> = (
       };
 
       const result = await submitScore(scoreData);
-      
+
       if (result.success) {
         setScoreSubmitted(true);
         if (result.ranking) {
@@ -42,7 +45,15 @@ const GameOverModal: FC<GameOverModalProps> = (
     };
 
     handleScoreSubmit();
-  }, [submitScore, user, isAuthenticated, score, stage, difficulty, scoreSubmitted]);
+  }, [
+    submitScore,
+    user,
+    isAuthenticated,
+    score,
+    stage,
+    difficulty,
+    scoreSubmitted,
+  ]);
   return (
     <motion.div
       className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10"
@@ -70,9 +81,7 @@ const GameOverModal: FC<GameOverModalProps> = (
             {scoreSubmitted && ranking && (
               <p className="font-bold">ランキング: {ranking}位</p>
             )}
-            {scoreSubmitted && !ranking && (
-              <p>スコアを登録しました！</p>
-            )}
+            {scoreSubmitted && !ranking && <p>スコアを登録しました！</p>}
           </div>
         )}
         {/* highScore を highestStageCleared に変更 */}

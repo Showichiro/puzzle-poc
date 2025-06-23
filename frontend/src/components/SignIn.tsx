@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FC } from "react";
+import { startAuthentication } from "@simplewebauthn/browser";
 import { honoClient } from "../utils/hono-client";
 
 export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
@@ -18,7 +19,7 @@ export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
           init: {
             credentials: "include",
           },
-        }
+        },
       );
 
       if (!optionsRes.ok) {
@@ -28,8 +29,8 @@ export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
       const options = await optionsRes.json();
 
       // Step 2: WebAuthn認証実行
-      const credential = await navigator.credentials.get({
-        publicKey: options as unknown as PublicKeyCredentialRequestOptions,
+      const credential = await startAuthentication({
+        optionsJSON: options,
       });
 
       if (!credential) {
@@ -45,7 +46,7 @@ export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
           init: {
             credentials: "include",
           },
-        }
+        },
       );
 
       if (!signInRes.ok) {
@@ -71,13 +72,9 @@ export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     <div className="signin-container">
       <h2>サインイン</h2>
       <p>パスキーを使用してサインインします</p>
-      
-      {error && (
-        <div className="error-message text-red-500 mb-4">
-          {error}
-        </div>
-      )}
-      
+
+      {error && <div className="error-message text-red-500 mb-4">{error}</div>}
+
       <button
         type="button"
         onClick={handleSignIn}

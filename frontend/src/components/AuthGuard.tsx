@@ -15,9 +15,7 @@ export const AuthGuard: FC<AuthGuardProps> = ({ children }) => {
   if (isLoading) {
     return (
       <div className="loading-container">
-        <div className="loading-spinner">
-          認証状態を確認中...
-        </div>
+        <div className="loading-spinner">認証状態を確認中...</div>
       </div>
     );
   }

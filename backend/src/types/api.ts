@@ -49,7 +49,7 @@ export interface SuccessResponse {
 export interface ScoreCreateRequest {
   score: number;
   stage: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   version: string;
 }
 
@@ -57,8 +57,8 @@ export interface ScoreCreateRequest {
 export interface RankingQuery {
   limit?: number;
   offset?: number;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  period?: 'daily' | 'weekly' | 'monthly' | 'all';
+  difficulty?: "easy" | "medium" | "hard";
+  period?: "daily" | "weekly" | "monthly" | "all";
 }
 
 // ユーザースコア取得クエリパラメータの型
@@ -69,16 +69,16 @@ export interface UserScoreQuery {
 
 // エラーコード定数
 export const ERROR_CODES = {
-  INVALID_SCORE: 'INVALID_SCORE',
-  AUTH_REQUIRED: 'AUTH_REQUIRED',
-  USER_NOT_FOUND: 'USER_NOT_FOUND',
-  RATE_LIMITED: 'RATE_LIMITED',
-  DB_ERROR: 'DB_ERROR',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  AUTH_ERROR: 'AUTH_ERROR',
+  INVALID_SCORE: "INVALID_SCORE",
+  AUTH_REQUIRED: "AUTH_REQUIRED",
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+  RATE_LIMITED: "RATE_LIMITED",
+  DB_ERROR: "DB_ERROR",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  AUTH_ERROR: "AUTH_ERROR",
 } as const;
 
-export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
 
 export interface UserMeResponse {
   success: boolean;

@@ -9,19 +9,22 @@ export async function createScore(
     userId: number;
     score: number;
     stage: number;
-    difficulty: 'easy' | 'medium' | 'hard';
+    difficulty: "easy" | "medium" | "hard";
     version: string;
     order: number;
-  }
+  },
 ): Promise<{ id: number; ranking?: number }> {
-  const result = await db.insert(scores).values({
-    user_id: data.userId,
-    score: data.score,
-    stage: data.stage,
-    difficulty: data.difficulty,
-    version: data.version,
-    order: data.order,
-  }).returning({ id: scores.id });
+  const result = await db
+    .insert(scores)
+    .values({
+      user_id: data.userId,
+      score: data.score,
+      stage: data.stage,
+      difficulty: data.difficulty,
+      version: data.version,
+      order: data.order,
+    })
+    .returning({ id: scores.id });
 
   const insertedId = result[0].id;
 
@@ -37,9 +40,9 @@ export async function getRanking(
   options: {
     limit?: number;
     offset?: number;
-    difficulty?: 'easy' | 'medium' | 'hard';
-    period?: 'daily' | 'weekly' | 'monthly' | 'all';
-  } = {}
+    difficulty?: "easy" | "medium" | "hard";
+    period?: "daily" | "weekly" | "monthly" | "all";
+  } = {},
 ): Promise<{
   rankings: Array<{
     rank: number;
@@ -51,10 +54,10 @@ export async function getRanking(
   }>;
   total: number;
 }> {
-  const { limit = 50, offset = 0, difficulty, period = 'all' } = options;
+  const { limit = 50, offset = 0, difficulty, period = "all" } = options;
 
   const whereConditions = [];
-  
+
   if (difficulty) {
     whereConditions.push(eq(scores.difficulty, difficulty));
   }
@@ -74,12 +77,14 @@ export async function getRanking(
       difficulty: scores.difficulty,
       created_at: scores.created_at,
       username: users.name,
-      rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${scores.score} DESC, ${scores.created_at} ASC)`.as('rank')
+      rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${scores.score} DESC, ${scores.created_at} ASC)`.as(
+        "rank",
+      ),
     })
     .from(scores)
     .innerJoin(users, eq(scores.user_id, users.id))
     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-    .as('ranked_scores');
+    .as("ranked_scores");
 
   const rankings = await db
     .select({
@@ -113,15 +118,17 @@ export async function getUserScores(
   options: {
     limit?: number;
     offset?: number;
-  } = {}
-): Promise<Array<{
-  id: number;
-  score: number;
-  stage: number;
-  difficulty: string;
-  created_at: string;
-  version: string;
-}>> {
+  } = {},
+): Promise<
+  Array<{
+    id: number;
+    score: number;
+    stage: number;
+    difficulty: string;
+    created_at: string;
+    version: string;
+  }>
+> {
   const { limit = 50, offset = 0 } = options;
 
   return await db
@@ -144,19 +151,19 @@ export async function getUserScores(
 export async function getUserRanking(
   db: Db,
   userId: number,
-  difficulty?: 'easy' | 'medium' | 'hard'
+  difficulty?: "easy" | "medium" | "hard",
 ): Promise<number | null> {
   const whereConditions = [eq(scores.user_id, userId)];
-  
+
   if (difficulty) {
     whereConditions.push(eq(scores.difficulty, difficulty));
   }
 
   // ユーザーの最高スコアを取得
   const userBestScore = await db
-    .select({ 
-      score: sql<number>`MAX(${scores.score})`.as('max_score'),
-      created_at: sql<string>`MIN(${scores.created_at})`.as('earliest_at')
+    .select({
+      score: sql<number>`MAX(${scores.score})`.as("max_score"),
+      created_at: sql<string>`MIN(${scores.created_at})`.as("earliest_at"),
     })
     .from(scores)
     .where(and(...whereConditions));
@@ -170,7 +177,7 @@ export async function getUserRanking(
 
   // より良いスコア、または同スコアでより早い時間のユーザー数を計算
   const rankWhereConditions = [];
-  
+
   if (difficulty) {
     rankWhereConditions.push(eq(scores.difficulty, difficulty));
   }
@@ -179,7 +186,7 @@ export async function getUserRanking(
     sql`(
       ${scores.score} > ${bestScore} OR 
       (${scores.score} = ${bestScore} AND ${scores.created_at} < ${bestScoreTime})
-    )`
+    )`,
   );
 
   const betterScoresCount = await db
@@ -193,11 +200,11 @@ export async function getUserRanking(
 // SQLite用の期間フィルタ
 function getPeriodFilter(period: string) {
   switch (period) {
-    case 'daily':
+    case "daily":
       return sql`date(${scores.created_at}) = date('now')`;
-    case 'weekly':
+    case "weekly":
       return sql`date(${scores.created_at}) >= date('now', '-7 days')`;
-    case 'monthly':
+    case "monthly":
       return sql`date(${scores.created_at}) >= date('now', '-1 month')`;
     default:
       return undefined;

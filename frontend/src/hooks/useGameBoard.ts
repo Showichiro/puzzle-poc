@@ -93,7 +93,8 @@ const calculateStageGoals = (
 const useGameBoard = (initialDifficulty: Difficulty) => {
   const { speed } = useAnimationSpeed(); // アニメーション速度を取得
   // 現在の難易度を管理
-  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(initialDifficulty);
+  const [currentDifficulty, setCurrentDifficulty] =
+    useState<Difficulty>(initialDifficulty);
   const [selectedColorIndexes, setSelectedColorIndexes] = useState(
     selectStageColors(),
   );
@@ -208,7 +209,7 @@ const useGameBoard = (initialDifficulty: Difficulty) => {
     // モーダル非表示と目標情報のリセット
     setGameState("playing");
     setNextStageGoals(null);
-    
+
     // 現在の難易度を更新
     setCurrentDifficulty(selectedDifficulty);
 

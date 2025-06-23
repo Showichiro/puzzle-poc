@@ -30,7 +30,7 @@ interface AuthContextType {
   submitScore: (scoreData: {
     score: number;
     stage: number;
-    difficulty: 'easy' | 'medium' | 'hard';
+    difficulty: "easy" | "medium" | "hard";
     version: string;
   }) => Promise<{ success: boolean; ranking?: number }>;
 }
@@ -50,17 +50,17 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           init: {
             credentials: "include",
           },
-        }
+        },
       );
 
       if (res.ok) {
-        const data = await res.json() as { success: boolean; user?: User };
+        const data = (await res.json()) as { success: boolean; user?: User };
         if (data.success && data.user) {
           setUser(data.user);
           return true;
         }
       }
-      
+
       setUser(null);
       return false;
     } catch (error) {
@@ -87,10 +87,10 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       // セッションCookieをクリア（サーバーサイドでエンドポイント追加する場合）
       // 現在はクライアントサイドでのみクリア
       setUser(null);
-      
+
       // 必要に応じてlocalStorageもクリア
-      localStorage.removeItem('user_session');
-      
+      localStorage.removeItem("user_session");
+
       // ページリロードして確実にセッションクリア
       window.location.reload();
     } catch (error) {
@@ -104,42 +104,48 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [fetchUser]);
 
   // スコア投稿
-  const submitScore = useCallback(async (scoreData: {
-    score: number;
-    stage: number;
-    difficulty: 'easy' | 'medium' | 'hard';
-    version: string;
-  }): Promise<{ success: boolean; ranking?: number }> => {
-    try {
-      const res = await honoClient.scores.$post(
-        {
-          json: scoreData,
-        },
-        {
-          init: {
-            credentials: "include",
+  const submitScore = useCallback(
+    async (scoreData: {
+      score: number;
+      stage: number;
+      difficulty: "easy" | "medium" | "hard";
+      version: string;
+    }): Promise<{ success: boolean; ranking?: number }> => {
+      try {
+        const res = await honoClient.scores.$post(
+          {
+            json: scoreData,
           },
+          {
+            init: {
+              credentials: "include",
+            },
+          },
+        );
+
+        if (res.ok) {
+          const data = (await res.json()) as {
+            success: boolean;
+            ranking?: number;
+          };
+
+          // スコア投稿後にユーザー統計を更新
+          await refreshUser();
+
+          return {
+            success: data.success,
+            ranking: data.ranking,
+          };
         }
-      );
 
-      if (res.ok) {
-        const data = await res.json() as { success: boolean; ranking?: number };
-        
-        // スコア投稿後にユーザー統計を更新
-        await refreshUser();
-        
-        return {
-          success: data.success,
-          ranking: data.ranking,
-        };
+        return { success: false };
+      } catch (error) {
+        console.error("Score submit error:", error);
+        return { success: false };
       }
-
-      return { success: false };
-    } catch (error) {
-      console.error("Score submit error:", error);
-      return { success: false };
-    }
-  }, [refreshUser]);
+    },
+    [refreshUser],
+  );
 
   const value: AuthContextType = {
     user,
@@ -150,11 +156,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     submitScore,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

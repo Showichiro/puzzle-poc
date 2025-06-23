@@ -18,11 +18,26 @@ import { users } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import type { Db } from "./db/types";
-import { createUsers, findUserByName, getUserByName, getUserStats } from "./repository/users";
-import { createScore, getRanking, getUserScores, getUserRanking } from "./repository/scores";
+import {
+  createUsers,
+  findUserByName,
+  getUserByName,
+  getUserStats,
+} from "./repository/users";
+import {
+  createScore,
+  getRanking,
+  getUserScores,
+  getUserRanking,
+} from "./repository/scores";
 import { requireAuth, optionalAuth, type AuthUser } from "./middleware/auth";
 import { validationError, authError, dbError } from "./types/errors";
-import type { ScoreCreateResponse, RankingResponse, UserScoreResponse, UserMeResponse } from "./types/api";
+import type {
+  ScoreCreateResponse,
+  RankingResponse,
+  UserScoreResponse,
+  UserMeResponse,
+} from "./types/api";
 import { logger } from "hono/logger";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -124,8 +139,10 @@ const route = app
       await createPassKeys(c.var.db, {
         user_id: user.id,
         credential_id: registrationInfo.credential.id,
-        public_key: new TextDecoder().decode(
-          registrationInfo.credential.publicKey,
+        public_key: btoa(
+          String.fromCharCode(
+            ...new Uint8Array(registrationInfo.credential.publicKey),
+          ),
         ),
         webauthn_user_id: userId,
         counter: registrationInfo.credential.counter,
@@ -171,7 +188,9 @@ const route = app
       credential: {
         counter: passkey.counter,
         id: passkey.credential_id,
-        publicKey: new TextEncoder().encode(passkey.public_key),
+        publicKey: Uint8Array.from(atob(passkey.public_key), (c) =>
+          c.charCodeAt(0),
+        ),
         transports: passkey.transport.split(
           ",",
         ) as AuthenticatorTransportFuture[],
@@ -203,7 +222,7 @@ const route = app
   .get("/user/me", requireAuth, async (c) => {
     try {
       const user = c.var.user;
-      
+
       if (!user) {
         return authError(c);
       }
@@ -227,12 +246,15 @@ const route = app
   })
   .post(
     "/scores",
-    zValidator("json", z.object({
-      score: z.number().int().min(0).max(1000000),
-      stage: z.number().int().min(1).max(1000),
-      difficulty: z.enum(['easy', 'medium', 'hard']),
-      version: z.string().min(1),
-    })),
+    zValidator(
+      "json",
+      z.object({
+        score: z.number().int().min(0).max(1000000),
+        stage: z.number().int().min(1).max(1000),
+        difficulty: z.enum(["easy", "medium", "hard"]),
+        version: z.string().min(1),
+      }),
+    ),
     requireAuth,
     async (c) => {
       try {
@@ -266,16 +288,19 @@ const route = app
         console.error("Score creation error:", error);
         return dbError(c, "Failed to create score");
       }
-    }
+    },
   )
   .get(
     "/scores/ranking",
-    zValidator("query", z.object({
-      limit: z.string().transform(Number).optional(),
-      offset: z.string().transform(Number).optional(),
-      difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-      period: z.enum(['daily', 'weekly', 'monthly', 'all']).optional(),
-    })),
+    zValidator(
+      "query",
+      z.object({
+        limit: z.string().transform(Number).optional(),
+        offset: z.string().transform(Number).optional(),
+        difficulty: z.enum(["easy", "medium", "hard"]).optional(),
+        period: z.enum(["daily", "weekly", "monthly", "all"]).optional(),
+      }),
+    ),
     optionalAuth,
     async (c) => {
       try {
@@ -286,7 +311,9 @@ const route = app
 
         let user_rank: number | undefined;
         if (user) {
-          user_rank = await getUserRanking(c.var.db, user.id, query.difficulty) ?? undefined;
+          user_rank =
+            (await getUserRanking(c.var.db, user.id, query.difficulty)) ??
+            undefined;
         }
 
         const response: RankingResponse = {
@@ -300,17 +327,20 @@ const route = app
         console.error("Ranking fetch error:", error);
         return dbError(c, "Failed to fetch ranking");
       }
-    }
+    },
   )
   .get(
     "/scores/user/:userId",
-    zValidator("query", z.object({
-      limit: z.string().transform(Number).optional(),
-      offset: z.string().transform(Number).optional(),
-    })),
+    zValidator(
+      "query",
+      z.object({
+        limit: z.string().transform(Number).optional(),
+        offset: z.string().transform(Number).optional(),
+      }),
+    ),
     async (c) => {
       try {
-        const userId = Number(c.req.param('userId'));
+        const userId = Number(c.req.param("userId"));
         const query = c.req.valid("query");
 
         if (Number.isNaN(userId)) {
@@ -329,7 +359,7 @@ const route = app
         console.error("User scores fetch error:", error);
         return dbError(c, "Failed to fetch user scores");
       }
-    }
+    },
   );
 
 export default app;

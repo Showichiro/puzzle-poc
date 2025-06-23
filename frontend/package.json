@@ -10,6 +10,7 @@
     "tauri": "TAURI_BUILD=true tauri"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "^13.1.0",
     "@tanstack/react-form": "^1.9.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
