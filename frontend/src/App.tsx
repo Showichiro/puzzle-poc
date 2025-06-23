@@ -27,7 +27,7 @@ function App() {
       <AnimationSpeedProvider>
         <HighestScoreProvider>
           <div className="app">
-            <AuthGuard>
+            <AuthGuard allowGuest={true}>
               <main className="container mx-auto max-w-lg p-4 flex flex-col items-center">
                 {/* Header にモーダルを開く関数を渡す */}
                 <Header onOpenHistoryModal={handleOpenHistoryModal} />

@@ -1,4 +1,4 @@
-import { type FC, useRef, useState, useEffect } from "react";
+import { type FC, useRef, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import html2canvasPro from "html2canvas-pro";
 import { version } from "../constants";
@@ -18,14 +18,23 @@ const GameOverModal: FC<GameOverModalProps> = ({
   difficulty,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  const { submitScore, user, isAuthenticated } = useAuth();
+  const { submitScore, user, isAuthenticated, refreshUser } = useAuth();
   const [ranking, setRanking] = useState<number | null>(null);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // コンポーネントマウント時にスコア投稿
-  useEffect(() => {
-    const handleScoreSubmit = async () => {
-      if (!isAuthenticated || !user || scoreSubmitted) return;
+  // スコア投稿処理
+  const handleScoreSubmit = useCallback(async (retry = false) => {
+    if (!isAuthenticated || !user || scoreSubmitted || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // 認証状態を再確認
+      await refreshUser();
 
       const scoreData = {
         score,
@@ -41,19 +50,58 @@ const GameOverModal: FC<GameOverModalProps> = ({
         if (result.ranking) {
           setRanking(result.ranking);
         }
+        setRetryCount(0);
+      } else {
+        throw new Error(result.error || 'スコア投稿に失敗しました');
       }
-    };
+    } catch (error) {
+      console.error('Score submission error:', error);
+      
+      if (error instanceof Error) {
+        if (error.message.includes('認証') || error.message.includes('auth')) {
+          setSubmitError('認証が切れています。再認証が必要です。');
+        } else if (error.message.includes('ネットワーク') || error.message.includes('network')) {
+          setSubmitError('ネットワークエラーが発生しました。');
+        } else {
+          setSubmitError('スコア投稿に失敗しました。');
+        }
+      } else {
+        setSubmitError('予期しないエラーが発生しました。');
+      }
+      
+      if (retry) {
+        setRetryCount(prev => prev + 1);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [isAuthenticated, user, scoreSubmitted, isSubmitting, score, stage, difficulty, submitScore, refreshUser]);
 
-    handleScoreSubmit();
-  }, [
-    submitScore,
-    user,
-    isAuthenticated,
-    score,
-    stage,
-    difficulty,
-    scoreSubmitted,
-  ]);
+  // コンポーネントマウント時にスコア投稿
+  useEffect(() => {
+    if (isAuthenticated && user && !scoreSubmitted && !isSubmitting) {
+      handleScoreSubmit();
+    }
+  }, [isAuthenticated, user, scoreSubmitted, isSubmitting, handleScoreSubmit]);
+
+  // リトライ処理
+  const handleRetry = () => {
+    if (retryCount < 3) {
+      handleScoreSubmit(true);
+    }
+  };
+
+  // 再認証処理
+  const handleReauth = async () => {
+    try {
+      await refreshUser();
+      if (isAuthenticated && user) {
+        handleScoreSubmit();
+      }
+    } catch (error) {
+      setSubmitError('再認証に失敗しました。ページをリロードしてください。');
+    }
+  };
   return (
     <motion.div
       className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center z-10"
@@ -72,16 +120,70 @@ const GameOverModal: FC<GameOverModalProps> = ({
       >
         <h2 className="text-2xl font-bold mb-4">ゲームオーバー！ v{version}</h2>
         <p>スコア: {score}</p>
-        <p className="text-xl font-semibold mb-2">
+        <p className="text-xl font-semibold mb-4">
           {stage} ステージまでクリアしました！
         </p>
+        
+        {/* 認証済みユーザーの表示 */}
         {isAuthenticated && user && (
-          <div className="mb-4 text-green-600">
-            <p>ユーザー: {user.name}</p>
-            {scoreSubmitted && ranking && (
-              <p className="font-bold">ランキング: {ranking}位</p>
+          <div className="mb-4">
+            <p className="text-gray-700">ユーザー: {user.name}</p>
+            
+            {/* 投稿中 */}
+            {isSubmitting && (
+              <div className="text-blue-600 mt-2">
+                <p>スコアを投稿中...</p>
+              </div>
             )}
-            {scoreSubmitted && !ranking && <p>スコアを登録しました！</p>}
+            
+            {/* 投稿成功 */}
+            {scoreSubmitted && !submitError && (
+              <div className="text-green-600 mt-2">
+                {ranking ? (
+                  <p className="font-bold">ランキング: {ranking}位</p>
+                ) : (
+                  <p>スコアを登録しました！</p>
+                )}
+              </div>
+            )}
+            
+            {/* 投稿エラー */}
+            {submitError && !isSubmitting && (
+              <div className="text-red-600 mt-2">
+                <p className="mb-2">{submitError}</p>
+                {submitError.includes('認証') ? (
+                  <button
+                    type="button"
+                    onClick={handleReauth}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm mr-2"
+                  >
+                    再認証
+                  </button>
+                ) : (
+                  retryCount < 3 && (
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm mr-2"
+                    >
+                      リトライ ({retryCount + 1}/3)
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* ゲストユーザーの表示 */}
+        {!isAuthenticated && (
+          <div className="mb-4 text-gray-600 bg-gray-100 p-3 rounded">
+            <p className="text-sm">
+              ゲストプレイ中のため、スコアは保存されません。
+            </p>
+            <p className="text-sm mt-1">
+              スコアを記録するには認証が必要です。
+            </p>
           </div>
         )}
         {/* highScore を highestStageCleared に変更 */}
