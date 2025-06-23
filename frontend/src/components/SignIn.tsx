@@ -87,19 +87,16 @@ export const SignIn: FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
         disabled={isLoading}
         className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
       >
-        {isLoading
-          ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent">
-              </div>
-              <span>サインイン中...</span>
-            </>
-          )
-          : (
-            <>
-              <span>サインイン</span>
-            </>
-          )}
+        {isLoading ? (
+          <>
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+            <span>サインイン中...</span>
+          </>
+        ) : (
+          <>
+            <span>サインイン</span>
+          </>
+        )}
       </button>
     </div>
   );

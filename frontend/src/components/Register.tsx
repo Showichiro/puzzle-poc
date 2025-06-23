@@ -56,8 +56,12 @@ export const Register: FC = () => {
   return (
     <div className="w-full space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">アカウント作成</h2>
-        <p className="text-gray-600">パスキーを使用して新しいアカウントを作成します</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          アカウント作成
+        </h2>
+        <p className="text-gray-600">
+          パスキーを使用して新しいアカウントを作成します
+        </p>
       </div>
 
       <form
@@ -72,7 +76,10 @@ export const Register: FC = () => {
           {(field) => {
             return (
               <div>
-                <label htmlFor={field.name} className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor={field.name}
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   ユーザー名
                 </label>
                 <input
@@ -89,26 +96,23 @@ export const Register: FC = () => {
             );
           }}
         </form.Field>
-        
+
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
         >
           {([canSubmit, isSubmitting]) => (
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={!canSubmit}
               className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                   <span>登録中...</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                  </svg>
                   <span>アカウント作成</span>
                 </>
               )}
