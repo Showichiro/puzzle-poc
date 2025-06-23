@@ -53,7 +53,7 @@ const GameOverModal: FC<GameOverModalProps> = ({
           }
           setRetryCount(0);
         } else {
-          throw new Error(result.error || "スコア投稿に失敗しました");
+          throw new Error("スコア投稿に失敗しました");
         }
       } catch (error) {
         console.error("Score submission error:", error);

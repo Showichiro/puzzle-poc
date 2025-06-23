@@ -34,7 +34,8 @@ export const AuthGuard: FC<AuthGuardProps> = ({
   }
 
   // 未認証かつログイン画面表示フラグがtrueの場合のみログイン画面を表示
-  if (!isAuthenticated && showLoginScreen) {
+  // allowGuestがtrueの場合はゲストアクセスを許可
+  if (!isAuthenticated && showLoginScreen && !allowGuest) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
