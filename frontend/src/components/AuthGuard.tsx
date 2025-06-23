@@ -9,7 +9,10 @@ interface AuthGuardProps {
   allowGuest?: boolean;
 }
 
-export const AuthGuard: FC<AuthGuardProps> = ({ children, allowGuest = false }) => {
+export const AuthGuard: FC<AuthGuardProps> = ({
+  children,
+  allowGuest = false,
+}) => {
   const { isAuthenticated, isLoading, refreshUser } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
   const [guestMode, setGuestMode] = useState(false);
@@ -26,7 +29,7 @@ export const AuthGuard: FC<AuthGuardProps> = ({ children, allowGuest = false }) 
     return (
       <div className="auth-container max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-center mb-6">パズルゲーム</h1>
-        
+
         {showRegister ? (
           <div>
             <Register />
@@ -43,7 +46,7 @@ export const AuthGuard: FC<AuthGuardProps> = ({ children, allowGuest = false }) 
             <div className="mb-6 text-center text-gray-600">
               <p className="mb-2">スコアを記録するには認証が必要です</p>
             </div>
-            
+
             <SignIn onSuccess={refreshUser} />
             <button
               type="button"
@@ -54,7 +57,7 @@ export const AuthGuard: FC<AuthGuardProps> = ({ children, allowGuest = false }) 
             </button>
           </div>
         )}
-        
+
         {allowGuest && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-500 text-center mb-4">

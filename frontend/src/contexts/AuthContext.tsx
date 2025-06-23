@@ -84,17 +84,25 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // サインアウト
   const signOut = useCallback(async () => {
     try {
-      // セッションCookieをクリア（サーバーサイドでエンドポイント追加する場合）
-      // 現在はクライアントサイドでのみクリア
+      // サーバーサイドのログアウトエンドポイントを呼び出し
+      await honoClient.logout.$post(
+        {},
+        {
+          init: {
+            credentials: "include",
+          },
+        },
+      );
+    } catch (error) {
+      console.error("Server logout failed:", error);
+      // サーバーエラーがあってもクライアントサイドのログアウトは実行
+    } finally {
+      // クライアントサイドの状態をクリア
       setUser(null);
-
-      // 必要に応じてlocalStorageもクリア
       localStorage.removeItem("user_session");
 
       // ページリロードして確実にセッションクリア
       window.location.reload();
-    } catch (error) {
-      console.error("Sign out error:", error);
     }
   }, []);
 

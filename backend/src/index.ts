@@ -244,6 +244,15 @@ const route = app
       return dbError(c, "Failed to fetch user info");
     }
   })
+  .post("/logout", requireAuth, async (c) => {
+    // セッションクッキーを削除
+    c.header(
+      "Set-Cookie",
+      "user_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0",
+    );
+
+    return c.json({ success: true, message: "ログアウトしました" });
+  })
   .post(
     "/scores",
     zValidator(
