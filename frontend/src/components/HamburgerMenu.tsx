@@ -2,18 +2,22 @@ import type { FC } from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
+import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 
 interface HamburgerMenuProps {
   onOpenProfile: () => void;
+  onOpenHistoryModal: () => void;
+  onOpenInfoModal: () => void;
 }
 
-export const HamburgerMenu: FC<HamburgerMenuProps> = ({ onOpenProfile }) => {
+export const HamburgerMenu: FC<HamburgerMenuProps> = ({
+  onOpenProfile,
+  onOpenHistoryModal,
+  onOpenInfoModal,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return null;
-  }
+  const { isAuthenticated, signOut } = useAuth();
+  const { speed, setSpeed } = useAnimationSpeed();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -22,6 +26,25 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({ onOpenProfile }) => {
   const handleProfileClick = () => {
     setIsOpen(false);
     onOpenProfile();
+  };
+
+  const handleHistoryClick = () => {
+    setIsOpen(false);
+    onOpenHistoryModal();
+  };
+
+  const handleInfoClick = () => {
+    setIsOpen(false);
+    onOpenInfoModal();
+  };
+
+  const handleSpeedChange = () => {
+    setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : speed === 3 ? 0.5 : 1);
+  };
+
+  const handleSignOut = () => {
+    setIsOpen(false);
+    signOut();
   };
 
   return (
@@ -84,11 +107,72 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({ onOpenProfile }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.1 }}
-            className="absolute right-0 top-12 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
+            className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
           >
+            {/* プロフィール（認証済みユーザーのみ） */}
+            {isAuthenticated && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleProfileClick}
+                  className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+                >
+                  <svg
+                    className="w-4 h-4 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-label="プロフィールアイコン"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  プロフィール
+                </button>
+
+                {/* 区切り線 */}
+                <hr className="my-2 border-gray-200" />
+              </>
+            )}
+
+            {/* スピード設定 */}
             <button
               type="button"
-              onClick={handleProfileClick}
+              onClick={handleSpeedChange}
+              className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-between"
+            >
+              <div className="flex items-center">
+                <svg
+                  className="w-4 h-4 mr-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  role="img"
+                  aria-label="スピードアイコン"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                スピード設定
+              </div>
+              <span className="text-sm bg-gray-100 px-2 py-1 rounded">
+                x{speed === 0.5 ? "0.5" : speed}
+              </span>
+            </button>
+
+            {/* ステージ履歴 */}
+            <button
+              type="button"
+              onClick={handleHistoryClick}
               className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
             >
               <svg
@@ -96,18 +180,73 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({ onOpenProfile }) => {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                aria-hidden="true"
+                role="img"
+                aria-label="履歴アイコン"
               >
-                <title>プロフィールアイコン</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3"
                 />
               </svg>
-              プロフィール
+              ステージ履歴
             </button>
+
+            {/* ゲーム情報 */}
+            <button
+              type="button"
+              onClick={handleInfoClick}
+              className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+            >
+              <svg
+                className="w-4 h-4 mr-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="情報アイコン"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                />
+              </svg>
+              ゲーム情報
+            </button>
+
+            {/* サインアウト（認証済みユーザーのみ） */}
+            {isAuthenticated && (
+              <>
+                {/* 区切り線 */}
+                <hr className="my-2 border-gray-200" />
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors flex items-center"
+                >
+                  <svg
+                    className="w-4 h-4 mr-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    role="img"
+                    aria-label="サインアウトアイコン"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                  サインアウト
+                </button>
+              </>
+            )}
           </motion.div>
         </>
       )}

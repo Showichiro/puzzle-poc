@@ -1,5 +1,4 @@
 import { type FC, useState } from "react";
-import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 import { version } from "../constants";
 import { HamburgerMenu } from "./HamburgerMenu";
 
@@ -10,11 +9,6 @@ interface HeaderProps {
 
 const Header: FC<HeaderProps> = ({ onOpenHistoryModal, onOpenProfile }) => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-  const { speed, setSpeed } = useAnimationSpeed();
-
-  const handleSpeedChange = () => {
-    setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : speed === 3 ? 0.5 : 1);
-  };
 
   const openInfoModal = () => {
     setIsInfoModalOpen(true);
@@ -27,59 +21,12 @@ const Header: FC<HeaderProps> = ({ onOpenHistoryModal, onOpenProfile }) => {
   return (
     <header className="w-full flex justify-between items-center mb-4 p-4 bg-gray-100 rounded">
       <h1 className="text-2xl font-bold">パズルゲーム v{version}</h1>
-      <div className="flex items-center space-x-2">
-        {/* ボタンを横並びにする */}
-        <button
-          type="button"
-          onClick={handleSpeedChange}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          x{speed === 0.5 ? "0.5" : speed}
-        </button>
-        <button
-          type="button"
-          onClick={onOpenHistoryModal}
-          className="px-3 py-2 rounded"
-          aria-label="Show stage history"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <title>historyButton</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6.429 9.75 2.25 12l4.179 2.25m0-4.5 5.571 3 5.571-3m-11.142 0L2.25 7.5 12 2.25l9.75 5.25-4.179 2.25m0 0L21.75 12l-4.179 2.25m0 0 4.179 2.25L12 21.75 2.25 16.5l4.179-2.25m11.142 0-5.571 3-5.571-3"
-            />
-          </svg>
-        </button>
-        <button
-          type="button"
-          className="font-bold py-2 px-4 rounded"
-          onClick={openInfoModal}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <title>infoButton</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
-            />
-          </svg>
-        </button>
-        <HamburgerMenu onOpenProfile={onOpenProfile} />
+      <div className="flex items-center">
+        <HamburgerMenu
+          onOpenProfile={onOpenProfile}
+          onOpenHistoryModal={onOpenHistoryModal}
+          onOpenInfoModal={openInfoModal}
+        />
       </div>
 
       {isInfoModalOpen && (
