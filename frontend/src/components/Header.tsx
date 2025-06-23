@@ -1,12 +1,14 @@
 import { type FC, useState } from "react";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 import { version } from "../constants";
+import { HamburgerMenu } from "./HamburgerMenu";
 
 interface HeaderProps {
   onOpenHistoryModal: () => void;
+  onOpenProfile: () => void;
 }
 
-const Header: FC<HeaderProps> = ({ onOpenHistoryModal }) => {
+const Header: FC<HeaderProps> = ({ onOpenHistoryModal, onOpenProfile }) => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const { speed, setSpeed } = useAnimationSpeed();
 
@@ -77,6 +79,7 @@ const Header: FC<HeaderProps> = ({ onOpenHistoryModal }) => {
             />
           </svg>
         </button>
+        <HamburgerMenu onOpenProfile={onOpenProfile} />
       </div>
 
       {isInfoModalOpen && (

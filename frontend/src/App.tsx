@@ -11,6 +11,7 @@ const StageHistoryModal = lazy(() => import("./components/StageHistoryModal"));
 
 function App() {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // モーダルの表示状態
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // プロフィールモーダルの表示状態
 
   const handleOpenHistoryModal = () => {
     setIsHistoryModalOpen(true);
@@ -18,6 +19,14 @@ function App() {
 
   const handleCloseHistoryModal = () => {
     setIsHistoryModalOpen(false);
+  };
+
+  const handleOpenProfileModal = () => {
+    setIsProfileModalOpen(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false);
   };
 
   // App.tsx では難易度選択の状態を持たず、常に GameBoard をレンダリングする
@@ -30,8 +39,10 @@ function App() {
             <AuthGuard allowGuest={true}>
               <main className="container mx-auto max-w-lg p-4 flex flex-col items-center">
                 {/* Header にモーダルを開く関数を渡す */}
-                <Header onOpenHistoryModal={handleOpenHistoryModal} />
-                <UserProfile />
+                <Header
+                  onOpenHistoryModal={handleOpenHistoryModal}
+                  onOpenProfile={handleOpenProfileModal}
+                />
                 {/* GameBoard に初期難易度を渡す (例: "medium") */}
                 <GameBoard initialDifficulty="medium" />
                 {/* StageHistoryChart の直接表示を削除 */}
@@ -44,6 +55,12 @@ function App() {
                   onClose={handleCloseHistoryModal}
                 />
               </Suspense>
+
+              {/* プロフィールモーダル */}
+              <UserProfile
+                isOpen={isProfileModalOpen}
+                onClose={handleCloseProfileModal}
+              />
             </AuthGuard>
           </div>
         </HighestScoreProvider>
