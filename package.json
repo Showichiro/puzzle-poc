@@ -3,7 +3,7 @@
   "workspaces": ["./frontend", "./backend"],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "typescript-mcp": "^0.0.12"
+    "typescript-mcp": "^0.0.14"
   },
   "scripts": {
     "lint": "biome lint backend/ frontend/",

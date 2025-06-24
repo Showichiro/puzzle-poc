@@ -8,7 +8,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "1.9.4",
-        "typescript-mcp": "^0.0.12",
+        "typescript-mcp": "^0.0.14",
       },
     },
     "backend": {
@@ -929,7 +929,7 @@
 
     "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
 
-    "typescript-mcp": ["typescript-mcp@0.0.12", "", { "dependencies": { "@modelcontextprotocol/sdk": "^1.12.1", "neverthrow": "^8.2.0", "ts-morph": "^26.0.0", "zod": "^3.25.56" }, "peerDependencies": { "typescript": "*" }, "bin": { "typescript-mcp": "dist/typescript-mcp.js" } }, "sha512-hW3ff0NKwplGvVNSl37w2WOuFHJXofC0srbc/jKccbSKXTMZ6VGpLzTmYeIkg84Li0C0t5v19VHaCr9seAyNYg=="],
+    "typescript-mcp": ["typescript-mcp@0.0.14", "", { "dependencies": { "@modelcontextprotocol/sdk": "^1.12.1", "neverthrow": "^8.2.0", "ts-morph": "^26.0.0", "zod": "^3.25.56" }, "peerDependencies": { "typescript": "*" }, "bin": { "typescript-mcp": "dist/typescript-mcp.js" } }, "sha512-NWLbQ90o5de0+K6E8V+HO2mVIaJ98OyJXAXn8+GEmF6+fRgIG0Z5rgvdx/YR4QZ2qspdxgRdnwDVUdGTQ7e8Dg=="],
 
     "ufo": ["ufo@1.6.1", "", {}, "sha512-9a4/uxlTWJ4+a5i0ooc1rU7C7YOw3wT+UGqdeNNHWnOF9qcMBgLRS+4IYUqbczewFx4mLEig6gawh7X6mFlEkA=="],
 

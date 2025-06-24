@@ -11,7 +11,8 @@
       "mcp__typescript__get_module_symbols",
       "mcp__typescript__get_type_in_module",
       "mcp__typescript__get_type_at_symbol",
-      "mcp__typescript__get_symbols_in_scope"
+      "mcp__typescript__get_symbols_in_scope",
+      "mcp__typescript__list_tools"
     ],
     "deny": []
   }
