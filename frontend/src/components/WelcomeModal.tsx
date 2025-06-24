@@ -58,233 +58,37 @@ export const WelcomeModal: FC<WelcomeModalProps> = ({
                       </h3>
 
                       <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                        <div className="grid grid-cols-4 gap-0 w-fit mx-auto relative">
-                          {[
-                            {
-                              color: "bg-red-300",
-                              pattern: "●",
-                              id: 1,
-                              row: 0,
-                              col: 0,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 2,
-                              row: 0,
-                              col: 1,
-                            },
-                            {
-                              color: "bg-yellow-300",
-                              pattern: "▲",
-                              id: 3,
-                              row: 0,
-                              col: 2,
-                            },
-                            {
-                              color: "bg-red-300",
-                              pattern: "●",
-                              id: 4,
-                              row: 0,
-                              col: 3,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 5,
-                              row: 1,
-                              col: 0,
-                            },
-                            {
-                              color: "bg-yellow-300",
-                              pattern: "▲",
-                              id: 6,
-                              row: 1,
-                              col: 1,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 7,
-                              row: 1,
-                              col: 2,
-                            },
-                            {
-                              color: "bg-red-300",
-                              pattern: "●",
-                              id: 8,
-                              row: 1,
-                              col: 3,
-                            },
-                            {
-                              color: "bg-green-300",
-                              pattern: "◆",
-                              id: 9,
-                              row: 2,
-                              col: 0,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 10,
-                              row: 2,
-                              col: 1,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 11,
-                              row: 2,
-                              col: 2,
-                            },
-                            {
-                              color: "bg-red-300",
-                              pattern: "●",
-                              id: 12,
-                              row: 2,
-                              col: 3,
-                            },
-                            {
-                              color: "bg-green-300",
-                              pattern: "◆",
-                              id: 13,
-                              row: 3,
-                              col: 0,
-                            },
-                            {
-                              color: "bg-green-300",
-                              pattern: "◆",
-                              id: 14,
-                              row: 3,
-                              col: 1,
-                            },
-                            {
-                              color: "bg-yellow-300",
-                              pattern: "▲",
-                              id: 15,
-                              row: 3,
-                              col: 2,
-                            },
-                            {
-                              color: "bg-blue-300",
-                              pattern: "■",
-                              id: 16,
-                              row: 3,
-                              col: 3,
-                            },
-                          ].map((cell, index) => {
-                            const isSwapTarget1 = index === 8; // (2,0) 緑◆
-                            const isSwapTarget2 = index === 14; // (3,2) 黄▲
-                            const isMatched = [12, 13, 14].includes(index); // 入れ替え後に横に揃う緑◆3つ
-
-                            // 入れ替え後の色とパターン
-                            let finalColor = cell.color;
-                            let finalPattern = cell.pattern;
-                            if (isSwapTarget1) {
-                              finalColor = "bg-yellow-300";
-                              finalPattern = "▲";
-                            } else if (isSwapTarget2) {
-                              finalColor = "bg-green-300";
-                              finalPattern = "◆";
-                            }
-
-                            return (
-                              <motion.div
-                                key={cell.id}
-                                className={
-                                  "w-10 h-10 border-2 flex items-center justify-center cursor-pointer select-none transition-colors duration-300"
-                                }
-                                initial={{
-                                  scale: 1,
-                                  opacity: 1,
-                                  y: 0,
-                                  x: 0,
-                                }}
-                                animate={{
-                                  // 1. 選択アニメーション (0.5s後)
-                                  borderColor: [
-                                    "rgb(156, 163, 175)", // 通常
-                                    isSwapTarget1 || isSwapTarget2
-                                      ? "rgb(239, 68, 68)"
-                                      : "rgb(156, 163, 175)", // 選択
-                                    "rgb(156, 163, 175)", // 入れ替え後
-                                    isMatched
-                                      ? "rgb(239, 68, 68)"
-                                      : "rgb(156, 163, 175)", // マッチ検出
-                                    "rgb(156, 163, 175)", // 最終
-                                  ],
-
-                                  // 2. 入れ替えアニメーション
-                                  x: isSwapTarget1
-                                    ? [0, 0, 80, 80, 80, 80, 80]
-                                    : isSwapTarget2
-                                      ? [0, 0, -80, -80, -80, -80, -80]
-                                      : 0,
-                                  y: isSwapTarget1
-                                    ? [0, 0, 40, 40, 40, 40, 40]
-                                    : isSwapTarget2
-                                      ? [0, 0, -40, -40, -40, -40, -40]
-                                      : 0,
-
-                                  // 3. マッチ消去アニメーション
-                                  scale: isMatched
-                                    ? [1, 1, 1, 1, 1.05, 1, 0]
-                                    : 1,
-                                  opacity: isMatched
-                                    ? [1, 1, 1, 1, 0.8, 0.3, 0]
-                                    : 1,
-                                }}
-                                transition={{
-                                  duration: 7,
-                                  times: [0, 0.1, 0.25, 0.4, 0.55, 0.7, 1],
-                                  repeat: Number.POSITIVE_INFINITY,
-                                  repeatDelay: 2,
-                                  ease: "easeInOut",
-                                }}
-                                style={{
-                                  backgroundColor: `rgb(${
-                                    finalColor === "bg-red-300"
-                                      ? "252, 165, 165"
-                                      : finalColor === "bg-blue-300"
-                                        ? "147, 197, 253"
-                                        : finalColor === "bg-yellow-300"
-                                          ? "253, 224, 107"
-                                          : finalColor === "bg-green-300"
-                                            ? "134, 239, 172"
-                                            : "209, 213, 219"
-                                  })`,
-                                }}
-                              >
-                                <motion.span
-                                  className="text-lg text-black opacity-70 font-bold"
-                                  animate={{
-                                    opacity: [1, 1, 0, 1, 1, 1, 1],
-                                  }}
-                                  transition={{
-                                    duration: 7,
-                                    times: [0, 0.2, 0.22, 0.28, 0.4, 0.7, 1],
-                                    repeat: Number.POSITIVE_INFINITY,
-                                    repeatDelay: 2,
-                                  }}
-                                >
-                                  {finalPattern}
-                                </motion.span>
-                              </motion.div>
-                            );
-                          })}
+                        <div className="grid grid-cols-3 w-fit mx-auto">
+                          <div className="w-8 h-8 bg-red-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">●</span>
+                          </div>
+                          <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                          </div>
+                          <div className="w-8 h-8 bg-yellow-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">▲</span>
+                          </div>
+                          <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                          </div>
+                          <div className="w-8 h-8 bg-green-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">◆</span>
+                          </div>
+                          <div className="w-8 h-8 bg-red-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">●</span>
+                          </div>
+                          <div className="w-8 h-8 bg-yellow-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">▲</span>
+                          </div>
+                          <div className="w-8 h-8 bg-green-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">◆</span>
+                          </div>
+                          <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
+                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                          </div>
                         </div>
                         <div className="text-center mt-3">
-                          <motion.div
-                            className="inline-flex items-center space-x-1 text-sm text-gray-600"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{
-                              duration: 1.5,
-                              repeat: Number.POSITIVE_INFINITY,
-                            }}
-                          >
-                            <span>👆</span>
-                            <span>タップして消そう！</span>
-                          </motion.div>
+                          <span className="text-sm text-gray-600">隣接するセルをタップして入れ替えよう！</span>
                         </div>
                       </div>
                     </div>
