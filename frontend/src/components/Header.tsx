@@ -5,9 +5,14 @@ import { HamburgerMenu } from "./HamburgerMenu";
 interface HeaderProps {
   onOpenHistoryModal: () => void;
   onOpenProfile: () => void;
+  onOpenRanking: () => void;
 }
 
-const Header: FC<HeaderProps> = ({ onOpenHistoryModal, onOpenProfile }) => {
+const Header: FC<HeaderProps> = ({
+  onOpenHistoryModal,
+  onOpenProfile,
+  onOpenRanking,
+}) => {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const openInfoModal = () => {
@@ -26,6 +31,7 @@ const Header: FC<HeaderProps> = ({ onOpenHistoryModal, onOpenProfile }) => {
           onOpenProfile={onOpenProfile}
           onOpenHistoryModal={onOpenHistoryModal}
           onOpenInfoModal={openInfoModal}
+          onOpenRanking={onOpenRanking}
         />
       </div>
 

@@ -11,6 +11,14 @@
       "args": [
         "@playwright/mcp@latest"
       ]
+    },
+    "readability": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mizchi/readability",
+        "--mcp"
+      ]
     }
   }
 }

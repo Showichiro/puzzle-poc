@@ -60,35 +60,55 @@ export const WelcomeModal: FC<WelcomeModalProps> = ({
                       <div className="bg-gray-50 rounded-lg p-3 mb-4">
                         <div className="grid grid-cols-3 w-fit mx-auto">
                           <div className="w-8 h-8 bg-red-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">●</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ●
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ■
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-yellow-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">▲</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ▲
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ■
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-green-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">◆</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ◆
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-red-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">●</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ●
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-yellow-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">▲</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ▲
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-green-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">◆</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ◆
+                            </span>
                           </div>
                           <div className="w-8 h-8 bg-blue-300 border-2 border-gray-400 flex items-center justify-center">
-                            <span className="text-sm text-black opacity-70 font-bold">■</span>
+                            <span className="text-sm text-black opacity-70 font-bold">
+                              ■
+                            </span>
                           </div>
                         </div>
                         <div className="text-center mt-3">
-                          <span className="text-sm text-gray-600">隣接するセルをタップして入れ替えよう！</span>
+                          <span className="text-sm text-gray-600">
+                            隣接するセルをタップして入れ替えよう！
+                          </span>
                         </div>
                       </div>
                     </div>

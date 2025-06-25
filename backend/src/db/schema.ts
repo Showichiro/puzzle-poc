@@ -1,5 +1,5 @@
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const users = sqliteTable("users", {
   id: int().primaryKey({ autoIncrement: true }),
@@ -37,7 +37,7 @@ export const scores = sqliteTable("scores", {
   score: int().notNull().default(0),
   stage: int().notNull().default(1),
   difficulty: text().notNull().default("medium"), // 'easy' | 'medium' | 'hard'
-  created_at: text().notNull().default("CURRENT_TIMESTAMP"),
+  created_at: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const scoresRelations = relations(scores, ({ one }) => {

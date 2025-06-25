@@ -76,7 +76,7 @@ export async function getRanking(
       stage: scores.stage,
       difficulty: scores.difficulty,
       created_at: scores.created_at,
-      username: users.name,
+      name: users.name,
       rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${scores.score} DESC, ${scores.created_at} ASC)`.as(
         "rank",
       ),
@@ -89,7 +89,7 @@ export async function getRanking(
   const rankings = await db
     .select({
       rank: rankingSubquery.rank,
-      username: rankingSubquery.username,
+      name: rankingSubquery.name,
       score: rankingSubquery.score,
       stage: rankingSubquery.stage,
       difficulty: rankingSubquery.difficulty,

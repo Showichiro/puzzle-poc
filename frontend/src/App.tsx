@@ -9,11 +9,13 @@ import { WelcomeModal } from "./components/WelcomeModal";
 import Header from "./components/Header";
 import { BuyMeACoffeeLink } from "./components/BuyMeACoffeeLink";
 const StageHistoryModal = lazy(() => import("./components/StageHistoryModal"));
+const RankingModal = lazy(() => import("./components/RankingModal"));
 
 const AppContent = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false); // モーダルの表示状態
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // プロフィールモーダルの表示状態
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false); // ウェルカムモーダルの表示状態
+  const [isRankingModalOpen, setIsRankingModalOpen] = useState(false); // ランキングモーダルの表示状態
 
   const { isAuthenticated, isLoading, setShowLoginScreen } = useAuth();
 
@@ -53,6 +55,14 @@ const AppContent = () => {
     setShowLoginScreen(true);
   };
 
+  const handleOpenRankingModal = () => {
+    setIsRankingModalOpen(true);
+  };
+
+  const handleCloseRankingModal = () => {
+    setIsRankingModalOpen(false);
+  };
+
   return (
     <div className="app">
       <AuthGuard allowGuest={true}>
@@ -61,6 +71,7 @@ const AppContent = () => {
           <Header
             onOpenHistoryModal={handleOpenHistoryModal}
             onOpenProfile={handleOpenProfileModal}
+            onOpenRanking={handleOpenRankingModal}
           />
           {/* GameBoard に初期難易度を渡す (例: "medium") */}
           <GameBoard initialDifficulty="medium" />
@@ -87,6 +98,14 @@ const AppContent = () => {
           onClose={handleCloseWelcomeModal}
           onLogin={handleLoginFromWelcome}
         />
+
+        {/* ランキングモーダル */}
+        <Suspense fallback={<div>Loading...</div>}>
+          <RankingModal
+            isOpen={isRankingModalOpen}
+            onClose={handleCloseRankingModal}
+          />
+        </Suspense>
       </AuthGuard>
     </div>
   );

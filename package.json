@@ -10,6 +10,7 @@
     "format": "biome format --write backend/ frontend/"
   },
   "dependencies": {
+    "@mizchi/readability": "^0.6.8",
     "turbo": "^2.5.2"
   },
   "packageManager": "bun@1.2.12"

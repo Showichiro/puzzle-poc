@@ -258,7 +258,7 @@ const route = app
     zValidator(
       "json",
       z.object({
-        score: z.number().int().min(0).max(1000000),
+        score: z.number().int().min(0),
         stage: z.number().int().min(1).max(1000),
         difficulty: z.enum(["easy", "medium", "hard"]),
         version: z.string().min(1),

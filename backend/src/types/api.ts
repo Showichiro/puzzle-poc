@@ -9,7 +9,7 @@ export interface ScoreCreateResponse {
 export interface RankingResponse {
   rankings: Array<{
     rank: number;
-    username: string;
+    name: string;
     score: number;
     stage: number;
     difficulty: string;
