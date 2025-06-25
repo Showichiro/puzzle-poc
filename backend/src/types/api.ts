@@ -9,7 +9,7 @@ export interface ScoreCreateResponse {
 export interface RankingResponse {
   rankings: Array<{
     rank: number;
-    name: string;
+    username: string;
     score: number;
     stage: number;
     difficulty: string;
@@ -27,8 +27,18 @@ export interface UserScoreResponse {
     difficulty: string;
     created_at: string;
     version: string;
+    rank: number;
   }>;
   total: number;
+  stats: {
+    total_games: number;
+    highest_score: number;
+    highest_stage: number;
+    average_score: number;
+    recent_game_count: number;
+    currentRank: number;
+    totalUsers: number;
+  };
 }
 
 // エラーレスポンス型定義
@@ -76,6 +86,7 @@ export const ERROR_CODES = {
   DB_ERROR: "DB_ERROR",
   VALIDATION_ERROR: "VALIDATION_ERROR",
   AUTH_ERROR: "AUTH_ERROR",
+  UNKNOWN_ERROR: "UNKNOWN_ERROR",
 } as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];

@@ -1,6 +1,7 @@
 import type { Db } from "../db/types";
 import { users, scores } from "../db/schema";
 import { eq, sql, and } from "drizzle-orm";
+import { getUserRanking } from "./scores";
 
 export const createUsers = (db: Db, username: string) => {
   return db.insert(users).values({ name: username }).returning();
@@ -28,6 +29,8 @@ export async function getUserStats(
   highest_stage: number;
   average_score: number;
   recent_game_count: number;
+  currentRank: number;
+  totalUsers: number;
 }> {
   const stats = await db
     .select({
@@ -51,11 +54,19 @@ export async function getUserStats(
     )
     .get();
 
+  const currentRank = await getUserRanking(db, userId);
+  const totalUsersResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(users);
+  const totalUsers = totalUsersResult[0]?.count ?? 0;
+
   return {
     total_games: stats?.total_games || 0,
     highest_score: stats?.highest_score || 0,
     highest_stage: stats?.highest_stage || 0,
     average_score: Math.round(stats?.average_score || 0),
     recent_game_count: recentCount?.count || 0,
+    currentRank: currentRank ?? 0,
+    totalUsers: totalUsers,
   };
 }
