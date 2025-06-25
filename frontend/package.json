@@ -10,13 +10,14 @@
     "tauri": "TAURI_BUILD=true tauri"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "^13.1.0",
+    "@tanstack/react-form": "^1.9.0",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
     "framer-motion": "^12.18.1",
     "html2canvas-pro": "^1.5.11",
     "react": "^19.1.0",
-    "react-aria": "^3.41.1",
     "react-dom": "^19.1.0",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "recharts": "^2.15.3"
   },
   "devDependencies": {
@@ -28,6 +29,5 @@
     "typescript": "~5.8.3",
     "vite": "^6.0.3",
     "@tauri-apps/cli": "^2"
-  },
-  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af"
+  }
 }

@@ -1,15 +1,19 @@
 {
-    "name": "puzzle-poc",
-    "workspaces": ["./frontend", "./backend"],
-    "devDependencies": {
-      "@biomejs/biome": "1.9.4"
-    },
-    "scripts": {
-      "lint": "biome lint backend/ frontend/",
-      "format": "biome format --write backend/ frontend/"
-    },
-    "dependencies": {
-      "turbo": "^2.5.4"
-    },
-    "packageManager": "bun@1.2.12"
+  "name": "puzzle-poc",
+  "workspaces": [
+    "./frontend",
+    "./backend"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "typescript-mcp": "^0.0.14",
+    "@mizchi/readability": "^0.6.8",
+    "turbo": "^2.5.4"
+  },
+  "scripts": {
+    "lint": "biome lint backend/ frontend/",
+    "format": "biome format --write backend/ frontend/"
+  },
+  "dependencies": {},
+  "packageManager": "bun@1.2.12"
 }

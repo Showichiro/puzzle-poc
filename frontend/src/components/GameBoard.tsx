@@ -38,7 +38,7 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
     handleDifficultySelected, // 難易度選択ハンドラを追加
     gameState,
     nextStageGoals, // 次のステージの難易度ごとの目標を追加
-    // ★ 現在の難易度を取得
+    currentDifficulty, // ★ 現在の難易度を取得
     bonusMoves, // ★ bonusMoves を取得
     // ★ カード関連の state と関数を取得
     drawCard,
@@ -112,7 +112,12 @@ const GameBoard: FC<GameBoardProps> = ({ initialDifficulty }) => {
       {/* ポップアップ表示のために relative を追加 */}
       <AnimatePresence>
         {gameState === "gameOver" && (
-          <GameOverModal resetBoard={resetBoard} stage={stage} score={score} />
+          <GameOverModal
+            resetBoard={resetBoard}
+            stage={stage}
+            score={score}
+            difficulty={currentDifficulty}
+          />
         )}
         {/* ★ ステージクリアモーダルを表示し、追加情報を渡す */}
         {gameState === "stageClear" && (

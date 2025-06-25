@@ -1,14 +1,25 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../node_modules/wrangler/config-schema.json",
   "name": "backend",
   "main": "src/index.ts",
-  "compatibility_date": "2025-05-03"
+  "compatibility_date": "2025-05-03",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
+  "vars": {
+    "RP_NAME": "Puzzle App"
+  },
+  "env": {
+    "dev": {
+      "vars": {
+        "ORIGIN": "http://localhost:1420",
+        "RP_ID": "localhost"
+      }
+    },
+    "production": {
+      "vars": {}
+    }
+  },
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",
@@ -21,13 +32,13 @@
   //     "bucket_name": "my-bucket"
   //   }
   // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "puzzle-db",
+      "database_id": "f95cf3ad-6582-4769-b1ac-3a6abcbcbce3"
+    }
+  ]
   // "ai": {
   //   "binding": "AI"
   // },

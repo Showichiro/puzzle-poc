@@ -3,12 +3,22 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:push": "drizzle-kit push",
+    "db:push:local": "LOCAL_DB_URL=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit push --config drizzle.config.local.ts"
   },
   "dependencies": {
-    "hono": "^4.7.11"
+    "@hono/zod-validator": "^0.5.0",
+    "@simplewebauthn/server": "^13.1.1",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.43.1",
+    "hono": "^4.7.8",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@types/node": "^22.15.3",
+    "better-sqlite3": "^11.9.1",
+    "drizzle-kit": "^0.31.1",
     "wrangler": "^4.20.0"
   }
 }
