@@ -402,11 +402,11 @@ const RankingContent: FC = () => {
                       {userScoreHistoryData.stats.totalUsers.toLocaleString()}人
                     </div>
                   </div>
-                  {userScoreHistoryData.stats.highestScore && (
+                  {userScoreHistoryData.stats.highest_score && (
                     <div>
                       <div className="text-sm text-blue-600">最高スコア</div>
                       <div className="text-2xl font-bold text-blue-900">
-                        {userScoreHistoryData.stats.highestScore.toLocaleString()}
+                        {userScoreHistoryData.stats.highest_score.toLocaleString()}
                       </div>
                     </div>
                   )}

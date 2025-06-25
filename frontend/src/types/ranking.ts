@@ -39,9 +39,9 @@ export interface PaginationInfo {
 export interface UserStats {
   currentRank: number;
   totalUsers: number;
-  highestScore: number;
-  totalGames: number;
-  averageScore: number;
+  highest_score: number;
+  total_games: number;
+  average_score: number;
 }
 
 export interface RankingResponse {

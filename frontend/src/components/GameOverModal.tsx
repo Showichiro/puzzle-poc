@@ -80,7 +80,15 @@ const GameOverModal: FC<GameOverModalProps> = ({
         retryCount: currentRetryCount,
       });
     }
-  }, [difficulty, isAuthenticated, score, stage, submitScore, user, submitState.status, submitState.retryCount]);
+  }, [
+    difficulty,
+    isAuthenticated,
+    score,
+    stage,
+    submitScore,
+    user,
+    submitState,
+  ]);
 
   // 初回スコア投稿（依存関係なし）
   useEffect(() => {

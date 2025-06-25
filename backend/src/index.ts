@@ -31,13 +31,14 @@ import {
   getUserRanking,
 } from "./repository/scores";
 import { requireAuth, optionalAuth, type AuthUser } from "./middleware/auth";
-import { validationError, authError, dbError } from "./types/errors";
+import { PuzzlePocError } from "./types/errors";
 import type {
   ScoreCreateResponse,
   RankingResponse,
   UserScoreResponse,
   UserMeResponse,
 } from "./types/api";
+export type { UserScoreResponse } from "./types/api";
 import { logger } from "hono/logger";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -108,7 +109,11 @@ const route = app
       const { challenge } = await getSignedCookie(c, c.env.SECRET);
 
       if (!challenge) {
-        return c.json({ error: "Challenge not found" }, 400);
+        throw new PuzzlePocError(
+          "Challenge not found",
+          "VALIDATION_ERROR",
+          400,
+        );
       }
 
       const verification = await verifyRegistrationResponse({
@@ -120,13 +125,21 @@ const route = app
       });
 
       if (!verification.verified) {
-        return c.json({ error: "Verification failed" }, 400);
+        throw new PuzzlePocError(
+          "Verification failed",
+          "VALIDATION_ERROR",
+          400,
+        );
       }
 
       const { registrationInfo } = verification;
 
       if (!registrationInfo) {
-        return c.json(500);
+        throw new PuzzlePocError(
+          "Registration info not found",
+          "UNKNOWN_ERROR",
+          500,
+        );
       }
 
       let user = await getUserByName(c.var.db, username);
@@ -171,13 +184,13 @@ const route = app
     const { challenge } = await getSignedCookie(c, c.env.SECRET);
 
     if (!challenge) {
-      return c.json({ error: "Challenge not found" }, 400);
+      throw new PuzzlePocError("Challenge not found", "VALIDATION_ERROR", 400);
     }
 
     const passkey = await findPasskeyByCredentialId(c.var.db, body.id);
 
     if (!passkey) {
-      return c.json({ error: "Passkey not found" }, 400);
+      throw new PuzzlePocError("Passkey not found", "VALIDATION_ERROR", 400);
     }
 
     const verification = await verifyAuthenticationResponse({
@@ -199,7 +212,7 @@ const route = app
     });
 
     if (!verification.verified) {
-      return c.json({ error: "Verification failed" }, 400);
+      throw new PuzzlePocError("Verification failed", "VALIDATION_ERROR", 400);
     }
 
     await updatePasskeyCounter(
@@ -220,29 +233,24 @@ const route = app
     return c.json({ success: true });
   })
   .get("/user/me", requireAuth, async (c) => {
-    try {
-      const user = c.var.user;
+    const user = c.var.user;
 
-      if (!user) {
-        return authError(c);
-      }
-
-      const userStats = await getUserStats(c.var.db, user.id);
-
-      const response: UserMeResponse = {
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          stats: userStats,
-        },
-      };
-
-      return c.json(response);
-    } catch (error) {
-      console.error("User info fetch error:", error);
-      return dbError(c, "Failed to fetch user info");
+    if (!user) {
+      throw new PuzzlePocError("Authentication required", "AUTH_REQUIRED", 401);
     }
+
+    const userStats = await getUserStats(c.var.db, user.id);
+
+    const response: UserMeResponse = {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        stats: userStats,
+      },
+    };
+
+    return c.json(response);
   })
   .post("/logout", requireAuth, async (c) => {
     // セッションクッキーを削除
@@ -266,37 +274,36 @@ const route = app
     ),
     requireAuth,
     async (c) => {
-      try {
-        const { score, stage, difficulty, version } = c.req.valid("json");
-        const user = c.var.user;
+      const { score, stage, difficulty, version } = c.req.valid("json");
+      const user = c.var.user;
 
-        if (!user) {
-          return authError(c);
-        }
-
-        // orderを生成（簡単な実装としてタイムスタンプを使用）
-        const order = Date.now();
-
-        const result = await createScore(c.var.db, {
-          userId: user.id,
-          score,
-          stage,
-          difficulty,
-          version,
-          order,
-        });
-
-        const response: ScoreCreateResponse = {
-          success: true,
-          id: result.id,
-          ranking: result.ranking,
-        };
-
-        return c.json(response);
-      } catch (error) {
-        console.error("Score creation error:", error);
-        return dbError(c, "Failed to create score");
+      if (!user) {
+        throw new PuzzlePocError(
+          "Authentication required",
+          "AUTH_REQUIRED",
+          401,
+        );
       }
+
+      // orderを生成（簡単な実装としてタイムスタンプを使用）
+      const order = Date.now();
+
+      const result = await createScore(c.var.db, {
+        userId: user.id,
+        score,
+        stage,
+        difficulty,
+        version,
+        order,
+      });
+
+      const response: ScoreCreateResponse = {
+        success: true,
+        id: result.id,
+        ranking: result.ranking,
+      };
+
+      return c.json(response);
     },
   )
   .get(
@@ -312,30 +319,25 @@ const route = app
     ),
     optionalAuth,
     async (c) => {
-      try {
-        const query = c.req.valid("query");
-        const user = c.var.user;
+      const query = c.req.valid("query");
+      const user = c.var.user;
 
-        const result = await getRanking(c.var.db, query);
+      const result = await getRanking(c.var.db, query);
 
-        let user_rank: number | undefined;
-        if (user) {
-          user_rank =
-            (await getUserRanking(c.var.db, user.id, query.difficulty)) ??
-            undefined;
-        }
-
-        const response: RankingResponse = {
-          rankings: result.rankings,
-          total: result.total,
-          user_rank,
-        };
-
-        return c.json(response);
-      } catch (error) {
-        console.error("Ranking fetch error:", error);
-        return dbError(c, "Failed to fetch ranking");
+      let user_rank: number | undefined;
+      if (user) {
+        user_rank =
+          (await getUserRanking(c.var.db, user.id, query.difficulty)) ??
+          undefined;
       }
+
+      const response: RankingResponse = {
+        rankings: result.rankings,
+        total: result.total,
+        user_rank,
+      };
+
+      return c.json(response);
     },
   )
   .get(
@@ -348,28 +350,51 @@ const route = app
       }),
     ),
     async (c) => {
-      try {
-        const userId = Number(c.req.param("userId"));
-        const query = c.req.valid("query");
+      const userId = Number(c.req.param("userId"));
+      const query = c.req.valid("query");
 
-        if (Number.isNaN(userId)) {
-          return validationError(c, "Invalid user ID");
-        }
-
-        const scores = await getUserScores(c.var.db, userId, query);
-
-        const response: UserScoreResponse = {
-          scores,
-          total: scores.length,
-        };
-
-        return c.json(response);
-      } catch (error) {
-        console.error("User scores fetch error:", error);
-        return dbError(c, "Failed to fetch user scores");
+      if (Number.isNaN(userId)) {
+        throw new PuzzlePocError("Invalid user ID", "VALIDATION_ERROR");
       }
+
+      const scoresData = await getUserScores(c.var.db, userId, query);
+      const userStats = await getUserStats(c.var.db, userId);
+
+      const response: UserScoreResponse = {
+        scores: scoresData.scores,
+        total: scoresData.total,
+        stats: userStats,
+      };
+
+      return c.json(response);
     },
   );
+
+app.onError((err, c) => {
+  if (err instanceof PuzzlePocError) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: err.code,
+          message: err.message,
+        },
+      },
+      err.status,
+    );
+  }
+  console.error("Unhandled error:", err);
+  return c.json(
+    {
+      success: false,
+      error: {
+        code: "UNKNOWN_ERROR",
+        message: "An unexpected error occurred",
+      },
+    },
+    500,
+  );
+});
 
 export default app;
 
