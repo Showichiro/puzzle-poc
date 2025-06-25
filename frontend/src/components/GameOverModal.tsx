@@ -12,11 +12,11 @@ interface GameOverModalProps {
 }
 
 // スコア投稿の状態を管理する型
-type SubmitState = 
-  | { status: 'idle' }
-  | { status: 'submitting' }
-  | { status: 'success'; ranking?: number }
-  | { status: 'error'; message: string; retryCount: number };
+type SubmitState =
+  | { status: "idle" }
+  | { status: "submitting" }
+  | { status: "success"; ranking?: number }
+  | { status: "error"; message: string; retryCount: number };
 
 const GameOverModal: FC<GameOverModalProps> = ({
   resetBoard,
@@ -26,14 +26,16 @@ const GameOverModal: FC<GameOverModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const { submitScore, user, isAuthenticated, refreshUser } = useAuth();
-  const [submitState, setSubmitState] = useState<SubmitState>({ status: 'idle' });
+  const [submitState, setSubmitState] = useState<SubmitState>({
+    status: "idle",
+  });
   const hasAttemptedSubmit = useRef(false);
 
   // スコア投稿処理（依存関係を最小限に）
-  const performScoreSubmit = async (): Promise<void> => {
+  const performScoreSubmit = useCallback(async (): Promise<void> => {
     if (!isAuthenticated || !user) return;
 
-    setSubmitState({ status: 'submitting' });
+    setSubmitState({ status: "submitting" });
 
     try {
       const scoreData = {
@@ -46,9 +48,9 @@ const GameOverModal: FC<GameOverModalProps> = ({
       const result = await submitScore(scoreData);
 
       if (result.success) {
-        setSubmitState({ 
-          status: 'success', 
-          ranking: result.ranking 
+        setSubmitState({
+          status: "success",
+          ranking: result.ranking,
         });
       } else {
         throw new Error("スコア投稿に失敗しました");
@@ -60,21 +62,25 @@ const GameOverModal: FC<GameOverModalProps> = ({
       if (error instanceof Error) {
         if (error.message.includes("認証") || error.message.includes("auth")) {
           message = "認証が切れています。再認証が必要です。";
-        } else if (error.message.includes("ネットワーク") || error.message.includes("network")) {
+        } else if (
+          error.message.includes("ネットワーク") ||
+          error.message.includes("network")
+        ) {
           message = "ネットワークエラーが発生しました。";
         } else {
           message = "スコア投稿に失敗しました。";
         }
       }
 
-      const currentRetryCount = submitState.status === 'error' ? submitState.retryCount : 0;
-      setSubmitState({ 
-        status: 'error', 
+      const currentRetryCount =
+        submitState.status === "error" ? submitState.retryCount : 0;
+      setSubmitState({
+        status: "error",
         message,
-        retryCount: currentRetryCount
+        retryCount: currentRetryCount,
       });
     }
-  };
+  }, [difficulty, isAuthenticated, score, stage, submitScore, user]);
 
   // 初回スコア投稿（依存関係なし）
   useEffect(() => {
@@ -82,14 +88,14 @@ const GameOverModal: FC<GameOverModalProps> = ({
       hasAttemptedSubmit.current = true;
       performScoreSubmit();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, performScoreSubmit]);
 
   // リトライ処理
   const handleRetry = () => {
-    if (submitState.status === 'error' && submitState.retryCount < 3) {
-      setSubmitState({ 
-        ...submitState, 
-        retryCount: submitState.retryCount + 1 
+    if (submitState.status === "error" && submitState.retryCount < 3) {
+      setSubmitState({
+        ...submitState,
+        retryCount: submitState.retryCount + 1,
       });
       performScoreSubmit();
     }
@@ -101,10 +107,10 @@ const GameOverModal: FC<GameOverModalProps> = ({
       await refreshUser();
       // 再認証成功後、自動的にuseEffectが再実行される
     } catch (error) {
-      setSubmitState({ 
-        status: 'error', 
+      setSubmitState({
+        status: "error",
         message: "再認証に失敗しました。ページをリロードしてください。",
-        retryCount: 0
+        retryCount: 0,
       });
     }
   };
@@ -136,23 +142,25 @@ const GameOverModal: FC<GameOverModalProps> = ({
             <p className="text-gray-700">ユーザー: {user.name}</p>
 
             {/* 状態別表示 */}
-            {submitState.status === 'submitting' && (
+            {submitState.status === "submitting" && (
               <div className="text-blue-600 mt-2">
                 <p>スコアを投稿中...</p>
               </div>
             )}
 
-            {submitState.status === 'success' && (
+            {submitState.status === "success" && (
               <div className="text-green-600 mt-2">
                 {submitState.ranking ? (
-                  <p className="font-bold">ランキング: {submitState.ranking}位</p>
+                  <p className="font-bold">
+                    ランキング: {submitState.ranking}位
+                  </p>
                 ) : (
                   <p>スコアを登録しました！</p>
                 )}
               </div>
             )}
 
-            {submitState.status === 'error' && (
+            {submitState.status === "error" && (
               <div className="text-red-600 mt-2">
                 <p className="mb-2">{submitState.message}</p>
                 {submitState.message.includes("認証") ? (
