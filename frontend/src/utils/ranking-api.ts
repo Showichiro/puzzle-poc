@@ -49,6 +49,7 @@ export const getRanking = cache(
         throw new APIError("ランキングの取得に失敗しました", response.status);
       }
 
+      // @ts-ignore
       const data = await response.json();
 
       return {
@@ -111,6 +112,7 @@ export const getUserScoreHistory = cache(
         throw new APIError("スコア履歴の取得に失敗しました", response.status);
       }
 
+      // @ts-ignore
       const data = await response.json();
 
       return {

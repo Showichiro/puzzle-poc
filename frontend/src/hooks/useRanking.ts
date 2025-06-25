@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import type { RankingFilters, PaginationInfo } from "../types/ranking";
 
 export function useRanking() {

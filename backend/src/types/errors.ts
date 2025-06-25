@@ -14,7 +14,7 @@ export class ScoreError extends Error {
 
 // 統一エラーレスポンス関数
 export const errorResponse = (
-  c: Context,
+  _c: Context,
   error: ScoreError | Error,
   status = 400,
 ): Response => {
@@ -35,7 +35,10 @@ export const errorResponse = (
     console.error("Stack trace:", error.stack);
   }
 
-  return c.json(response, status);
+  return new Response(JSON.stringify(response), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 // バリデーションエラー用のヘルパー
