@@ -1,4 +1,4 @@
-import { type FC, useRef, useState, useEffect } from "react";
+import { type FC, useRef, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import html2canvasPro from "html2canvas-pro";
 import { version } from "../constants";
@@ -80,7 +80,7 @@ const GameOverModal: FC<GameOverModalProps> = ({
         retryCount: currentRetryCount,
       });
     }
-  }, [difficulty, isAuthenticated, score, stage, submitScore, user]);
+  }, [difficulty, isAuthenticated, score, stage, submitScore, user, submitState.status, submitState.retryCount]);
 
   // 初回スコア投稿（依存関係なし）
   useEffect(() => {

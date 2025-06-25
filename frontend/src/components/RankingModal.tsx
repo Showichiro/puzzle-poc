@@ -77,27 +77,6 @@ const RankingSkeleton: FC = () => (
   </div>
 );
 
-const ErrorDisplay: FC<{ error: Error; onRetry: () => void }> = ({
-  error,
-  onRetry,
-}) => (
-  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-    <div className="flex items-center">
-      <div className="flex-1">
-        <h3 className="text-red-800 font-medium">エラーが発生しました</h3>
-        <p className="text-red-700 text-sm mt-1">{error.message}</p>
-      </div>
-      <button
-        type="button"
-        onClick={onRetry}
-        className="ml-4 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded text-sm transition-colors"
-      >
-        再試行
-      </button>
-    </div>
-  </div>
-);
-
 const RankingContent: FC = () => {
   const { isAuthenticated, user } = useAuth();
   const { filters, pagination, setFilters, setPagination } = useRanking();

@@ -46,7 +46,7 @@ export async function getRanking(
 ): Promise<{
   rankings: Array<{
     rank: number;
-    username: string;
+    name: string;
     score: number;
     stage: number;
     difficulty: string;

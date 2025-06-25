@@ -9,10 +9,7 @@ interface AuthGuardProps {
   allowGuest?: boolean;
 }
 
-export const AuthGuard: FC<AuthGuardProps> = ({
-  children,
-  allowGuest = false,
-}) => {
+export const AuthGuard: FC<AuthGuardProps> = ({ children }) => {
   const {
     isAuthenticated,
     isLoading,
