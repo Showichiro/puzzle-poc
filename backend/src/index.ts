@@ -52,13 +52,13 @@ const app = new Hono<{
 
 const route = app
   .use(logger())
-  .use(
-    "*",
-    cors({
-      origin: "http://localhost:1420",
+  .use("*", async (c, next) => {
+    const corsMiddlewareHandler = cors({
+      origin: c.env.ORIGIN,
       credentials: true,
-    }),
-  )
+    });
+    return corsMiddlewareHandler(c, next);
+  })
   .use(async (c, next) => {
     const client = drizzle(c.env.DB, { schema, logger: true });
     c.set("db", client);
@@ -80,7 +80,7 @@ const route = app
           passkeys?.map((passkey) => ({
             id: passkey.credential_id,
             transports: passkey.transport.split(
-              ",",
+              ","
             ) as AuthenticatorTransportFuture[],
           })) ?? [],
         authenticatorSelection: {
@@ -91,7 +91,7 @@ const route = app
       await setSignedCookie(c, "challenge", option.challenge, c.env.SECRET);
 
       return c.json(option);
-    },
+    }
   )
   .post(
     "/register-response",
@@ -101,7 +101,7 @@ const route = app
         response: z.any(),
         username: z.string(),
         userId: z.string(),
-      }),
+      })
     ),
     async (c) => {
       const { response, username, userId } = c.req.valid("json");
@@ -141,8 +141,8 @@ const route = app
         credential_id: registrationInfo.credential.id,
         public_key: btoa(
           String.fromCharCode(
-            ...new Uint8Array(registrationInfo.credential.publicKey),
-          ),
+            ...new Uint8Array(registrationInfo.credential.publicKey)
+          )
         ),
         webauthn_user_id: userId,
         counter: registrationInfo.credential.counter,
@@ -152,7 +152,7 @@ const route = app
       });
 
       return c.json({ success: true });
-    },
+    }
   )
   .get("/signin-request", async (c) => {
     const option = await generateAuthenticationOptions({
@@ -189,10 +189,10 @@ const route = app
         counter: passkey.counter,
         id: passkey.credential_id,
         publicKey: Uint8Array.from(atob(passkey.public_key), (c) =>
-          c.charCodeAt(0),
+          c.charCodeAt(0)
         ),
         transports: passkey.transport.split(
-          ",",
+          ","
         ) as AuthenticatorTransportFuture[],
       },
       requireUserVerification: false,
@@ -205,7 +205,7 @@ const route = app
     await updatePasskeyCounter(
       c.var.db,
       passkey.credential_id,
-      verification.authenticationInfo.newCounter,
+      verification.authenticationInfo.newCounter
     );
 
     // ユーザー情報を取得してセッションクッキーを設定
@@ -248,7 +248,7 @@ const route = app
     // セッションクッキーを削除
     c.header(
       "Set-Cookie",
-      "user_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0",
+      "user_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"
     );
 
     return c.json({ success: true, message: "ログアウトしました" });
@@ -262,7 +262,7 @@ const route = app
         stage: z.number().int().min(1).max(1000),
         difficulty: z.enum(["easy", "medium", "hard"]),
         version: z.string().min(1),
-      }),
+      })
     ),
     requireAuth,
     async (c) => {
@@ -297,7 +297,7 @@ const route = app
         console.error("Score creation error:", error);
         return dbError(c, "Failed to create score");
       }
-    },
+    }
   )
   .get(
     "/scores/ranking",
@@ -308,7 +308,7 @@ const route = app
         offset: z.string().transform(Number).optional(),
         difficulty: z.enum(["easy", "medium", "hard"]).optional(),
         period: z.enum(["daily", "weekly", "monthly", "all"]).optional(),
-      }),
+      })
     ),
     optionalAuth,
     async (c) => {
@@ -336,7 +336,7 @@ const route = app
         console.error("Ranking fetch error:", error);
         return dbError(c, "Failed to fetch ranking");
       }
-    },
+    }
   )
   .get(
     "/scores/user/:userId",
@@ -345,7 +345,7 @@ const route = app
       z.object({
         limit: z.string().transform(Number).optional(),
         offset: z.string().transform(Number).optional(),
-      }),
+      })
     ),
     async (c) => {
       try {
@@ -368,7 +368,7 @@ const route = app
         console.error("User scores fetch error:", error);
         return dbError(c, "Failed to fetch user scores");
       }
-    },
+    }
   );
 
 export default app;
