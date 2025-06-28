@@ -1,5 +1,6 @@
 import { hc } from "hono/client";
 import type { AppType } from "../../../backend/src/index";
+import type { UserScoreResponse } from "../../../backend/src/index";
 import type {
   RankingResponse,
   UserScoreHistoryResponse,
@@ -51,29 +52,7 @@ export const getRanking = cache(
 
       const data = await response.json();
 
-      return {
-        rankings: data.rankings.map(
-          (item: {
-            rank: number;
-            name: string;
-            score: number;
-            stage: number;
-            difficulty: string;
-            created_at: string;
-            isCurrentUser?: boolean;
-          }) => ({
-            rank: item.rank,
-            username: item.name,
-            score: item.score,
-            stage: item.stage,
-            difficulty: item.difficulty,
-            created_at: item.created_at,
-            isCurrentUser: item.isCurrentUser,
-          }),
-        ),
-        total: data.total,
-        user_rank: data.user_rank,
-      };
+      return data;
     } catch (error) {
       if (error instanceof APIError) {
         throw error;
@@ -111,10 +90,13 @@ export const getUserScoreHistory = cache(
         throw new APIError("スコア履歴の取得に失敗しました", response.status);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as UserScoreResponse;
 
       return {
-        scores: data.scores,
+        scores: data.scores.map((score, index: number) => ({
+          ...score,
+          rank: (params.offset ?? 0) + index + 1,
+        })),
         total: data.total,
         stats: data.stats,
       };

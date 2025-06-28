@@ -76,7 +76,7 @@ export async function getRanking(
       stage: scores.stage,
       difficulty: scores.difficulty,
       created_at: scores.created_at,
-      name: users.name,
+      username: users.name,
       rank: sql<number>`ROW_NUMBER() OVER (ORDER BY ${scores.score} DESC, ${scores.created_at} ASC)`.as(
         "rank",
       ),
@@ -89,7 +89,7 @@ export async function getRanking(
   const rankings = await db
     .select({
       rank: rankingSubquery.rank,
-      name: rankingSubquery.name,
+      username: rankingSubquery.username,
       score: rankingSubquery.score,
       stage: rankingSubquery.stage,
       difficulty: rankingSubquery.difficulty,
@@ -119,19 +119,21 @@ export async function getUserScores(
     limit?: number;
     offset?: number;
   } = {},
-): Promise<
-  Array<{
+): Promise<{
+  scores: Array<{
     id: number;
     score: number;
     stage: number;
     difficulty: string;
     created_at: string;
     version: string;
-  }>
-> {
+    rank: number;
+  }>;
+  total: number;
+}> {
   const { limit = 50, offset = 0 } = options;
 
-  return await db
+  const userScores = await db
     .select({
       id: scores.id,
       score: scores.score,
@@ -145,6 +147,26 @@ export async function getUserScores(
     .orderBy(desc(scores.created_at))
     .limit(limit)
     .offset(offset);
+
+  const scoresWithRank = await Promise.all(
+    userScores.map(async (score) => {
+      const rank = await getUserRanking(
+        db,
+        userId,
+        score.difficulty as "easy" | "medium" | "hard",
+      );
+      return { ...score, rank: rank ?? 0 };
+    }),
+  );
+
+  const totalResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(scores)
+    .where(eq(scores.user_id, userId));
+
+  const total = totalResult[0]?.count ?? 0;
+
+  return { scores: scoresWithRank, total };
 }
 
 // ユーザーランキング順位取得
