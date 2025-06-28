@@ -8,10 +8,10 @@
     "db:push:local": "LOCAL_DB_URL=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit push --config drizzle.config.local.ts"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.5.0",
+    "@hono/zod-validator": "^0.7.0",
     "@simplewebauthn/server": "^13.1.1",
     "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.43.1",
+    "drizzle-orm": "^0.44.2",
     "hono": "^4.7.8",
     "zod": "^3.24.4"
   },
