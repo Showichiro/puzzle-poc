@@ -5,7 +5,7 @@
     "./backend"
   ],
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.0.5",
     "typescript-mcp": "^0.0.14",
     "@mizchi/readability": "^0.6.8",
     "turbo": "^2.5.4"
