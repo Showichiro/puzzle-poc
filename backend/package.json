@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
-    "better-sqlite3": "^11.9.1",
+    "better-sqlite3": "^12.2.0",
     "drizzle-kit": "^0.31.1",
     "wrangler": "^4.20.0"
   }
