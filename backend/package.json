@@ -16,7 +16,7 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
+    "@types/node": "^24.0.7",
     "better-sqlite3": "^11.9.1",
     "drizzle-kit": "^0.31.1",
     "wrangler": "^4.20.0"
