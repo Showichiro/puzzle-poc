@@ -7,7 +7,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "typescript-mcp": "^0.0.14",
-    "@mizchi/readability": "^0.6.8",
+    "@mizchi/readability": "^0.7.7",
     "turbo": "^2.5.4"
   },
   "scripts": {
