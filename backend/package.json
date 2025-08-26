@@ -11,14 +11,14 @@
     "@hono/zod-validator": "^0.7.2",
     "@simplewebauthn/server": "^13.1.2",
     "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.44.4",
-    "hono": "^4.9.2",
+    "drizzle-orm": "^0.44.5",
+    "hono": "^4.9.4",
     "zod": "^3.24.4"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
     "better-sqlite3": "^11.9.1",
     "drizzle-kit": "^0.31.4",
-    "wrangler": "^4.31.0"
+    "wrangler": "^4.32.0"
   }
 }
