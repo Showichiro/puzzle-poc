@@ -10,7 +10,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.7.2",
     "@simplewebauthn/server": "^13.1.2",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
     "hono": "^4.9.6",
     "zod": "^3.24.4"
