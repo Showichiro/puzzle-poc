@@ -10,11 +10,11 @@
     "tauri": "TAURI_BUILD=true tauri"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "^13.1.2",
-    "@tanstack/react-form": "^1.19.4",
+    "@simplewebauthn/browser": "^13.2.0",
+    "@tanstack/react-form": "^1.23.4",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
-    "framer-motion": "^12.23.12",
+    "framer-motion": "^12.23.22",
     "html2canvas-pro": "^1.5.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
