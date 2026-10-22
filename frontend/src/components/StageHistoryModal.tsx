@@ -1,4 +1,5 @@
-import StageHistoryChart from "./StageHistoryChart"; // 作成済みのチャートコンポーネントをインポート
+import { useEffect, useRef } from "react";
+import StageHistoryChart from "./StageHistoryChart";
 
 interface StageHistoryModalProps {
   isOpen: boolean;
@@ -9,20 +10,25 @@ const StageHistoryModal: React.FC<StageHistoryModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (isOpen) dialogRef.current?.showModal();
+    else dialogRef.current?.close();
+  }, [isOpen]);
+
   if (!isOpen) {
     return null;
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" // z-index を追加して手前に表示
-      onClick={onClose} // 背景クリックで閉じる
-      onKeyDown={onClose}
+    <dialog
+      ref={dialogRef}
+      className="fixed inset-0 m-auto p-0 bg-transparent max-w-xl w-full backdrop:bg-black/50"
+      onCancel={onClose}
     >
       <div
         className="bg-white p-6 rounded-lg shadow-xl max-w-xl w-full" // サイズ調整
-        onClick={(e) => e.stopPropagation()}
-        onKeyUp={(e) => e.stopPropagation()} // モーダル内部のクリックは伝播させない
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">過去の到達ステージ数</h2>
@@ -37,7 +43,7 @@ const StageHistoryModal: React.FC<StageHistoryModalProps> = ({
         </div>
         <StageHistoryChart /> {/* チャートコンポーネントを表示 */}
       </div>
-    </div>
+    </dialog>
   );
 };
 

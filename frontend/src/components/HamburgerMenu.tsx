@@ -1,33 +1,22 @@
 import type { FC } from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
 import { useAnimationSpeed } from "../contexts/AnimationSpeedContext";
 
 interface HamburgerMenuProps {
-  onOpenProfile: () => void;
   onOpenHistoryModal: () => void;
   onOpenInfoModal: () => void;
-  onOpenRanking: () => void;
 }
 
 export const HamburgerMenu: FC<HamburgerMenuProps> = ({
-  onOpenProfile,
   onOpenHistoryModal,
   onOpenInfoModal,
-  onOpenRanking,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, signOut, setShowLoginScreen } = useAuth();
   const { speed, setSpeed } = useAnimationSpeed();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-  };
-
-  const handleProfileClick = () => {
-    setIsOpen(false);
-    onOpenProfile();
   };
 
   const handleHistoryClick = () => {
@@ -42,21 +31,6 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
 
   const handleSpeedChange = () => {
     setSpeed(speed === 1 ? 2 : speed === 2 ? 3 : speed === 3 ? 0.5 : 1);
-  };
-
-  const handleSignOut = () => {
-    setIsOpen(false);
-    signOut();
-  };
-
-  const handleLogin = () => {
-    setIsOpen(false);
-    setShowLoginScreen(true);
-  };
-
-  const handleRankingClick = () => {
-    setIsOpen(false);
-    onOpenRanking();
   };
 
   return (
@@ -100,7 +74,8 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
       {isOpen && (
         <>
           {/* オーバーレイ */}
-          <div
+          <button
+            type="button"
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
             onKeyDown={(e) => {
@@ -108,8 +83,6 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
                 setIsOpen(false);
               }
             }}
-            role="button"
-            tabIndex={0}
             aria-label="メニューを閉じる"
           />
 
@@ -121,61 +94,6 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
             transition={{ duration: 0.1 }}
             className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20"
           >
-            {/* プロフィール（認証済みユーザーのみ） */}
-            {isAuthenticated && (
-              <>
-                <button
-                  type="button"
-                  onClick={handleProfileClick}
-                  className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
-                >
-                  <svg
-                    className="w-4 h-4 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    role="img"
-                    aria-label="プロフィールアイコン"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  プロフィール
-                </button>
-
-                {/* ランキング */}
-                <button
-                  type="button"
-                  onClick={handleRankingClick}
-                  className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
-                >
-                  <svg
-                    className="w-4 h-4 mr-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    role="img"
-                    aria-label="ランキングアイコン"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                    />
-                  </svg>
-                  ランキング
-                </button>
-
-                {/* 区切り線 */}
-                <hr className="my-2 border-gray-200" />
-              </>
-            )}
-
             {/* スピード設定 */}
             <button
               type="button"
@@ -252,57 +170,6 @@ export const HamburgerMenu: FC<HamburgerMenuProps> = ({
               </svg>
               ゲーム情報
             </button>
-
-            {/* 認証関連ボタン */}
-            <hr className="my-2 border-gray-200" />
-
-            {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors flex items-center"
-              >
-                <svg
-                  className="w-4 h-4 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  role="img"
-                  aria-label="サインアウトアイコン"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-                サインアウト
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleLogin}
-                className="w-full px-4 py-2 text-left text-blue-600 hover:bg-blue-50 transition-colors flex items-center"
-              >
-                <svg
-                  className="w-4 h-4 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  role="img"
-                  aria-label="ログインアイコン"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                  />
-                </svg>
-                ログイン
-              </button>
-            )}
           </motion.div>
         </>
       )}

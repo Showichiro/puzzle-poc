@@ -29,11 +29,6 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-      tauri:
-        patterns:
-          - "@tauri-apps/api"
-          - "@tauri-apps/plugin-opener"
-          - "@tauri-apps/cli"
   - package-ecosystem: "github-actions"
     directory: "/" # Location of package manifests
     schedule:

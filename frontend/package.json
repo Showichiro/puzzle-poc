@@ -6,28 +6,23 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "TAURI_BUILD=true tauri"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "^13.1.2",
-    "@tanstack/react-form": "^1.19.4",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2",
-    "framer-motion": "^12.23.12",
-    "html2canvas-pro": "^1.5.11",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "recharts": "^2.15.3"
+    "framer-motion": "^14.6.0",
+    "html2canvas-pro": "^2.5.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.13",
-    "@types/react": "^19.1.12",
-    "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "^4.5.2",
-    "tailwindcss": "^4.1.4",
-    "typescript": "~5.9.2",
-    "vite": "^6.0.3",
-    "@tauri-apps/cli": "^2"
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "@types/node": "^26.6.5"
   }
 }

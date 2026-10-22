@@ -1,19 +1,18 @@
 {
   "name": "puzzle-poc",
   "workspaces": [
-    "./frontend",
-    "./backend"
+    "./frontend"
   ],
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "typescript-mcp": "^0.0.14",
-    "@mizchi/readability": "^0.7.7",
-    "turbo": "^2.5.6"
+    "@biomejs/biome": "^2.6.2"
   },
   "scripts": {
-    "lint": "biome lint backend/ frontend/",
-    "format": "biome format --write backend/ frontend/"
+    "dev": "bun --filter puzzle-app dev",
+    "build": "bun --filter puzzle-app build",
+    "preview": "bun --filter puzzle-app preview",
+    "lint": "biome lint frontend/src frontend/vite.config.ts",
+    "format": "biome format --write frontend/src frontend/vite.config.ts"
   },
-  "dependencies": {},
-  "packageManager": "bun@1.2.12"
+  "packageManager": "bun@1.4.4",
+  "private": true
 }
