@@ -1,3 +1,4 @@
+import { loadGameRecords } from "../utils/gameRecords";
 import { useEffect, useState } from "react";
 import {
   CartesianGrid,
@@ -16,21 +17,10 @@ const StageHistoryChart: React.FC = () => {
   >([]);
 
   useEffect(() => {
-    const storedHistory = localStorage.getItem("stageHistory");
-    if (storedHistory) {
-      try {
-        const history: number[] = JSON.parse(storedHistory);
-        // rechartsで表示するためにデータを整形
-        const formattedData = history.map((stage, index) => ({
-          name: `${index + 1}`, // X軸のラベル
-          stage: stage, // Y軸の値 (到達ステージ)
-        }));
-        setHistoryData(formattedData);
-      } catch (error) {
-        console.error("Failed to parse stage history:", error);
-        // Optionally set an error state here
-      }
-    }
+    const { history } = loadGameRecords(localStorage);
+    setHistoryData(
+      history.map((stage, index) => ({ name: String(index + 1), stage })),
+    );
   }, []); // コンポーネントのマウント時に一度だけ実行
 
   if (historyData.length === 0) {

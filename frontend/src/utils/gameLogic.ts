@@ -1,3 +1,4 @@
+import type { RandomSource } from "./gameRules.ts";
 // ゲーム盤のサイズ
 export const BOARD_SIZE = 6;
 // 利用可能な色の総数
@@ -12,11 +13,11 @@ const AVAILABLE_COLOR_INDICES = Array.from(
 );
 
 // ステージで使用する色をランダムに選択する関数
-export const selectStageColors = () => {
+export const selectStageColors = (random: RandomSource = Math.random) => {
   // 利用可能な色インデックスをシャッフル
   const shuffledIndices = [...AVAILABLE_COLOR_INDICES];
   for (let i = shuffledIndices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(random() * (i + 1));
     [shuffledIndices[i], shuffledIndices[j]] = [
       shuffledIndices[j],
       shuffledIndices[i],
@@ -27,10 +28,11 @@ export const selectStageColors = () => {
 };
 
 // 選択された色の中からランダムなブロック値（色のインデックス）を生成する関数
-export const getRandomBlock = (currentStageColorIndices: number[]): number => {
-  const randomIndex = Math.floor(
-    Math.random() * currentStageColorIndices.length,
-  );
+export const getRandomBlock = (
+  currentStageColorIndices: number[],
+  random: RandomSource = Math.random,
+): number => {
+  const randomIndex = Math.floor(random() * currentStageColorIndices.length);
   return currentStageColorIndices[randomIndex];
 };
 
@@ -243,6 +245,7 @@ export const applyGravity = (
 export const refillBoard = (
   currentBoard: Array<Array<number | null>>,
   currentStageColorIndices: number[],
+  random: RandomSource = Math.random,
 ): Array<Array<number | null>> => {
   const newBoard = currentBoard.map((r) => [...r]);
   // 全てのセルを走査
@@ -250,7 +253,7 @@ export const refillBoard = (
     for (let c = 0; c < BOARD_SIZE; c++) {
       // セルが空の場合、新しいランダムなブロックで補充
       if (newBoard[r][c] === null) {
-        newBoard[r][c] = getRandomBlock(currentStageColorIndices);
+        newBoard[r][c] = getRandomBlock(currentStageColorIndices, random);
       }
     }
   }
@@ -298,6 +301,7 @@ export const checkForPossibleMoves = (
 
 export const createAndInitializeBoard = (
   currentStageColorIndices: number[],
+  random: RandomSource = Math.random,
 ): Array<Array<number | null>> => {
   let board: Array<Array<number | null>> = Array(BOARD_SIZE)
     .fill(null)
@@ -305,28 +309,28 @@ export const createAndInitializeBoard = (
       () =>
         Array(BOARD_SIZE)
           .fill(null)
-          .map(() => getRandomBlock(currentStageColorIndices)), // 選択された色で盤面生成
+          .map(() => getRandomBlock(currentStageColorIndices, random)), // 選択された色で盤面生成
     );
 
   // 初期盤面でマッチがないように調整
   let matches = findMatches(board);
   while (matches.length > 0) {
     for (const { row, col } of matches) {
-      board[row][col] = getRandomBlock(currentStageColorIndices);
+      board[row][col] = getRandomBlock(currentStageColorIndices, random);
     }
     matches = findMatches(board);
   }
 
   // 重力と補充も適用
   board = applyGravity(board);
-  board = refillBoard(board, currentStageColorIndices);
+  board = refillBoard(board, currentStageColorIndices, random);
 
   // 詰み状態チェック
   const hasPossibleMoves = checkForPossibleMoves(board);
   if (!hasPossibleMoves) {
     console.log("Generated board has no possible moves, regenerating...");
     // 詰みの場合は再帰的に呼び出す
-    return createAndInitializeBoard(currentStageColorIndices);
+    return createAndInitializeBoard(currentStageColorIndices, random);
   }
 
   return board;

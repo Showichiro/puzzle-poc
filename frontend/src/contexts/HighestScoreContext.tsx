@@ -2,15 +2,16 @@ import {
   createContext,
   type FC,
   type ReactNode,
+  useCallback,
   useContext,
   useState,
 } from "react";
+import { loadGameRecords, recordHighestStage } from "../utils/gameRecords";
 
 interface HighestScoreContextType {
   highestStage: number;
   setHighestStage: (stage: number) => void;
 }
-
 const HighestScoreContext = createContext<HighestScoreContextType | undefined>(
   undefined,
 );
@@ -18,16 +19,12 @@ const HighestScoreContext = createContext<HighestScoreContextType | undefined>(
 export const HighestScoreProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [highestStage, setHighestStage] = useState(() => {
-    const storedHighestStage = localStorage.getItem("highestStageCleared");
-    return storedHighestStage ? Number.parseInt(storedHighestStage, 10) : 0;
-  });
-
-  const setHighest = (stage: number) => {
-    setHighestStage(stage);
-    localStorage.setItem("highestStageCleared", stage.toString());
-  };
-
+  const [highestStage, setHighestStage] = useState(
+    () => loadGameRecords(localStorage).highestStage,
+  );
+  const setHighest = useCallback((stage: number) => {
+    setHighestStage(recordHighestStage(localStorage, stage));
+  }, []);
   return (
     <HighestScoreContext.Provider
       value={{ highestStage, setHighestStage: setHighest }}
@@ -39,10 +36,9 @@ export const HighestScoreProvider: FC<{ children: ReactNode }> = ({
 
 export const useHighestScore = () => {
   const context = useContext(HighestScoreContext);
-  if (context === undefined) {
+  if (context === undefined)
     throw new Error(
-      "useHighestSpeed must be used within a HighestScoreProvider",
+      "useHighestScore must be used within a HighestScoreProvider",
     );
-  }
   return context;
 };

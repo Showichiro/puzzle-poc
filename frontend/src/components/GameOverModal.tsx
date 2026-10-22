@@ -33,7 +33,7 @@ const GameOverModal: FC<GameOverModalProps> = ({
         <h2 className="text-2xl font-bold mb-4">ゲームオーバー！ v{version}</h2>
         <p>スコア: {score}</p>
         <p className="text-xl font-semibold mb-4">
-          {stage} ステージまでクリアしました！
+          {Math.max(0, stage - 1)} ステージまでクリアしました！
         </p>
 
         <p className="mb-4 text-sm text-gray-600">
@@ -54,7 +54,9 @@ const GameOverModal: FC<GameOverModalProps> = ({
               if (!modalRef.current) return;
 
               try {
-                const { default: html2canvasPro } = await import("html2canvas-pro");
+                const { default: html2canvasPro } = await import(
+                  "html2canvas-pro"
+                );
                 const canvas = await html2canvasPro(modalRef.current);
                 canvas.toBlob(async (blob) => {
                   if (!blob) return;

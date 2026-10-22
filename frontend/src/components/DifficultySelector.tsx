@@ -1,12 +1,8 @@
-// Difficulty 型を定義 (useGameBoard.ts と共有する場合は utils などに移動)
-type Difficulty = "easy" | "medium" | "hard";
+import type { Difficulty, StageGoals } from "../utils/gameRules";
 
 interface DifficultySelectorProps {
   onSelectDifficulty: (difficulty: Difficulty) => void;
-  nextStageGoals: Record<
-    Difficulty,
-    { addedMoves: number; targetScore: number }
-  >; // 次のステージの難易度ごとの目標を追加
+  nextStageGoals: StageGoals; // 次のステージの難易度ごとの目標を追加
 }
 
 const DifficultySelector: React.FC<DifficultySelectorProps> = ({

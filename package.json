@@ -7,6 +7,7 @@
     "@biomejs/biome": "^2.6.2"
   },
   "scripts": {
+    "test": "node --experimental-strip-types --test frontend/tests/*.test.ts",
     "dev": "bun --filter puzzle-app dev",
     "build": "bun --filter puzzle-app build",
     "preview": "bun --filter puzzle-app preview",

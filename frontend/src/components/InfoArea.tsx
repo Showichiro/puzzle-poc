@@ -11,6 +11,7 @@ interface InfoAreaProps {
   cardMultiplier: number;
   cardTurnsLeft: number;
   drawCard: () => void;
+  isInteractive: boolean;
 }
 
 export const InfoArea: FC<InfoAreaProps> = ({
@@ -24,8 +25,9 @@ export const InfoArea: FC<InfoAreaProps> = ({
   cardMultiplier,
   cardTurnsLeft,
   drawCard,
+  isInteractive,
 }) => {
-  const canDrawCard = currentMaxMoves - moves >= 3; // カードを引けるかどうかのフラグ
+  const canDrawCard = isInteractive && currentMaxMoves - moves >= 3; // カードを引けるかどうかのフラグ
 
   return (
     // ★ grid-rows-3 に変更してカード情報を追加
